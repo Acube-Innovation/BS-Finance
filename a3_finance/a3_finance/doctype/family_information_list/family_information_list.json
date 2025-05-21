@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-19 16:06:26.904831",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "name1",
+  "column_break_rnag",
+  "date_of_birth",
+  "column_break_c2jz",
+  "gender",
+  "column_break_rh5i",
+  "relationship",
+  "section_break_sbte",
+  "marital_status",
+  "column_break_fdot",
+  "marriage_date",
+  "column_break_9fua",
+  "employment_status",
+  "column_break_eykm",
+  "employment_date",
+  "section_break_dham",
+  "mediclaim_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_rnag",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date of Birth",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_c2jz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Gender",
+   "options": "Gender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_rh5i",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "relationship",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Relationship",
+   "options": "\nFather\nMother\nSpouse\nChild",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_sbte",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "marital_status",
+   "fieldtype": "Select",
+   "label": "Marital Status",
+   "options": "\nYes\nNo",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fdot",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "marriage_date",
+   "fieldtype": "Date",
+   "label": "Marriage Date"
+  },
+  {
+   "fieldname": "column_break_9fua",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employment_status",
+   "fieldtype": "Select",
+   "label": "Employment Status",
+   "options": "\nYes\nNo"
+  },
+  {
+   "fieldname": "column_break_eykm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employment_date",
+   "fieldtype": "Date",
+   "label": "Employment Date"
+  },
+  {
+   "fieldname": "section_break_dham",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "mediclaim_id",
+   "fieldtype": "Data",
+   "label": "Mediclaim ID"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-21 10:44:42.469539",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Family Information List",
+ "owner": "adarsh@wes.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
