@@ -184,7 +184,9 @@ app_license = "mit"
 # override_doctype_dashboards = {
 # 	"Task": "a3_finance.task.get_dashboard_data"
 # }
-
+override_doctype_dashboards = {
+    "Employee": "a3_finance.dashboard.dashboard.get_dashboard_employee_links"
+}
 # exempt linked doctypes from being automatically cancelled
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
