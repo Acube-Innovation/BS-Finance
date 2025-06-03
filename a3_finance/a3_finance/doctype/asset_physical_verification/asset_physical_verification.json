@@ -1,19 +1,19 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "naming_series:",
+ "autoname": "format:{APV}-{asset}-{#####}",
  "creation": "2025-05-22 14:08:28.819595",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "section_break_pip4",
-  "naming_series",
   "amended_from",
   "asset_status",
   "asset",
   "signed_off_by",
   "sign_off_date",
   "next_verification_due",
+  "frequency",
   "remarks",
   "column_break_75ik",
   "status",
@@ -40,15 +40,13 @@
    "search_index": 1
   },
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Data",
-   "label": "Naming Series"
-  },
-  {
    "fieldname": "asset",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Asset",
-   "options": "Asset"
+   "options": "Asset",
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "location",
@@ -124,17 +122,23 @@
   {
    "fieldname": "column_break_75ik",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Frequency",
+   "options": "\nMonthly\nQuarterly\nHalf-yearly\nAnnually"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-05-22 14:45:35.612091",
+ "modified": "2025-06-03 17:24:54.940988",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Asset Physical Verification",
- "naming_rule": "By \"Naming Series\" field",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
