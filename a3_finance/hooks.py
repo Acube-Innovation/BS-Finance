@@ -135,6 +135,13 @@ doctype_js = {
 # override_doctype_class = {
 # 	"ToDo": "custom_app.overrides.CustomToDo"
 # }
+scheduler_events = {
+    "daily": [
+        "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees"
+    ]
+}
+
+
 
 # Document Events
 # ---------------
@@ -147,6 +154,20 @@ doctype_js = {
 # 		"on_trash": "method"
 # 	}
 # }
+doc_events = {
+    "Salary Slip": {
+        "before_save": "a3_finance.overrides.salary_slip.pull_values_from_payroll_master"
+    },
+    "Additional Salary": {
+        "validate": [
+            "a3_finance.overrides.additional_salary.calculate_lop_refund",
+            "a3_finance.overrides.additional_salary.custom_validate",
+            "a3_finance.overrides.additional_salary.process_lop_hour_refund",
+            "a3_finance.overrides.additional_salary.process_overtime_amount"
+        ]
+    }
+}
+
 
 # Scheduled Tasks
 # ---------------
