@@ -45,7 +45,8 @@ app_license = "mit"
 # include js in doctype views
 doctype_js = {
     "Asset Category" : "public/js/asset_category.js",
-    "Item" : "public/js/item.js"
+    "Item" : "public/js/item.js",
+    "Supplier" : "public/js/supplier.js"
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
