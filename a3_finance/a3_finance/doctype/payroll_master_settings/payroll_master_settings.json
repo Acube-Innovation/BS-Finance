@@ -1,0 +1,217 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-31 23:43:04.337556",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_xydj",
+  "column_break_ueik",
+  "service_weightage",
+  "dearness_allowance_",
+  "yearly_increment",
+  "canteen_subsidy",
+  "column_break_pbng",
+  "washing_allowance",
+  "book_allowance",
+  "night_shift_allowance",
+  "column_break_mxxi",
+  "stitching_allowance",
+  "shoe_allowance",
+  "spectacle_allowance",
+  "column_break_dea2",
+  "ex_gratia",
+  "arrear",
+  "festival_advance",
+  "section_break_dcuz",
+  "column_break_dxzt",
+  "festival_advance_recovery",
+  "professional_tax",
+  "labour_welfare_fund",
+  "brahmos_recreation_club_contribution",
+  "column_break_z9w4",
+  "benevolent_fund",
+  "society",
+  "canteen_recovery"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_xydj",
+   "fieldtype": "Section Break",
+   "label": "Earnings"
+  },
+  {
+   "fieldname": "service_weightage",
+   "fieldtype": "Int",
+   "label": "Service Weightage"
+  },
+  {
+   "fieldname": "dearness_allowance_",
+   "fieldtype": "Float",
+   "label": "Dearness Allowance %",
+   "precision": "4"
+  },
+  {
+   "fieldname": "yearly_increment",
+   "fieldtype": "Float",
+   "label": "Yearly Increment",
+   "precision": "2"
+  },
+  {
+   "fieldname": "canteen_subsidy",
+   "fieldtype": "Float",
+   "label": "Canteen Subsidy",
+   "precision": "2"
+  },
+  {
+   "fieldname": "washing_allowance",
+   "fieldtype": "Float",
+   "label": "Washing Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "book_allowance",
+   "fieldtype": "Float",
+   "label": "Book Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "night_shift_allowance",
+   "fieldtype": "Float",
+   "label": "Night Shift Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "stitching_allowance",
+   "fieldtype": "Float",
+   "label": "Stitching Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "shoe_allowance",
+   "fieldtype": "Float",
+   "label": "Shoe Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "spectacle_allowance",
+   "fieldtype": "Float",
+   "label": "Spectacle Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "ex_gratia",
+   "fieldtype": "Float",
+   "label": "Ex Gratia",
+   "precision": "2"
+  },
+  {
+   "fieldname": "arrear",
+   "fieldtype": "Float",
+   "label": "Arrear",
+   "precision": "2"
+  },
+  {
+   "fieldname": "festival_advance",
+   "fieldtype": "Float",
+   "label": "Festival Advance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "section_break_dcuz",
+   "fieldtype": "Section Break",
+   "label": "Deductions"
+  },
+  {
+   "fieldname": "festival_advance_recovery",
+   "fieldtype": "Float",
+   "label": "Festival Advance Recovery",
+   "precision": "2"
+  },
+  {
+   "fieldname": "professional_tax",
+   "fieldtype": "Float",
+   "label": "Professional Tax ",
+   "precision": "2"
+  },
+  {
+   "fieldname": "labour_welfare_fund",
+   "fieldtype": "Float",
+   "label": "Labour Welfare Fund",
+   "precision": "2"
+  },
+  {
+   "fieldname": "brahmos_recreation_club_contribution",
+   "fieldtype": "Float",
+   "label": "Brahmos Recreation Club Contribution",
+   "precision": "2"
+  },
+  {
+   "fieldname": "benevolent_fund",
+   "fieldtype": "Float",
+   "label": "Benevolent Fund",
+   "precision": "2"
+  },
+  {
+   "fieldname": "society",
+   "fieldtype": "Float",
+   "label": "Society",
+   "precision": "2"
+  },
+  {
+   "fieldname": "canteen_recovery",
+   "fieldtype": "Float",
+   "label": "Canteen Recovery",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_ueik",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pbng",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mxxi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dea2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dxzt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_z9w4",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-06-03 12:09:43.348763",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Payroll Master Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
