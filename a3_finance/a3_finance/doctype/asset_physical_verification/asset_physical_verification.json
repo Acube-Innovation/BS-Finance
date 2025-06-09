@@ -6,29 +6,26 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_pip4",
-  "amended_from",
-  "asset_status",
+  "location",
+  "section",
+  "column_break_bbay",
+  "floor",
+  "shop",
+  "section_break_eobe",
   "asset",
+  "section_break_yeip",
+  "amended_from",
   "signed_off_by",
   "sign_off_date",
-  "next_verification_due",
   "frequency",
   "remarks",
   "column_break_75ik",
   "status",
-  "location",
-  "shop",
-  "section",
-  "floor",
   "verification_date",
+  "next_verification_due",
   "verified_by"
  ],
  "fields": [
-  {
-   "fieldname": "section_break_pip4",
-   "fieldtype": "Section Break"
-  },
   {
    "fieldname": "amended_from",
    "fieldtype": "Link",
@@ -38,15 +35,6 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
-  },
-  {
-   "fieldname": "asset",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Asset",
-   "options": "Asset",
-   "reqd": 1,
-   "unique": 1
   },
   {
    "fieldname": "location",
@@ -93,12 +81,6 @@
    "options": "\nVerified\nNot Verified"
   },
   {
-   "fieldname": "asset_status",
-   "fieldtype": "Select",
-   "label": "Asset Status",
-   "options": "\nPresent\nMissing\nRepaired\nCondemned\nIn Transit"
-  },
-  {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
@@ -128,13 +110,31 @@
    "fieldtype": "Select",
    "label": "Frequency",
    "options": "\nMonthly\nQuarterly\nHalf-yearly\nAnnually"
+  },
+  {
+   "fieldname": "asset",
+   "fieldtype": "Table",
+   "label": "Asset",
+   "options": "Asset Verification Item"
+  },
+  {
+   "fieldname": "section_break_yeip",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_bbay",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_eobe",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-06-03 17:24:54.940988",
+ "modified": "2025-06-05 16:56:32.194779",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Asset Physical Verification",
