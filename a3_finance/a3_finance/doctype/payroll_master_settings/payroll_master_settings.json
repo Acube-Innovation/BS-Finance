@@ -26,13 +26,19 @@
   "section_break_dcuz",
   "column_break_dxzt",
   "festival_advance_recovery",
-  "professional_tax",
   "labour_welfare_fund",
   "brahmos_recreation_club_contribution",
   "column_break_z9w4",
   "benevolent_fund",
-  "society",
-  "canteen_recovery"
+  "canteen_recovery",
+  "section_break_6qy4",
+  "medical_allowance",
+  "professional_tax_slab_section",
+  "professional_tax",
+  "conveyance_allowance_details_section",
+  "conveyance_allowance",
+  "children_education_allowance_details_section",
+  "children_education_allowance"
  ],
  "fields": [
   {
@@ -130,9 +136,9 @@
   },
   {
    "fieldname": "professional_tax",
-   "fieldtype": "Float",
-   "label": "Professional Tax ",
-   "precision": "2"
+   "fieldtype": "Table",
+   "label": "Professional Tax",
+   "options": "Professional Tax Slab"
   },
   {
    "fieldname": "labour_welfare_fund",
@@ -150,12 +156,6 @@
    "fieldname": "benevolent_fund",
    "fieldtype": "Float",
    "label": "Benevolent Fund",
-   "precision": "2"
-  },
-  {
-   "fieldname": "society",
-   "fieldtype": "Float",
-   "label": "Society",
    "precision": "2"
   },
   {
@@ -187,13 +187,51 @@
   {
    "fieldname": "column_break_z9w4",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "medical_allowance",
+   "fieldtype": "Table",
+   "label": "Medical Allowance",
+   "options": "Medical Allowance"
+  },
+  {
+   "fieldname": "section_break_6qy4",
+   "fieldtype": "Section Break",
+   "label": "Medical Allowance Slab"
+  },
+  {
+   "fieldname": "professional_tax_slab_section",
+   "fieldtype": "Section Break",
+   "label": "Professional Tax Slab"
+  },
+  {
+   "fieldname": "conveyance_allowance_details_section",
+   "fieldtype": "Section Break",
+   "label": "Conveyance Allowance Details"
+  },
+  {
+   "fieldname": "conveyance_allowance",
+   "fieldtype": "Table",
+   "label": "Conveyance Allowance",
+   "options": "Conveyance Allowance"
+  },
+  {
+   "fieldname": "children_education_allowance_details_section",
+   "fieldtype": "Section Break",
+   "label": "Children Education Allowance Details"
+  },
+  {
+   "fieldname": "children_education_allowance",
+   "fieldtype": "Table",
+   "label": "Children Education Allowance",
+   "options": "Children Education Allowance"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-03 12:09:43.348763",
+ "modified": "2025-06-08 15:39:51.374624",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Settings",

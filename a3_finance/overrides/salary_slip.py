@@ -1,4 +1,12 @@
+
+
+
 import frappe
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
+from frappe.utils import flt
+
+
 
 def pull_values_from_payroll_master(doc, method):
     settings = frappe.get_single("Payroll Master Settings")
@@ -17,11 +25,9 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_arrear                                 = settings.arrear
     doc.custom_festival_advance                       = settings.festival_advance
     doc.custom_festival_advance_recovery              = settings.festival_advance_recovery
-    doc.custom_professional_tax                       = settings.professional_tax
     doc.custom_labour_welfare_fund                    = settings.labour_welfare_fund
     doc.custom_brahmos_recreation_club_contribution   = settings.brahmos_recreation_club_contribution
     doc.custom_benevolent_fund                        = settings.benevolent_fund
-    doc.custom_society                                = settings.society
     doc.custom_canteen_recovery                       = settings.canteen_recovery
 
 
@@ -48,3 +54,76 @@ def pull_values_from_payroll_master(doc, method):
                 "default_amount": payout,
             })
 
+
+
+
+
+
+def set_professional_tax(doc, method=None):
+    from frappe.utils import getdate
+
+    doc.custom_professional_tax = 0
+
+    if doc.start_date:
+        try:
+            start_date_obj = getdate(doc.start_date)
+        except Exception as e:
+            frappe.log_error(f"Error parsing start_date: {e}", "set_professional_tax")
+            return
+
+        # Change to applicable months: May & July (5, 7)
+        if start_date_obj.month in [5, 7]:
+            settings = frappe.get_single("Payroll Master Settings")
+            slabs = settings.get("professional_tax") or []
+
+            try:
+                gross = Decimal(str(doc.gross_pay or 0))
+            except InvalidOperation:
+                frappe.log_error("Invalid gross pay value", "set_professional_tax")
+                return
+
+            for row in slabs:
+                try:
+                    from_amt = Decimal(str(row.from_gross_salary or 0))
+                    to_amt = Decimal(str(row.to_gross_salary or 0))
+                    tax = Decimal(str(row.tax_amount or 0))
+                except InvalidOperation as e:
+                    frappe.log_error(f"Invalid slab amount: {e}", "set_professional_tax")
+                    continue
+
+                if to_amt == 0 and gross >= from_amt:
+                    doc.custom_professional_tax = float(tax)
+                    break
+                elif from_amt <= gross <= to_amt:
+                    doc.custom_professional_tax = float(tax)
+                    break
+
+            # Optional debug
+            frappe.logger().info(f"[PTAX] Gross: {gross}, Applied Tax: {doc.custom_professional_tax}")
+
+
+
+
+def set_conveyance_allowance(slip, method):
+    # Extract month and year
+    month = slip.start_date.strftime("%B")
+    year = slip.start_date.strftime("%Y")
+
+    # Search for relevant record
+    row = frappe.db.get_value(
+        "Employee Conveyance Days",
+        {
+            "employee": slip.employee,
+            "payroll_year": year,
+            "payroll_date": month
+        },
+        ["pro_rata_charges"],
+        as_dict=True
+    )
+
+    if row:
+        # Create an Additional Salary Component directly
+        slip.append("earnings", {
+            "salary_component": "Conv. Allowance",
+            "amount": row.pro_rata_charges
+        })

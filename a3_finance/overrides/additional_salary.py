@@ -18,7 +18,7 @@ def calculate_lop_refund(self, method=None):
     month_map = defaultdict(list)
     for row in refund_dates:
         if row.get("refund_date"):
-            date_obj = datetime.strptime(row.get("refund_date"), "%Y-%m-%d")
+            date_obj = row.get("refund_date")
             key = (date_obj.year, date_obj.month)
             month_map[key].append((date_obj, row.get("is_half_day")))
 
@@ -39,7 +39,7 @@ def calculate_lop_refund(self, method=None):
         )
 
         if not salary_slip:
-            frappe.msgprint(f"No approved Salary Slip found for {month_start}. Skipping.")
+            frappe.msgprint(f"No approved Salary Slip found for {month_start}.")
             continue
 
         components = frappe.get_all(
@@ -95,12 +95,12 @@ def calculate_lop_refund(self, method=None):
 def custom_validate(doc, method):
     # ---------------- Night Shift Allowance ----------------
     if doc.salary_component == "Night Shift Allowance":
-        if not doc.night_shift_count:
+        if not doc.custom_night_shift_count:
             frappe.throw(_("Please enter Night Shift Count for Night Shift Allowance"))
 
         settings = frappe.get_single("Payroll Master Settings")
-        rate = settings.night_shift_allowance_rate or 0
-        doc.amount = doc.night_shift_count * rate
+        rate = settings.night_shift_allowance or 0
+        doc.amount = doc.custom_night_shift_count * rate
 
     # ---------------- EL Encashment ----------------
     elif doc.salary_component == "EL Encashment":
@@ -139,7 +139,7 @@ def custom_validate(doc, method):
 
 @frappe.whitelist()
 def process_lop_hour_refund(self, method=None):
-    if self.salary_component != "LOP (in Hours) Deduction":
+    if self.salary_component != "LOP (In Hours) Refund":
         return
 
     refund_entries = self.get("custom_lop_refund_dates") or []
@@ -152,7 +152,7 @@ def process_lop_hour_refund(self, method=None):
     month_map = defaultdict(float)
     for row in refund_entries:
         if row.get("refund_date") and row.get("hours"):
-            date_obj = datetime.strptime(row.get("refund_date"), "%Y-%m-%d")
+            date_obj = row.get("refund_date")
             key = (date_obj.year, date_obj.month)
             month_map[key] += float(row.get("hours"))
 
@@ -208,9 +208,7 @@ def process_lop_hour_refund(self, method=None):
         frappe.msgprint("No valid refund amount calculated.")
 
 
-from collections import defaultdict
-from datetime import datetime
-import frappe
+
 
 def process_overtime_amount(self, method=None):
     if self.salary_component != "Overtime Wages":

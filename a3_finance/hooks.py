@@ -157,7 +157,11 @@ scheduler_events = {
 # }
 doc_events = {
     "Salary Slip": {
-        "before_save": "a3_finance.overrides.salary_slip.pull_values_from_payroll_master"
+        "before_save": [
+            "a3_finance.overrides.salary_slip.pull_values_from_payroll_master",
+            "a3_finance.overrides.salary_slip.set_professional_tax",
+            "a3_finance.overrides.salary_slip.set_conveyance_allowance"
+        ]
     },
     "Additional Salary": {
         "validate": [
@@ -166,8 +170,12 @@ doc_events = {
             "a3_finance.overrides.additional_salary.process_lop_hour_refund",
             "a3_finance.overrides.additional_salary.process_overtime_amount"
         ]
-    }
+    },
+    "Employee": {
+        "autoname": "a3_finance.overrides.employee_updates.autoname"
+    },
 }
+
 
 
 # Scheduled Tasks
