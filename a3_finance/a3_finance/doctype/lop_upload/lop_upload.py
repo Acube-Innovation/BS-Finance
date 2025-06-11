@@ -8,6 +8,7 @@ from datetime import timedelta, datetime
 from frappe.utils.file_manager import get_file
 from frappe.utils import getdate, add_days
 from collections import defaultdict
+from datetime import timedelta
 
 class LOPUpload(Document):
     # def validate(self):
@@ -63,6 +64,10 @@ class LOPUpload(Document):
     #             })
 
     #     self.status = "Processed"
+
+
+
+
     def validate(self):
         if self.status == "Processed":
             return
@@ -70,8 +75,14 @@ class LOPUpload(Document):
         file_path = get_file(self.upload_file)[1]
         df = pd.read_excel(file_path)
 
-        # Clear old child table entries
+        # ✅ Fetch holiday list once
+        holiday_dates = self.get_all_holidays()
+
+        # Clear old entries
         self.set("lop_entries", [])
+
+        # Dictionary to store LOP summary per employee
+        lop_summary = {}
 
         for idx, row in df.iterrows():
             try:
@@ -80,7 +91,6 @@ class LOPUpload(Document):
                 name = row["NAME"]
                 tl_hours = row.get("TL hrs.", 0)
 
-                # If process_type is 'Time Loss', only process EC, NAME, and TL hrs.
                 if self.process_type == "Time Loss":
                     self.append("lop_entries", {
                         "sl_no": sl_no,
@@ -88,9 +98,8 @@ class LOPUpload(Document):
                         "employee_name": name,
                         "tl_hours": tl_hours
                     })
-                    continue  # Skip further processing for Time Loss
+                    continue
 
-                # For 'Reimbursement' or other types, process full logic
                 no_of_days = float(row["No. of Days"])
                 lop_type = row["TYPE"]
                 start_date = pd.to_datetime(row["DATE"]).date()
@@ -101,22 +110,29 @@ class LOPUpload(Document):
             full_days = int(no_of_days)
             has_half_day = (no_of_days - full_days) == 0.5
 
-            # Add full day entries
-            for i in range(full_days):
-                self.append("lop_entries", {
-                    "sl_no": sl_no,
-                    "ec": ec,
-                    "employee_name": name,
-                    "total_lop_days": no_of_days,
-                    "lop_type": lop_type,
-                    "lop_start_date": start_date,
-                    "lop_split_date": start_date + timedelta(days=i),
-                    "is_half_day": 0,
-                    "tl_hours": tl_hours,
-                })
+            # ✅ Add full day entries, skipping holidays
+            current_date = start_date
+            added_days = 0
+            while added_days < full_days:
+                if current_date not in holiday_dates:
+                    self.append("lop_entries", {
+                        "sl_no": sl_no,
+                        "ec": ec,
+                        "employee_name": name,
+                        "total_lop_days": no_of_days,
+                        "lop_type": lop_type,
+                        "lop_start_date": start_date,
+                        "lop_split_date": current_date,
+                        "is_half_day": 0,
+                        "tl_hours": tl_hours,
+                    })
+                    added_days += 1
+                current_date += timedelta(days=1)
 
-            # Add half day entry if any
+            # ✅ Add half day entry, skipping holidays
             if has_half_day:
+                while current_date in holiday_dates:
+                    current_date += timedelta(days=1)
                 self.append("lop_entries", {
                     "sl_no": sl_no,
                     "ec": ec,
@@ -124,11 +140,45 @@ class LOPUpload(Document):
                     "total_lop_days": no_of_days,
                     "lop_type": lop_type,
                     "lop_start_date": start_date,
-                    "lop_split_date": start_date + timedelta(days=full_days),
+                    "lop_split_date": current_date,
                     "is_half_day": 1
                 })
 
+            # ✅ Collect for Lop Summary
+            key = (ec, start_date)
+            if key not in lop_summary:
+                lop_summary[key] = {
+                    "employee_id": ec,
+                    "employee_name": name,
+                    "start_date": start_date,
+                    "no__of_days": 0.0
+                }
+            lop_summary[key]["no__of_days"] += no_of_days
+
+        # ✅ Insert records into Lop Summary
+        for (emp_id, start_date), data in lop_summary.items():
+            frappe.get_doc({
+                "doctype": "Lop Summary",
+                "employee_id": emp_id,
+                "employee_name": data["employee_name"],
+                "start_date": data["start_date"],
+                "no__of_days": round(data["no__of_days"], 2),
+                "payroll_month": self.payroll_month,   # Assume this field exists on current DocType
+                "payroll_year": self.payroll_year      # Assume this field exists on current DocType
+            }).insert(ignore_permissions=True)
+
         self.status = "Processed"
+
+
+    def get_all_holidays(self):
+        # You can later enhance this to use employee-specific holiday list
+        holiday_list_name = frappe.db.get_single_value("Company", "default_holiday_list")
+        if not holiday_list_name:
+            return set()
+
+        holidays = frappe.get_all("Holiday", filters={"parent": holiday_list_name}, fields=["holiday_date"])
+        return {h.holiday_date for h in holidays}
+
 
 
 

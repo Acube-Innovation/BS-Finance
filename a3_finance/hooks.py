@@ -160,7 +160,11 @@ doc_events = {
         "before_save": [
             "a3_finance.overrides.salary_slip.pull_values_from_payroll_master",
             "a3_finance.overrides.salary_slip.set_professional_tax",
-            "a3_finance.overrides.salary_slip.set_conveyance_allowance"
+            "a3_finance.overrides.salary_slip.set_conveyance_allowance",
+            "a3_finance.overrides.salary_slip.set_overtime_wages",
+            "a3_finance.overrides.salary_slip.set_custom_service_weightage",
+            "a3_finance.overrides.salary_slip.set_lop_summary",
+            "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
         ]
     },
     "Additional Salary": {

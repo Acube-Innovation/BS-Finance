@@ -15,14 +15,18 @@
   "washing_allowance",
   "book_allowance",
   "night_shift_allowance",
+  "conveyance_allowances",
   "column_break_mxxi",
   "stitching_allowance",
   "shoe_allowance",
   "spectacle_allowance",
+  "overtime_wages",
   "column_break_dea2",
   "ex_gratia",
   "arrear",
   "festival_advance",
+  "spectacle_allowance_month",
+  "shoe_allowance_month",
   "section_break_dcuz",
   "column_break_dxzt",
   "festival_advance_recovery",
@@ -225,13 +229,35 @@
    "fieldtype": "Table",
    "label": "Children Education Allowance",
    "options": "Children Education Allowance"
+  },
+  {
+   "fieldname": "conveyance_allowances",
+   "fieldtype": "Float",
+   "label": "conveyance_allowance"
+  },
+  {
+   "fieldname": "overtime_wages",
+   "fieldtype": "Float",
+   "label": "Overtime Wages"
+  },
+  {
+   "fieldname": "spectacle_allowance_month",
+   "fieldtype": "Select",
+   "label": "Spectacle Allowance Month",
+   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
+  },
+  {
+   "fieldname": "shoe_allowance_month",
+   "fieldtype": "Select",
+   "label": "Shoe Allowance Month",
+   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-08 15:39:51.374624",
+ "modified": "2025-06-11 22:26:47.405856",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Settings",

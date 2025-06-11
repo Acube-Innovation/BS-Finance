@@ -13,6 +13,8 @@
   "status",
   "payroll_date",
   "refund_hours_month",
+  "payroll_month",
+  "payroll_year",
   "section_break_vbvf",
   "lop_entries"
  ],
@@ -78,12 +80,23 @@
    "fieldname": "refund_hours_month",
    "fieldtype": "Date",
    "label": "Refund Hours Month"
+  },
+  {
+   "fieldname": "payroll_month",
+   "fieldtype": "Select",
+   "label": "Payroll Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+  },
+  {
+   "fieldname": "payroll_year",
+   "fieldtype": "Data",
+   "label": "Payroll Year"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-08 10:49:35.025445",
+ "modified": "2025-06-11 14:21:06.951473",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "LOP Upload",

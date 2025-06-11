@@ -210,73 +210,79 @@ def process_lop_hour_refund(self, method=None):
 
 
 
+from collections import defaultdict
+from datetime import datetime
+import frappe
+
+
 def process_overtime_amount(self, method=None):
     if self.salary_component != "Overtime Wages":
         return
 
     ot_entries = self.get("custom_lop_refund_dates") or []
+    total_hours = 0
+    for row in ot_entries:
+        if row.get("hours"):
+            total_hours += float(row.get("hours"))
 
-    if not ot_entries:
+    if total_hours == 0:
         frappe.msgprint("No OT hours entered.")
+        self.amount = 0
         return
 
-    # Group OT hours by (year, month)
-    month_map = defaultdict(float)
-    for row in ot_entries:
-        if row.get("refund_date") and row.get("hours"):
-            date_obj = datetime.strptime(row.get("refund_date"), "%Y-%m-%d")
-            key = (date_obj.year, date_obj.month)
-            month_map[key] += float(row.get("hours"))
-
-    total_amount = 0
-    total_hours = 0
-
-    for (year, month), hours in month_map.items():
-        month_start = f"{year}-{month:02d}-01"
-
-        # Fetch approved salary slip of the month
-        salary_slip = frappe.db.get_value(
-            "Salary Slip",
-            {
-                "employee": self.employee,
-                "start_date": ["<=", month_start],
-                "end_date": [">=", month_start],
-                "docstatus": 1
-            },
-            "name"
-        )
-
-        if not salary_slip:
-            frappe.msgprint(f"No approved Salary Slip for {month_start}. Skipping OT hours for this month.")
-            continue
-
-        # Get salary components for the slip
-        components = frappe.get_all(
-            "Salary Detail",
-            filters={"parent": salary_slip, "parenttype": "Salary Slip"},
-            fields=["salary_component", "amount"]
-        )
-
-        bp = sw = vda = 0
-        for comp in components:
-            comp_type = comp.salary_component.lower()
-            if "basic" in comp_type:
-                bp += comp.amount
-            elif "service weightage" in comp_type or "sw" in comp_type:
-                sw += comp.amount
-            elif "variable da" in comp_type or "vda" in comp_type:
-                vda += comp.amount
-
-        base_total = bp + sw + vda
-        per_hour_rate = base_total / 240
-        ot_amount = round(per_hour_rate * hours, 2)
-
-        total_amount += ot_amount
-        total_hours += hours
-
-    if total_amount > 0:
-        self.amount = total_amount
-        frappe.msgprint(f"Calculated Overtime: ₹{total_amount} for {total_hours} hrs.")
-    else:
+    if not self.payroll_date:
+        frappe.msgprint("Please select 'Payroll Date' to calculate Overtime Wages.")
         self.amount = 0
-        frappe.msgprint("No valid Overtime amount calculated.")
+        return
+
+    reference_date = self.payroll_date
+    if isinstance(reference_date, str):
+        reference_date = datetime.strptime(reference_date, "%Y-%m-%d")
+
+    # --- Get Active Salary Structure Assignment ---
+    assignment = frappe.db.get_value(
+        "Salary Structure Assignment",
+        {
+            "employee": self.employee,
+            "from_date": ["<=", reference_date],
+            "docstatus": 1
+        },
+        "salary_structure",
+        order_by="from_date desc"
+    )
+
+    if not assignment:
+        frappe.msgprint("No active Salary Structure Assignment found.")
+        self.amount = 0
+        return
+
+    # --- Get Salary Structure Components ---
+    components = frappe.get_all(
+        "Salary Detail",
+        filters={"parent": assignment, "parenttype": "Salary Structure"},
+        fields=["salary_component", "amount"]
+    )
+
+    bp = sw = vda = 0
+    for comp in components:
+        comp_type = comp.salary_component.lower()
+        if "basic" in comp_type:
+            bp += comp.amount
+        elif "service weightage" in comp_type or "sw" in comp_type:
+            sw += comp.amount
+        elif "variable da" in comp_type or "vda" in comp_type:
+            vda += comp.amount
+
+    base_total = bp + sw + vda
+
+    if base_total == 0:
+        frappe.msgprint("Basic + SW + VDA total is zero. Cannot calculate Overtime.")
+        self.amount = 0
+        return
+
+    # --- Calculate Overtime Wages ---
+    per_hour_rate = base_total / 240
+    ot_amount = round(per_hour_rate * total_hours, 2)
+
+    self.amount = ot_amount
+    frappe.msgprint(f"Calculated Overtime: ₹{ot_amount} for {total_hours} hrs based on Salary Structure in {reference_date.strftime('%B %Y')}.")
