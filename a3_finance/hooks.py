@@ -138,7 +138,8 @@ doctype_js = {
 # }
 scheduler_events = {
     "daily": [
-        "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees"
+        "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
+        "a3_finance.overrides.account_validity.update_account_status"
     ]
 }
 

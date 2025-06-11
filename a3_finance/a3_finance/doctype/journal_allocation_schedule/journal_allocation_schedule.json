@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-05 17:12:53.084420",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "amended_from",
+  "schedule_name",
+  "posting_date",
+  "frequency",
+  "column_break_2rxj",
+  "total_amount",
+  "reference_account",
+  "section_break_gwm2",
+  "allocation_table"
+ ],
+ "fields": [
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Journal Allocation Schedule",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "schedule_name",
+   "fieldtype": "Data",
+   "label": "Schedule Name"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Frequency",
+   "options": "\nMonthly\nQuarterly\nYearly"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "reference_account",
+   "fieldtype": "Link",
+   "label": "Reference Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "allocation_table",
+   "fieldtype": "Table",
+   "label": "Allocation Table",
+   "options": "Allocation Entry"
+  },
+  {
+   "fieldname": "column_break_2rxj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_gwm2",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-06-05 17:19:37.413922",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Journal Allocation Schedule",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
