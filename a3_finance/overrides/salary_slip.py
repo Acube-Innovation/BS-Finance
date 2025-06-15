@@ -73,7 +73,7 @@ def set_professional_tax(doc, method=None):
             return
 
         # Change to applicable months: May & July (5, 7)
-        if start_date_obj.month in [5, 7]:
+        if start_date_obj.month in [1, 7]:
             settings = frappe.get_single("Payroll Master Settings")
             slabs = settings.get("professional_tax") or []
 
@@ -151,6 +151,12 @@ def set_overtime_wages(slip, method):
 
     if row and row.get("total_amount"):
         slip.custom_overtime_wages = row["total_amount"]
+        print(f"@@@@@@@@@@@@@@@@@@@@@@@@@@@@Overtime Total Amount from DB: {row['total_amount']}")
+        print(f"A##########################ssigned to Slip.custom_overtime_wages: {slip.custom_overtime_wages}")
+    else:
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$No matching Overtime Wages entry found.")
+
+
 
 
 
@@ -172,7 +178,6 @@ def set_employee_reimbursement_wages(slip,method):
     )
     if row and row.get("lop_refund_amount"):
         slip.custom_employee_reimbursement_wages = row["lop_refund_amount"]
-
 
 
 
