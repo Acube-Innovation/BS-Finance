@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:CSMA-{YYYY}-{payroll_date}-{####}",
+ "creation": "2025-06-12 14:30:17.836251",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "payroll_date",
+  "column_break_ggt5",
+  "payroll_year",
+  "section_break_bt65",
+  "canteen_subsidy_monthly_allowance"
+ ],
+ "fields": [
+  {
+   "fieldname": "payroll_year",
+   "fieldtype": "Data",
+   "label": "Payroll Year"
+  },
+  {
+   "fieldname": "canteen_subsidy_monthly_allowance",
+   "fieldtype": "Float",
+   "label": "Canteen Subsidy Monthly Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_ggt5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_bt65",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payroll_date",
+   "fieldtype": "Date",
+   "label": "Payroll Date"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-12 15:30:42.290893",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Canteen Subsidy Monthly Allowance",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

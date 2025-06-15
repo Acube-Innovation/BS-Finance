@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:da_backlog_name",
+ "creation": "2025-06-12 16:53:27.260424",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "da_backlog_name",
+  "payroll_start_date",
+  "column_break_jww8",
+  "payroll_end_date",
+  "dearness_allowance_percent"
+ ],
+ "fields": [
+  {
+   "fieldname": "dearness_allowance_percent",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Dearness Allowance Percent"
+  },
+  {
+   "fieldname": "payroll_start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Payroll Start Date"
+  },
+  {
+   "fieldname": "payroll_end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Payroll End Date"
+  },
+  {
+   "fieldname": "column_break_jww8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "da_backlog_name",
+   "fieldtype": "Data",
+   "label": "DA Backlog Name",
+   "unique": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-12 20:54:12.091745",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Dearness Allowance Backlog",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

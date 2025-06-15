@@ -1,0 +1,55 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-06 12:31:00.005431",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_apvw",
+  "from_base_pay",
+  "to_base_pay",
+  "amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_apvw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "from_base_pay",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "From Base Pay",
+   "precision": "2"
+  },
+  {
+   "fieldname": "to_base_pay",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "To Base Pay",
+   "precision": "2"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "precision": "2"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-06-06 12:43:01.647963",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Medical Allowance",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

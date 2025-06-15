@@ -1,0 +1,109 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:ETL-{YYYY}-{employee_id}-{####}",
+ "creation": "2025-06-12 13:16:03.320775",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_id",
+  "payroll_month",
+  "basic_pay",
+  "service_weightage",
+  "variable_da",
+  "column_break_fu9a",
+  "employee_name",
+  "payroll_year",
+  "time_loss_hours",
+  "time_loss_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_id",
+   "fieldtype": "Link",
+   "label": "Employee ID",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee_id.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "payroll_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Payroll Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+  },
+  {
+   "fieldname": "payroll_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payroll Year"
+  },
+  {
+   "fieldname": "time_loss_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Time Loss Hours"
+  },
+  {
+   "fieldname": "column_break_fu9a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "time_loss_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Time Loss Amount"
+  },
+  {
+   "fetch_from": "employee_id.custom_basic_pay",
+   "fieldname": "basic_pay",
+   "fieldtype": "Data",
+   "label": "Basic Pay"
+  },
+  {
+   "fetch_from": "employee_id.custom_service_weightage",
+   "fieldname": "service_weightage",
+   "fieldtype": "Data",
+   "label": "Service Weightage"
+  },
+  {
+   "fieldname": "variable_da",
+   "fieldtype": "Data",
+   "label": "Variable DA"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-13 14:01:39.492815",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Employee Time Loss",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
