@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestLopSummary(FrappeTestCase):
+class TestEmployeeTimeLoss(FrappeTestCase):
 	pass

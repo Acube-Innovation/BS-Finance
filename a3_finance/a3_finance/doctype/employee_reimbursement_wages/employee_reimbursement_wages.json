@@ -1,0 +1,136 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "format:ERW-{employee_id}-{employee_name}-{reimbursement_date}-{#####}",
+ "creation": "2025-06-12 15:04:33.705796",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_id",
+  "reimbursement_date",
+  "reimbursement_month",
+  "column_break_ytas",
+  "employee_name",
+  "no_of_days",
+  "reimbursement_year",
+  "section_break_r2jt",
+  "reimbursement_basic_pay",
+  "reimbursement_service_weightage",
+  "column_break_adr3",
+  "reimbursement_hra",
+  "reimbursement_da",
+  "section_break_xiid",
+  "lop_refund_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee ID",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee_id.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "reimbursement_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Reimbursement Date"
+  },
+  {
+   "fieldname": "no_of_days",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "No of Days"
+  },
+  {
+   "fieldname": "column_break_ytas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reimbursement_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Reimbursement Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+  },
+  {
+   "fieldname": "reimbursement_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Reimbursement Year"
+  },
+  {
+   "fieldname": "section_break_r2jt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "reimbursement_basic_pay",
+   "fieldtype": "Data",
+   "label": "Reimbursement Basic Pay"
+  },
+  {
+   "fieldname": "reimbursement_service_weightage",
+   "fieldtype": "Data",
+   "label": "Reimbursement Service Weightage"
+  },
+  {
+   "fieldname": "column_break_adr3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reimbursement_hra",
+   "fieldtype": "Data",
+   "label": "Reimbursement HRA"
+  },
+  {
+   "fieldname": "reimbursement_da",
+   "fieldtype": "Data",
+   "label": "Reimbursement DA"
+  },
+  {
+   "fieldname": "lop_refund_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "LOP Refund Amount"
+  },
+  {
+   "fieldname": "section_break_xiid",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-13 14:54:02.900494",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Employee Reimbursement Wages",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

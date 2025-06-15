@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class LopSummary(Document):
+class DearnessAllowanceBacklog(Document):
 	pass

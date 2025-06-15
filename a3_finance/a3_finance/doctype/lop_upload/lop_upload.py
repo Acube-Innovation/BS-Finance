@@ -82,7 +82,7 @@ class LOPUpload(Document):
         self.set("lop_entries", [])
 
         # Dictionary to store LOP summary per employee
-        lop_summary = {}
+        lop_days_summary = {}
 
         for idx, row in df.iterrows():
             try:
@@ -146,19 +146,19 @@ class LOPUpload(Document):
 
             # ✅ Collect for Lop Summary
             key = (ec, start_date)
-            if key not in lop_summary:
-                lop_summary[key] = {
+            if key not in lop_days_summary:
+                lop_days_summary[key] = {
                     "employee_id": ec,
                     "employee_name": name,
                     "start_date": start_date,
                     "no__of_days": 0.0
                 }
-            lop_summary[key]["no__of_days"] += no_of_days
+            lop_days_summary[key]["no__of_days"] += no_of_days
 
         # ✅ Insert records into Lop Summary
-        for (emp_id, start_date), data in lop_summary.items():
+        for (emp_id, start_date), data in lop_days_summary.items():
             frappe.get_doc({
-                "doctype": "Lop Summary",
+                "doctype": "Lop Days Summary",
                 "employee_id": emp_id,
                 "employee_name": data["employee_name"],
                 "start_date": data["start_date"],
@@ -184,33 +184,33 @@ class LOPUpload(Document):
 
 
 
-@frappe.whitelist()
-def create_leave_applications(docname):
-    doc = frappe.get_doc("LOP Upload", docname)
-    created = 0
+# @frappe.whitelist()
+# def create_leave_applications(docname):
+#     doc = frappe.get_doc("LOP Upload", docname)
+#     created = 0
 
-    for row in doc.lop_entries:
-        employee = frappe.db.get_value("Employee", {"employee_number": row.ec}, "name")
-        if not employee:
-            continue
+#     for row in doc.lop_entries:
+#         employee = frappe.db.get_value("Employee", {"employee_number": row.ec}, "name")
+#         if not employee:
+#             continue
 
-        leave_doc = frappe.get_doc({
-            "doctype": "Leave Application",
-            "employee": employee,
-            "from_date": row.lop_split_date,
-            "to_date": row.lop_split_date,
-            "leave_type": row.lop_type,  # e.g., Casual Leave / Loss of Pay etc.
-            "half_day": 1 if row.is_half_day else 0,
-            "half_day_date": row.lop_split_date if row.is_half_day else None,
-            "posting_date": nowdate(),
-            "status": "Approved",
-            "description": f"Auto-created from LOP Import {docname}"
-        })
-        leave_doc.insert(ignore_permissions=True)
-        leave_doc.submit()
-        created += 1
+#         leave_doc = frappe.get_doc({
+#             "doctype": "Leave Application",
+#             "employee": employee,
+#             "from_date": row.lop_split_date,
+#             "to_date": row.lop_split_date,
+#             "leave_type": row.lop_type,  # e.g., Casual Leave / Loss of Pay etc.
+#             "half_day": 1 if row.is_half_day else 0,
+#             "half_day_date": row.lop_split_date if row.is_half_day else None,
+#             "posting_date": nowdate(),
+#             "status": "Approved",
+#             "description": f"Auto-created from LOP Import {docname}"
+#         })
+#         leave_doc.insert(ignore_permissions=True)
+#         leave_doc.submit()
+#         created += 1
         
-    return f"{created} Leave Applications Created"
+#     return f"{created} Leave Applications Created"
 
 
 # @frappe.whitelist()

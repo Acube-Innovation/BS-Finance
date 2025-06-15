@@ -166,6 +166,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_custom_service_weightage",
             "a3_finance.overrides.salary_slip.set_lop_summary",
             "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
+            "a3_finance.overrides.salary_slip.set_employee_reimbursement_wages",
         ]
     },
     "Additional Salary": {

@@ -154,6 +154,31 @@ def set_overtime_wages(slip, method):
 
 
 
+def set_employee_reimbursement_wages(slip,method):
+    start_date = getdate(slip.start_date)
+
+    month = start_date.strftime("%B")
+    year = start_date.strftime("%Y")
+    
+    row = frappe.db.get_value(
+        "Employee Reimbursement Wages",
+        {
+            "employee_id": slip.employee,
+            "reimbursement_month": month,
+            "reimbursement_year": year,
+        },
+        ["lop_refund_amount"],
+        as_dict=True
+    )
+    if row and row.get("lop_refund_amount"):
+        slip.custom_employee_reimbursement_wages = row["lop_refund_amount"]
+
+
+
+
+
+
+
 
 def set_custom_service_weightage(slip, method):
     start_date = getdate(slip.start_date)
@@ -205,7 +230,7 @@ def set_lop_summary(slip, method):
     # ✅ Fetch total LOP days from Lop Summary
     lop_total = frappe.db.sql("""
         SELECT SUM(no__of_days) as total_days
-        FROM `tabLop Summary`
+        FROM `tabLop Days Summary`
         WHERE employee_id = %s AND payroll_month = %s AND payroll_year = %s
     """, (slip.employee, month, year), as_dict=True)
 

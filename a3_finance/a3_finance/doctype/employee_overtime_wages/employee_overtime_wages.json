@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "format:EOW-{YYYY}-{employee_id}-{####}",
  "creation": "2025-06-10 14:45:42.583771",
@@ -8,9 +9,11 @@
  "field_order": [
   "employee_id",
   "payroll_month",
+  "quarter_details",
   "column_break_juux",
   "overtime_hours",
   "payroll_year",
+  "quarter_year",
   "section_break_jp07",
   "employee_name",
   "basic_pay",
@@ -91,12 +94,23 @@
    "fieldname": "payroll_year",
    "fieldtype": "Data",
    "label": "Payroll Year"
+  },
+  {
+   "fieldname": "quarter_details",
+   "fieldtype": "Select",
+   "label": "Quarter Details",
+   "options": "\nFirst Quarter\nSecond Quarter\nThird Quarter\nFourth Quarter"
+  },
+  {
+   "fieldname": "quarter_year",
+   "fieldtype": "Data",
+   "label": "Quarter Year"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-10 15:24:29.362578",
+ "modified": "2025-06-13 13:02:52.030578",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Overtime Wages",
