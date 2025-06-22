@@ -112,6 +112,7 @@ class EmployeeOvertimeWages(Document):
 
 			# Calculate total amount
 			self.total_amount = (basic_pay + service_weightage + self.variable_da) / 240 * overtime_hours
+			print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Total Amount:", self.total_amount)
 
 		except Exception as e:
 			frappe.throw(f"Error during calculation: {e}")

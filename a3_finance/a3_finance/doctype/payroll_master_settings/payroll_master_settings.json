@@ -11,6 +11,7 @@
   "dearness_allowance_",
   "yearly_increment",
   "canteen_subsidy",
+  "hra_",
   "column_break_pbng",
   "washing_allowance",
   "book_allowance",
@@ -251,13 +252,18 @@
    "fieldtype": "Select",
    "label": "Shoe Allowance Month",
    "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
+  },
+  {
+   "fieldname": "hra_",
+   "fieldtype": "Float",
+   "label": "HRA %"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-11 22:26:47.405856",
+ "modified": "2025-06-17 15:14:56.578494",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Settings",
