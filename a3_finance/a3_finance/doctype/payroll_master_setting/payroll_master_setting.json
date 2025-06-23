@@ -1,0 +1,292 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{payroll_month}-{payroll_year}-{##}",
+ "creation": "2025-06-23 17:00:03.888812",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "payroll_month",
+  "payroll_month_number",
+  "column_break_qurx",
+  "payroll_year",
+  "section_break_xydj",
+  "column_break_ueik",
+  "service_weightage",
+  "dearness_allowance_",
+  "yearly_increment",
+  "canteen_subsidy",
+  "hra_",
+  "column_break_pbng",
+  "payroll_days",
+  "washing_allowance",
+  "book_allowance",
+  "night_shift_allowance",
+  "column_break_mxxi",
+  "stitching_allowance",
+  "shoe_allowance",
+  "spectacle_allowance",
+  "overtime_wages",
+  "column_break_dea2",
+  "ex_gratia",
+  "arrear",
+  "festival_advance",
+  "conveyance_allowances",
+  "section_break_dcuz",
+  "column_break_dxzt",
+  "festival_advance_recovery",
+  "labour_welfare_fund",
+  "brahmos_recreation_club_contribution",
+  "column_break_z9w4",
+  "benevolent_fund",
+  "canteen_recovery",
+  "conveyance_allowance_details_section",
+  "conveyance_allowance",
+  "children_education_allowance_details_section",
+  "children_education_allowance"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_xydj",
+   "fieldtype": "Section Break",
+   "label": "Earnings"
+  },
+  {
+   "fieldname": "service_weightage",
+   "fieldtype": "Int",
+   "label": "Service Weightage"
+  },
+  {
+   "fieldname": "dearness_allowance_",
+   "fieldtype": "Float",
+   "label": "Dearness Allowance %",
+   "precision": "4"
+  },
+  {
+   "fieldname": "yearly_increment",
+   "fieldtype": "Float",
+   "label": "Yearly Increment",
+   "precision": "2"
+  },
+  {
+   "fieldname": "canteen_subsidy",
+   "fieldtype": "Float",
+   "label": "Canteen Subsidy",
+   "precision": "2"
+  },
+  {
+   "fieldname": "washing_allowance",
+   "fieldtype": "Float",
+   "label": "Washing Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "book_allowance",
+   "fieldtype": "Float",
+   "label": "Book Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "night_shift_allowance",
+   "fieldtype": "Float",
+   "label": "Night Shift Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "stitching_allowance",
+   "fieldtype": "Float",
+   "label": "Stitching Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "shoe_allowance",
+   "fieldtype": "Float",
+   "label": "Shoe Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "spectacle_allowance",
+   "fieldtype": "Float",
+   "label": "Spectacle Allowance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "ex_gratia",
+   "fieldtype": "Float",
+   "label": "Ex Gratia",
+   "precision": "2"
+  },
+  {
+   "fieldname": "arrear",
+   "fieldtype": "Float",
+   "label": "Arrear",
+   "precision": "2"
+  },
+  {
+   "fieldname": "festival_advance",
+   "fieldtype": "Float",
+   "label": "Festival Advance",
+   "precision": "2"
+  },
+  {
+   "fieldname": "section_break_dcuz",
+   "fieldtype": "Section Break",
+   "label": "Deductions"
+  },
+  {
+   "fieldname": "festival_advance_recovery",
+   "fieldtype": "Float",
+   "label": "Festival Advance Recovery",
+   "precision": "2"
+  },
+  {
+   "fieldname": "labour_welfare_fund",
+   "fieldtype": "Float",
+   "label": "Labour Welfare Fund",
+   "precision": "2"
+  },
+  {
+   "fieldname": "brahmos_recreation_club_contribution",
+   "fieldtype": "Float",
+   "label": "Brahmos Recreation Club Contribution",
+   "precision": "2"
+  },
+  {
+   "fieldname": "benevolent_fund",
+   "fieldtype": "Float",
+   "label": "Benevolent Fund",
+   "precision": "2"
+  },
+  {
+   "fieldname": "canteen_recovery",
+   "fieldtype": "Float",
+   "label": "Canteen Recovery",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_ueik",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pbng",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mxxi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dea2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dxzt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_z9w4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "conveyance_allowance_details_section",
+   "fieldtype": "Section Break",
+   "label": "Conveyance Allowance Details"
+  },
+  {
+   "fieldname": "conveyance_allowance",
+   "fieldtype": "Table",
+   "label": "Conveyance Allowance",
+   "options": "Conveyance Allowance"
+  },
+  {
+   "fieldname": "children_education_allowance_details_section",
+   "fieldtype": "Section Break",
+   "label": "Children Education Allowance Details"
+  },
+  {
+   "fieldname": "children_education_allowance",
+   "fieldtype": "Table",
+   "label": "Children Education Allowance",
+   "options": "Children Education Allowance"
+  },
+  {
+   "fieldname": "conveyance_allowances",
+   "fieldtype": "Float",
+   "label": "Conveyance Allowance"
+  },
+  {
+   "fieldname": "overtime_wages",
+   "fieldtype": "Float",
+   "label": "Overtime Wages"
+  },
+  {
+   "fieldname": "hra_",
+   "fieldtype": "Float",
+   "label": "HRA %"
+  },
+  {
+   "fieldname": "payroll_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qurx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payroll_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Year",
+   "reqd": 1
+  },
+  {
+   "default": "30.00",
+   "fieldname": "payroll_days",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Days",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payroll_month_number",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Payroll Month Number"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-23 19:54:56.386710",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Payroll Master Setting",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}

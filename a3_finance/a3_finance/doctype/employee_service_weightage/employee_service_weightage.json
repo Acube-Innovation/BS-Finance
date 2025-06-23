@@ -2,7 +2,7 @@
  "actions": [],
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "format:{ESW}-{employee_id}-{employee_name}",
+ "autoname": "format:{ESW}-{employee_id}-{employee_name}-{#####}",
  "creation": "2025-06-10 23:12:07.306028",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -15,14 +15,19 @@
   "payroll_year",
   "months",
   "service_weightage_details_section",
-  "service_weightage"
+  "service_weightage",
+  "lop_days",
+  "column_break_iujh",
+  "service_weightage_after_lop"
  ],
  "fields": [
   {
    "fieldname": "employee_id",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Employee ID",
-   "options": "Employee"
+   "options": "Employee",
+   "reqd": 1
   },
   {
    "fetch_from": "employee_id.employee_name",
@@ -37,7 +42,7 @@
   },
   {
    "fieldname": "service_weightage",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Current Service Weightage"
   },
   {
@@ -57,19 +62,36 @@
   {
    "fieldname": "payroll_month",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Payroll Month",
-   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+   "reqd": 1
   },
   {
    "fieldname": "payroll_year",
    "fieldtype": "Data",
-   "label": "Payroll Year"
+   "in_list_view": 1,
+   "label": "Payroll Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lop_days",
+   "fieldtype": "Float",
+   "label": "LOP Days"
+  },
+  {
+   "fieldname": "column_break_iujh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "service_weightage_after_lop",
+   "fieldtype": "Currency",
+   "label": "Service Weightage after LOP"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-11 11:52:35.066449",
+ "modified": "2025-06-23 15:53:56.399780",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Service Weightage",
@@ -89,8 +111,10 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }

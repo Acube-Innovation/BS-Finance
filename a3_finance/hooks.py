@@ -157,7 +157,7 @@ scheduler_events = {
 # }
 doc_events = {
     "Salary Slip": {
-        "before_save": [
+        "validate": [
             "a3_finance.overrides.salary_slip.pull_values_from_payroll_master",
             "a3_finance.overrides.salary_slip.set_conveyance_allowance",
             "a3_finance.overrides.salary_slip.set_overtime_wages",
@@ -166,12 +166,16 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
             "a3_finance.overrides.salary_slip.set_employee_reimbursement_wages",
             "a3_finance.overrides.salary_slip.set_lop_in_hours_deduction",
-            "a3_finance.overrides.salary_slip.set_custom_medical_allowance"
+            "a3_finance.overrides.salary_slip.set_custom_medical_allowance",
+            "a3_finance.overrides.salary_slip.set_basic_pay"
         ],
         "on_submit":[
             "a3_finance.overrides.salary_slip.set_professional_tax",
             
-        ]
+        ],
+        # "validate":[
+            
+        # ]
     },
     "Additional Salary": {
         "validate": [

@@ -8,35 +8,66 @@ from frappe.utils import flt
 from frappe.utils import getdate
 
 
-
-
-
-
 def pull_values_from_payroll_master(doc, method):
     doc.get_emp_and_working_day_details()
-    settings = frappe.get_single("Payroll Master Settings")
 
-    doc.custom_service_weightage                      = settings.service_weightage
-    doc.custom_dearness_allowance_                    = settings.dearness_allowance_
-    doc.custom_yearly_increment                       = settings.yearly_increment
-    doc.custom_canteen_subsidy                        = settings.canteen_subsidy
-    doc.custom_washing_allowance                      = settings.washing_allowance
-    doc.custom_book_allowance                         = settings.book_allowance
-    doc.custom_stitching_allowance                    = settings.stitching_allowance
-    doc.custom_shoe_allowance                         = settings.shoe_allowance
-    doc.custom_spectacle_allowance                    = settings.spectacle_allowance
-    doc.custom_ex_gratia                              = settings.ex_gratia
-    doc.custom_arrear                                 = settings.arrear
-    doc.custom_festival_advance                       = settings.festival_advance
-    doc.custom_festival_advance_recovery              = settings.festival_advance_recovery
-    doc.custom_labour_welfare_fund                    = settings.labour_welfare_fund
-    doc.custom_brahmos_recreation_club_contribution   = settings.brahmos_recreation_club_contribution
-    doc.custom_benevolent_fund                        = settings.benevolent_fund
-    doc.custom_canteen_recovery                       = settings.canteen_recovery
-    doc.custom_conveyance_allowances                  = settings.conveyance_allowances
-    doc.custom_overtime_wages                         = settings.overtime_wages
-    doc.custom_hra                                    = settings.hra_
- 
+    if not doc.start_date:
+        frappe.throw("Start Date is required to pull Payroll Master Settings.")
+
+    start = getdate(doc.start_date)
+    month_number = start.month
+    year = start.year
+
+    # Get the best matching Payroll Master Setting
+    setting = get_previous_payroll_master_setting(year, month_number)
+    if not setting:
+        frappe.throw("No applicable Payroll Master Setting found for the given start date.")
+
+    # Map values from setting to Salary Slip custom fields
+    doc.custom_dearness_allowance_                    = setting.dearness_allowance_
+    doc.custom_yearly_increment                       = setting.yearly_increment
+    doc.custom_canteen_subsidy                        = setting.canteen_subsidy
+    doc.custom_washing_allowance                      = setting.washing_allowance
+    doc.custom_book_allowance                         = setting.book_allowance
+    doc.custom_stitching_allowance                    = setting.stitching_allowance
+    doc.custom_shoe_allowance                         = setting.shoe_allowance
+    doc.custom_spectacle_allowance                    = setting.spectacle_allowance
+    doc.custom_ex_gratia                              = setting.ex_gratia
+    doc.custom_arrear                                 = setting.arrear
+    doc.custom_festival_advance                       = setting.festival_advance
+    doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
+    doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund
+    doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution
+    doc.custom_benevolent_fund                        = setting.benevolent_fund
+    doc.custom_canteen_recovery                       = setting.canteen_recovery
+    doc.custom_conveyance_allowances                  = setting.conveyance_allowances
+    doc.custom_overtime_wages                         = setting.overtime_wages
+    doc.custom_hra                                    = setting.hra_
+
+def get_previous_payroll_master_setting(year, month_number):
+    years_to_consider = [year, year - 1]
+
+    settings = frappe.get_all(
+        "Payroll Master Setting",
+        filters={"payroll_year": ["in", years_to_consider]},
+        fields=["name", "payroll_year", "payroll_month_number"] + [
+            "dearness_allowance_", "yearly_increment", "canteen_subsidy", "washing_allowance",
+            "book_allowance", "stitching_allowance", "shoe_allowance", "spectacle_allowance",
+            "ex_gratia", "arrear", "festival_advance", "festival_advance_recovery",
+            "labour_welfare_fund", "brahmos_recreation_club_contribution", "benevolent_fund",
+            "canteen_recovery", "conveyance_allowances", "overtime_wages", "hra_"
+        ],
+        order_by="payroll_year desc, payroll_month_number desc",
+        limit=20
+    )
+
+    for record in settings:
+        ry, rm = int(record["payroll_year"]), int(record["payroll_month_number"])
+        if ry < year or (ry == year and rm <= month_number):
+            return frappe._dict(record)
+
+    return None
+
 
     # # --- 🧮 Service Weightage Allowance Calculation ---
     # if doc.employee:
@@ -317,12 +348,13 @@ def set_custom_service_weightage(slip, method):
             "payroll_year": year,
             "payroll_month": month
         },
-        ["service_weightage"],
+        ["service_weightage_after_lop"],
         as_dict=True
     )
 
-    if row and row.service_weightage:
-        slip.custom_service_weightage = row.service_weightage
+    # Assign only if value exists
+    if row and row.service_weightage_after_lop:
+        slip.custom_service_weightage = row.service_weightage_after_lop
 
 
 
@@ -392,3 +424,22 @@ def set_shoe_allowance_based_on_month(doc, method):
         start_month = getdate(doc.start_date).strftime("%m")  # Gets month as "01", "02", ..., "12"
         doc.custom_shoe_allowance = int(start_month)
         doc.custom_spectacle_allowances_month = int(start_month)
+
+
+
+def set_basic_pay(doc, method):
+    if doc.start_date:
+        start_month = getdate(doc.start_date).strftime("%B")
+
+        # Direct SQL SUM query using frappe.db
+        final_lop = frappe.db.get_value(
+            "Lop Days Summary",
+            filters={
+                "employee_id": doc.employee,
+                "payroll_month": start_month
+            },
+            fieldname="SUM(lop_amount)"
+        ) or 0
+
+        # Optional: Set or use the value
+        doc.custom_basic_pay = final_lop

@@ -13,7 +13,11 @@
   "column_break_sjra",
   "employee_name",
   "payroll_year",
-  "no__of_days"
+  "no__of_days",
+  "section_break_tnpv",
+  "base_salary",
+  "column_break_ehwp",
+  "lop_amount"
  ],
  "fields": [
   {
@@ -53,12 +57,29 @@
   {
    "fieldname": "column_break_sjra",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_tnpv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "base_salary",
+   "fieldtype": "Currency",
+   "label": "Base Salary for Payroll Period"
+  },
+  {
+   "fieldname": "column_break_ehwp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lop_amount",
+   "fieldtype": "Currency",
+   "label": "Base Salary after LOP"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-11 14:37:39.983126",
+ "modified": "2025-06-23 22:28:35.986169",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Lop Days Summary",
@@ -78,8 +99,10 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }
