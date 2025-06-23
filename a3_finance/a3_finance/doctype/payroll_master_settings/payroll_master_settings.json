@@ -26,8 +26,6 @@
   "ex_gratia",
   "arrear",
   "festival_advance",
-  "spectacle_allowance_month",
-  "shoe_allowance_month",
   "section_break_dcuz",
   "column_break_dxzt",
   "festival_advance_recovery",
@@ -36,10 +34,6 @@
   "column_break_z9w4",
   "benevolent_fund",
   "canteen_recovery",
-  "section_break_6qy4",
-  "medical_allowance",
-  "professional_tax_slab_section",
-  "professional_tax",
   "conveyance_allowance_details_section",
   "conveyance_allowance",
   "children_education_allowance_details_section",
@@ -140,12 +134,6 @@
    "precision": "2"
   },
   {
-   "fieldname": "professional_tax",
-   "fieldtype": "Table",
-   "label": "Professional Tax",
-   "options": "Professional Tax Slab"
-  },
-  {
    "fieldname": "labour_welfare_fund",
    "fieldtype": "Float",
    "label": "Labour Welfare Fund",
@@ -194,22 +182,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "medical_allowance",
-   "fieldtype": "Table",
-   "label": "Medical Allowance",
-   "options": "Medical Allowance"
-  },
-  {
-   "fieldname": "section_break_6qy4",
-   "fieldtype": "Section Break",
-   "label": "Medical Allowance Slab"
-  },
-  {
-   "fieldname": "professional_tax_slab_section",
-   "fieldtype": "Section Break",
-   "label": "Professional Tax Slab"
-  },
-  {
    "fieldname": "conveyance_allowance_details_section",
    "fieldtype": "Section Break",
    "label": "Conveyance Allowance Details"
@@ -242,18 +214,6 @@
    "label": "Overtime Wages"
   },
   {
-   "fieldname": "spectacle_allowance_month",
-   "fieldtype": "Select",
-   "label": "Spectacle Allowance Month",
-   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
-  },
-  {
-   "fieldname": "shoe_allowance_month",
-   "fieldtype": "Select",
-   "label": "Shoe Allowance Month",
-   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
-  },
-  {
    "fieldname": "hra_",
    "fieldtype": "Float",
    "label": "HRA %"
@@ -263,7 +223,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-17 15:14:56.578494",
+ "modified": "2025-06-23 10:58:08.042823",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Settings",

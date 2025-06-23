@@ -349,7 +349,7 @@ def set_lop_in_hours_deduction(slip, method):
         slip.custom_time_loss_in_hours_deduction = row.time_loss_amount
 
 
-
+# LOP Days Summary for taking leave
 def set_lop_summary(slip, method):
     from frappe.utils import getdate
 
