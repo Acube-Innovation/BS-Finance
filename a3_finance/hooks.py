@@ -173,9 +173,6 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_professional_tax",
             
         ],
-        # "validate":[
-            
-        # ]
     },
     "Additional Salary": {
         "validate": [
