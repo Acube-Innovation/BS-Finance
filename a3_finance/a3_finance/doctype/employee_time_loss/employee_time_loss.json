@@ -12,11 +12,13 @@
   "basic_pay",
   "service_weightage",
   "variable_da",
+  "time_loss_month",
   "column_break_fu9a",
   "employee_name",
   "payroll_year",
   "time_loss_hours",
-  "time_loss_amount"
+  "time_loss_amount",
+  "time_loss_year"
  ],
  "fields": [
   {
@@ -77,12 +79,23 @@
    "fieldname": "variable_da",
    "fieldtype": "Data",
    "label": "Variable DA"
+  },
+  {
+   "fieldname": "time_loss_month",
+   "fieldtype": "Select",
+   "label": "Time Loss Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+  },
+  {
+   "fieldname": "time_loss_year",
+   "fieldtype": "Data",
+   "label": "Time Loss Year"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-13 14:01:39.492815",
+ "modified": "2025-06-16 11:11:49.857563",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Time Loss",

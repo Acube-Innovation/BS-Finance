@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:profession_tax_id",
+ "creation": "2025-06-16 19:18:47.131276",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "profession_tax_id",
+  "is_active",
+  "column_break_mgmz",
+  "year",
+  "section_break_hts0",
+  "profession__tax_slab"
+ ],
+ "fields": [
+  {
+   "fieldname": "profession_tax_id",
+   "fieldtype": "Data",
+   "label": "Profession Tax ID",
+   "unique": 1
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Data",
+   "label": "Year"
+  },
+  {
+   "fieldname": "profession__tax_slab",
+   "fieldtype": "Table",
+   "label": "Profession  Tax Slab",
+   "options": "Professional Tax Slab"
+  },
+  {
+   "fieldname": "column_break_mgmz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_hts0",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-16 19:30:40.426782",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Profession Tax",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
