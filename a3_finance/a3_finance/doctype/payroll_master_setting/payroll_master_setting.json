@@ -7,9 +7,10 @@
  "engine": "InnoDB",
  "field_order": [
   "payroll_month",
-  "payroll_month_number",
+  "quarter",
   "column_break_qurx",
   "payroll_year",
+  "payroll_month_number",
   "section_break_xydj",
   "column_break_ueik",
   "service_weightage",
@@ -259,11 +260,17 @@
    "fieldtype": "Int",
    "hidden": 1,
    "label": "Payroll Month Number"
+  },
+  {
+   "fieldname": "quarter",
+   "fieldtype": "Select",
+   "label": "Quarter",
+   "options": "\nQ1\nQ2\nQ3\nQ4"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-23 19:54:56.386710",
+ "modified": "2025-06-24 08:27:45.598534",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",
