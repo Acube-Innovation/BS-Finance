@@ -84,10 +84,10 @@ class EmployeeOvertimeWages(Document):
 
 			# Define date ranges for each financial quarter
 			quarter_ranges = {
-				"First Quarter": (f"{fy_year}-04-01", f"{fy_year}-06-30"),
-				"Second Quarter": (f"{fy_year}-07-01", f"{fy_year}-09-30"),
-				"Third Quarter": (f"{fy_year}-10-01", f"{fy_year}-12-31"),
-				"Fourth Quarter": (f"{fy_year}-01-01", f"{fy_year}-03-31"),
+				"Q1": (f"{fy_year}-04-01", f"{fy_year}-06-30"),
+				"Q2": (f"{fy_year}-07-01", f"{fy_year}-09-30"),
+				"Q3": (f"{fy_year}-10-01", f"{fy_year}-12-31"),
+				"Q4": (f"{fy_year}-01-01", f"{fy_year}-03-31"),
 			}
 
 			start_date_str, end_date_str = quarter_ranges.get(self.quarter_details)
