@@ -3,6 +3,8 @@ from frappe import _
 from frappe.model.document import Document
 from datetime import datetime
 from collections import defaultdict
+import calendar
+from frappe.utils import getdate
 
 @frappe.whitelist()
 def calculate_lop_refund(self, method=None):
@@ -88,18 +90,31 @@ def calculate_lop_refund(self, method=None):
         print(f"Final rounded refund amount set to: {self.amount}")
 
 
-
-
-
-
 def custom_validate(doc, method):
     # ---------------- Night Shift Allowance ----------------
     if doc.salary_component == "Night Shift Allowance":
         if not doc.custom_night_shift_count:
             frappe.throw(_("Please enter Night Shift Count for Night Shift Allowance"))
 
-        settings = frappe.get_single("Payroll Master Settings")
-        rate = settings.night_shift_allowance or 0
+        # Use latest salary slip to derive applicable Payroll Master Setting
+        latest_slip = frappe.get_all(
+            "Salary Slip",
+            filters={"employee": doc.employee, "docstatus": 1},
+            order_by="start_date desc",
+            limit=1
+        )
+
+        if not latest_slip:
+            frappe.throw(_("No submitted Salary Slip found for this employee"))
+
+        slip_doc = frappe.get_doc("Salary Slip", latest_slip[0].name)
+        start = getdate(slip_doc.start_date)
+        setting = get_previous_payroll_master_setting(start.year, start.month)
+
+        if not setting:
+            frappe.throw(_("No applicable Payroll Master Setting found."))
+
+        rate = setting.night_shift_allowance or 0
         doc.amount = doc.custom_night_shift_count * rate
 
     # ---------------- EL Encashment ----------------
@@ -107,25 +122,21 @@ def custom_validate(doc, method):
         if not doc.custom_el_days:
             frappe.throw(_("Please enter EL Days for EL Encashment"))
 
-        # Get latest submitted salary slip for this employee
-        salary_slip = frappe.get_all(
+        # Get latest submitted salary slip
+        latest_slip = frappe.get_all(
             "Salary Slip",
-            filters={
-                "employee": doc.employee,
-                "docstatus": 1
-            },
+            filters={"employee": doc.employee, "docstatus": 1},
             order_by="start_date desc",
             limit=1
         )
 
-        if not salary_slip:
+        if not latest_slip:
             frappe.throw(_("No submitted Salary Slip found for this employee"))
 
-        salary_slip_doc = frappe.get_doc("Salary Slip", salary_slip[0].name)
+        slip_doc = frappe.get_doc("Salary Slip", latest_slip[0].name)
 
         base = sw = vda = 0
-
-        for comp in salary_slip_doc.earnings:
+        for comp in slip_doc.earnings:
             if comp.salary_component == "Basic":
                 base = comp.amount
             elif comp.salary_component == "Service Weightage":
@@ -133,8 +144,33 @@ def custom_validate(doc, method):
             elif comp.salary_component == "VDA":
                 vda = comp.amount
 
-        per_day_rate = (base + sw + vda) / 30
+        # Use slip start date to fetch setting
+        start = getdate(slip_doc.start_date)
+        setting = get_previous_payroll_master_setting(start.year, start.month)
+        if not setting:
+            frappe.throw(_("No applicable Payroll Master Setting found."))
+
+        payroll_days = setting.payroll_days or 30
+        per_day_rate = (base + sw + vda) / payroll_days
         doc.amount = doc.custom_el_days * per_day_rate
+
+def get_previous_payroll_master_setting(year, month_number):
+    years_to_consider = [year, year - 1]
+
+    settings = frappe.get_all(
+        "Payroll Master Setting",
+        filters={"payroll_year": ["in", years_to_consider]},
+        fields=["name", "payroll_year", "payroll_month_number", "payroll_days", "night_shift_allowance"],
+        order_by="payroll_year desc, payroll_month_number desc",
+        limit=20
+    )
+
+    for record in settings:
+        ry, rm = int(record["payroll_year"]), int(record["payroll_month_number"])
+        if ry < year or (ry == year and rm <= month_number):
+            return frappe.get_doc("Payroll Master Setting", record["name"])
+
+    return None
 
 
 @frappe.whitelist()
