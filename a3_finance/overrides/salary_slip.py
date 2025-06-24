@@ -29,7 +29,7 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_canteen_subsidy                        = setting.canteen_subsidy
     doc.custom_washing_allowance                      = setting.washing_allowance
     doc.custom_book_allowance                         = setting.book_allowance
-    doc.custom_stitching_allowance                    = setting.stitching_allowance
+    doc.custom_stitching_allowance                    = setting.stitching_allowance if month_number== 1 else 0
     doc.custom_shoe_allowance                         = setting.shoe_allowance
     doc.custom_spectacle_allowance                    = setting.spectacle_allowance
     doc.custom_ex_gratia                              = setting.ex_gratia
