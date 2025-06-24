@@ -12,7 +12,7 @@ def pull_values_from_payroll_master(doc, method):
     doc.get_emp_and_working_day_details()
 
     if not doc.start_date:
-        frappe.throw("Start Date is required to pull Payroll Master Settings.")
+        frappe.throw("Start Date is required to pull Payroll Master Setting.")
 
     start = getdate(doc.start_date)
     month_number = start.month
