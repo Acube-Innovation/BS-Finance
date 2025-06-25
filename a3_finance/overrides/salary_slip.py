@@ -32,7 +32,7 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_stitching_allowance                    = setting.stitching_allowance if month_number== 1 else 0
     doc.custom_shoe_allowance                         = setting.shoe_allowance if month_number== 1 else 0
     doc.custom_spectacle_allowance                    = setting.spectacle_allowance if month_number== 1 else 0
-    doc.custom_ex_gratia                              = setting.ex_gratia
+    # doc.custom_ex_gratia                              = setting.ex_gratia
     doc.custom_arrear                                 = setting.arrear
     doc.custom_festival_advance                       = setting.festival_advance
     doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
@@ -40,7 +40,7 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution
     doc.custom_benevolent_fund                        = setting.benevolent_fund
     doc.custom_canteen_recovery                       = setting.canteen_recovery
-    doc.custom_conveyance_allowances                  = setting.conveyance_allowances
+    # doc.custom_conveyance_allowances                  = setting.conveyance_allowances
     doc.custom_overtime_wages                         = setting.overtime_wages
     doc.custom_hra                                    = setting.hra_
     doc.custom_deputation_allowance                   = setting.deputation_allowance
@@ -428,9 +428,6 @@ def set_lop_summary(slip, method):
 #         doc.custom_spectacle_allowances_month = int(start_month)
 
 
-
-from frappe.utils import getdate
-
 def set_basic_pay(doc, method):
     if not doc.start_date:
         return
@@ -491,10 +488,10 @@ def set_basic_pay(doc, method):
             "payroll_month": start_month,
             "payroll_year": start_year
         },
-        "service_weightage_after_lop",
+        "service_weightage",
         as_dict=True
     )
 
-    original_sw = float(sw_row.service_weightage_after_lop or 0) if sw_row else 0
-    adjusted_sw = original_sw - sw_loss
-    doc.custom_service_weightage = round(adjusted_sw, 2)
+    doc.custom_actual_sw = float(sw_row.service_weightage or 0) if sw_row else 0
+    adjusted_sw = doc.custom_actual_sw - sw_loss
+    doc.custom_service_weightage= round(adjusted_sw, 2)  #reused an unused field (custom_basic_pay)

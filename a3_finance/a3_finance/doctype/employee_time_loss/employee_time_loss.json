@@ -70,7 +70,7 @@
    "label": "Basic Pay"
   },
   {
-   "fetch_from": "employee_id.custom_service_weightage",
+   "fetch_from": "employee_id.custom_service_weightage_emp",
    "fieldname": "service_weightage",
    "fieldtype": "Data",
    "label": "Service Weightage"
@@ -92,10 +92,9 @@
    "label": "Time Loss Year"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-16 11:11:49.857563",
+ "modified": "2025-06-25 19:14:19.954523",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Time Loss",
@@ -115,7 +114,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

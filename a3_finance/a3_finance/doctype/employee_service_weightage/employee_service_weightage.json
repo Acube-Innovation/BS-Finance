@@ -2,7 +2,7 @@
  "actions": [],
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "format:{ESW}-{employee_id}-{employee_name}-{#####}",
+ "autoname": "format:{ESW}-{######}",
  "creation": "2025-06-10 23:12:07.306028",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -16,9 +16,7 @@
   "months",
   "service_weightage_details_section",
   "service_weightage",
-  "lop_days",
-  "column_break_iujh",
-  "service_weightage_after_lop"
+  "column_break_iujh"
  ],
  "fields": [
   {
@@ -75,23 +73,13 @@
    "reqd": 1
   },
   {
-   "fieldname": "lop_days",
-   "fieldtype": "Float",
-   "label": "LOP Days"
-  },
-  {
    "fieldname": "column_break_iujh",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "service_weightage_after_lop",
-   "fieldtype": "Currency",
-   "label": "Service Weightage after LOP"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-23 15:53:56.399780",
+ "modified": "2025-06-24 20:09:03.465666",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Service Weightage",
