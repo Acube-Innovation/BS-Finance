@@ -33,13 +33,13 @@ frappe.ui.form.on("Payroll Master Setting", {
             // Set quarter based on month
             let quarter = "";
             if ([1, 2, 3].includes(month_number)) {
-                quarter = "Q1";
-            } else if ([4, 5, 6].includes(month_number)) {
-                quarter = "Q2";
-            } else if ([7, 8, 9].includes(month_number)) {
-                quarter = "Q3";
-            } else if ([10, 11, 12].includes(month_number)) {
                 quarter = "Q4";
+            } else if ([4, 5, 6].includes(month_number)) {
+                quarter = "Q1";
+            } else if ([7, 8, 9].includes(month_number)) {
+                quarter = "Q2";
+            } else if ([10, 11, 12].includes(month_number)) {
+                quarter = "Q3";
             }
 
             frm.set_value("quarter", quarter);

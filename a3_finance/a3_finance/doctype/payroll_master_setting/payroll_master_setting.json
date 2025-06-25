@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{payroll_month}-{payroll_year}-{##}",
+ "autoname": "format:{payroll_month}-{payroll_year}",
  "creation": "2025-06-23 17:00:03.888812",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -23,11 +23,13 @@
   "washing_allowance",
   "book_allowance",
   "night_shift_allowance",
+  "deputation_allowance",
   "column_break_mxxi",
   "stitching_allowance",
   "shoe_allowance",
   "spectacle_allowance",
   "overtime_wages",
+  "others",
   "column_break_dea2",
   "ex_gratia",
   "arrear",
@@ -266,11 +268,21 @@
    "fieldtype": "Select",
    "label": "Quarter",
    "options": "\nQ1\nQ2\nQ3\nQ4"
+  },
+  {
+   "fieldname": "deputation_allowance",
+   "fieldtype": "Currency",
+   "label": "Deputation Allowance"
+  },
+  {
+   "fieldname": "others",
+   "fieldtype": "Currency",
+   "label": "Others"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-24 08:27:45.598534",
+ "modified": "2025-06-24 10:54:20.609584",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",
