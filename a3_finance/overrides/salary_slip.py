@@ -24,14 +24,14 @@ def pull_values_from_payroll_master(doc, method):
         frappe.throw("No applicable Payroll Master Setting found for the given start date.")
 
     # Map values from setting to Salary Slip custom fields
-    doc.custom_dearness_allowance_                    = setting.dearness_allowance_
+    doc.custom_dearness_allowence_percentage                    = setting.dearness_allowance_
     doc.custom_yearly_increment                       = setting.yearly_increment
     doc.custom_canteen_subsidy                        = setting.canteen_subsidy
     doc.custom_washing_allowance                      = setting.washing_allowance
     doc.custom_book_allowance                         = setting.book_allowance
-    doc.custom_stitching_allowance                    = setting.stitching_allowance
-    doc.custom_shoe_allowance                         = setting.shoe_allowance
-    doc.custom_spectacle_allowance                    = setting.spectacle_allowance
+    doc.custom_stitching_allowance                    = setting.stitching_allowance if month_number== 1 else 0
+    doc.custom_shoe_allowance                         = setting.shoe_allowance if month_number== 1 else 0
+    doc.custom_spectacle_allowance                    = setting.spectacle_allowance if month_number== 1 else 0
     doc.custom_ex_gratia                              = setting.ex_gratia
     doc.custom_arrear                                 = setting.arrear
     doc.custom_festival_advance                       = setting.festival_advance
@@ -43,6 +43,8 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_conveyance_allowances                  = setting.conveyance_allowances
     doc.custom_overtime_wages                         = setting.overtime_wages
     doc.custom_hra                                    = setting.hra_
+    doc.custom_deputation_allowance                   = setting.deputation_allowance
+    doc.custom_other                                  = setting.others
 
 def get_previous_payroll_master_setting(year, month_number):
     years_to_consider = [year, year - 1]
@@ -333,28 +335,28 @@ def set_employee_reimbursement_wages(slip,method):
 
 
 
-def set_custom_service_weightage(slip, method):
-    start_date = getdate(slip.start_date)
+# def set_custom_service_weightage(slip, method):
+#     start_date = getdate(slip.start_date)
 
-    # Extract month name and year from start date
-    month = start_date.strftime("%B")     # e.g., "June"
-    year = start_date.strftime("%Y")      # e.g., "2025"
+#     # Extract month name and year from start date
+#     month = start_date.strftime("%B")     # e.g., "June"
+#     year = start_date.strftime("%Y")      # e.g., "2025"
 
-    # Query for matching Employee Service Weightage
-    row = frappe.db.get_value(
-        "Employee Service Weightage",
-        {
-            "employee_id": slip.employee,
-            "payroll_year": year,
-            "payroll_month": month
-        },
-        ["service_weightage_after_lop"],
-        as_dict=True
-    )
+#     # Query for matching Employee Service Weightage
+#     row = frappe.db.get_value(
+#         "Employee Service Weightage",
+#         {
+#             "employee_id": slip.employee,
+#             "payroll_year": year,
+#             "payroll_month": month
+#         },
+#         # ["service_weightage_after_lop"],
+#         as_dict=True
+#     )
 
     # Assign only if value exists
-    if row and row.service_weightage_after_lop:
-        slip.custom_service_weightage = row.service_weightage_after_lop
+    # if row and row.service_weightage_after_lop:
+    #     slip.custom_service_weightage = row.service_weightage_after_lop
 
 
 
@@ -406,40 +408,93 @@ def set_lop_summary(slip, method):
     if row and row.no__of_days:
         slip.custom_uploaded_leave_without_pay = row.no__of_days
 
-    # ✅ Fetch total LOP days from Lop Summary
-    lop_total = frappe.db.sql("""
-        SELECT SUM(no__of_days) as total_days
-        FROM `tabLop Days Summary`
-        WHERE employee_id = %s AND payroll_month = %s AND payroll_year = %s
-    """, (slip.employee, month, year), as_dict=True)
+    # # ✅ Fetch total LOP days from Lop Summary
+    # lop_total = frappe.db.sql("""
+    #     SELECT SUM(no__of_days) as total_days
+    #     FROM `tabLop Days Summary`
+    #     WHERE employee_id = %s AND payroll_month = %s AND payroll_year = %s
+    # """, (slip.employee, month, year), as_dict=True)
 
-    if lop_total and lop_total[0].total_days:
-        slip.custom_uploaded_leave_without_pay = round(lop_total[0].total_days, 2)
-    else:
-        slip.custom_uploaded_leave_without_pay = 0.0
-
-
-def set_shoe_allowance_based_on_month(doc, method):
-    if doc.start_date:
-        start_month = getdate(doc.start_date).strftime("%m")  # Gets month as "01", "02", ..., "12"
-        doc.custom_shoe_allowance = int(start_month)
-        doc.custom_spectacle_allowances_month = int(start_month)
+    # if lop_total and lop_total[0].total_days:
+    #     slip.custom_uploaded_leave_without_pay = round(lop_total[0].total_days, 2)
+    # else:
+    #     slip.custom_uploaded_leave_without_pay = 0.0
 
 
+# def set_shoe_allowance_based_on_month(doc, method):
+#     if doc.start_date:
+#         start_month = getdate(doc.start_date).strftime("%m")  # Gets month as "01", "02", ..., "12"
+#         doc.custom_shoe_allowance = int(start_month)
+#         doc.custom_spectacle_allowances_month = int(start_month)
+
+
+
+from frappe.utils import getdate
 
 def set_basic_pay(doc, method):
-    if doc.start_date:
-        start_month = getdate(doc.start_date).strftime("%B")
+    if not doc.start_date:
+        return
 
-        # Direct SQL SUM query using frappe.db
-        final_lop = frappe.db.get_value(
-            "Lop Days Summary",
-            filters={
-                "employee_id": doc.employee,
-                "payroll_month": start_month
-            },
-            fieldname="SUM(lop_amount)"
-        ) or 0
+    start_date = getdate(doc.start_date)
+    start_month = start_date.strftime("%B")
+    start_year = start_date.strftime("%Y")
 
-        # Optional: Set or use the value
-        doc.custom_basic_pay = final_lop
+    # === 1. Get LOP Values from Lop Per Request ===
+    final_lop = frappe.db.get_value(
+        "Lop Per Request",
+        filters={
+            "employee_id": doc.employee,
+            "payroll_month": start_month,
+            "payroll_year": start_year
+        },
+        fieldname="SUM(lop_amount)"
+    ) or 0
+    doc.custom_uploaded_lop_loss_amount = final_lop
+
+    no__of_days = frappe.db.get_value(
+        "Lop Per Request",
+        filters={
+            "employee_id": doc.employee,
+            "payroll_month": start_month,
+            "payroll_year": start_year
+        },
+        fieldname="SUM(no__of_days)"
+    ) or 0
+    doc.custom_uploaded_leave_without_pay = no__of_days
+
+    sw_loss = frappe.db.get_value(
+        "Lop Per Request",
+        filters={
+            "employee_id": doc.employee,
+            "payroll_month": start_month,
+            "payroll_year": start_year
+        },
+        fieldname="SUM(employee_service_weightage_loss)"
+    ) or 0
+
+    da_loss = frappe.db.get_value(
+        "Lop Per Request",
+        filters={
+            "employee_id": doc.employee,
+            "payroll_month": start_month,
+            "payroll_year": start_year
+        },
+        fieldname="SUM(employee_da_loss_for_payroll_period)"
+    ) or 0
+    doc.custom_dearness_allowance_ = da_loss
+
+    # === 2. Fetch full original service weightage for that month/year ===
+    sw_row = frappe.db.get_value(
+        "Employee Service Weightage",
+        {
+            "employee_id": doc.employee,
+            "payroll_month": start_month,
+            "payroll_year": start_year
+        },
+        "service_weightage_after_lop",
+        as_dict=True
+    )
+
+    original_sw = float(sw_row.service_weightage_after_lop or 0) if sw_row else 0
+    adjusted_sw = original_sw - sw_loss
+    doc.custom_service_weightage = round(adjusted_sw, 2)
