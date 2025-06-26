@@ -310,12 +310,13 @@ def set_overtime_wages(slip, method):
 
 
 
-def set_employee_reimbursement_wages(slip,method):
-    start_date = getdate(slip.start_date)
 
+
+def set_employee_reimbursement_wages(slip, method):
+    start_date = getdate(slip.start_date)
     month = start_date.strftime("%B")
     year = start_date.strftime("%Y")
-    
+
     row = frappe.db.get_value(
         "Employee Reimbursement Wages",
         {
@@ -323,11 +324,15 @@ def set_employee_reimbursement_wages(slip,method):
             "reimbursement_month": month,
             "reimbursement_year": year,
         },
-        ["lop_refund_amount"],
+        fieldname=["reimbursement_hra", "lop_refund_amount"],
         as_dict=True
     )
-    if row and row.get("lop_refund_amount"):
-        slip.custom_employee_reimbursement_wages = row["lop_refund_amount"]
+
+    if row:
+        if row.get("lop_refund_amount"):
+            slip.custom_employee_reimbursement_wages = row["lop_refund_amount"]
+        if row.get("reimbursement_hra"):
+            slip.custom_reimbursement_hra_amount = row["reimbursement_hra"]
 
 
 

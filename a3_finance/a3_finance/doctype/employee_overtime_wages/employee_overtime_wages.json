@@ -44,7 +44,7 @@
    "label": "Basic Pay"
   },
   {
-   "fetch_from": "employee_id.custom_service_weightage",
+   "fetch_from": "employee_id.custom_service_weightage_emp",
    "fieldname": "service_weightage",
    "fieldtype": "Data",
    "label": "Service Weightage"
@@ -109,7 +109,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-24 08:37:50.775247",
+ "modified": "2025-06-26 10:30:29.944252",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Overtime Wages",
@@ -129,6 +129,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
