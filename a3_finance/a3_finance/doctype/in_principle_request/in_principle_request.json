@@ -1,0 +1,128 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{IPR}-{######}",
+ "creation": "2025-06-24 13:17:25.472317",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_5lr3",
+  "amended_from",
+  "departmentsection",
+  "department_requisition_no",
+  "select_indenter",
+  "column_break_wxzu",
+  "customer_orderwo_reference",
+  "capex_budget_code_reference",
+  "in_principle_request_date",
+  "section_break_jtmc",
+  "particulars",
+  "section_break_vznm",
+  "justification_with_likely_financial_gain"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_5lr3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "In-Principle Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "departmentsection",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department/Section",
+   "options": "Department"
+  },
+  {
+   "fieldname": "department_requisition_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department Requisition No"
+  },
+  {
+   "fieldname": "select_indenter",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Select Indenter",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_wxzu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_orderwo_reference",
+   "fieldtype": "Data",
+   "label": "Customer Order/WO Reference"
+  },
+  {
+   "fieldname": "capex_budget_code_reference",
+   "fieldtype": "Data",
+   "label": "Capex Budget Code Reference"
+  },
+  {
+   "fieldname": "in_principle_request_date",
+   "fieldtype": "Date",
+   "label": "In-Principle Request Date"
+  },
+  {
+   "fieldname": "section_break_jtmc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "particulars",
+   "fieldtype": "Table",
+   "label": "Particulars",
+   "options": "In-Principle Items"
+  },
+  {
+   "fieldname": "section_break_vznm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "justification_with_likely_financial_gain",
+   "fieldtype": "Small Text",
+   "label": "Justification With Likely Financial Gain"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-06-24 13:26:39.518617",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "In-Principle Request",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
