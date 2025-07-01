@@ -1,0 +1,347 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:purchase_indent_number",
+ "creation": "2025-06-24 14:19:12.447771",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "cost_range",
+  "purchase_indent_number",
+  "department_requisition_number",
+  "store_category",
+  "column_break_dqnu",
+  "indent_date",
+  "departmentsection",
+  "date_of_requisition",
+  "column_break_0sa4",
+  "reference_wo_no",
+  "c_form_applicable",
+  "in_principle_request",
+  "section_break_l4r0",
+  "material_request",
+  "items",
+  "justification",
+  "section_break_tz6n",
+  "quality_requirements",
+  "qc_sheets",
+  "section_break_vlk1",
+  "special_instructions",
+  "source_tab",
+  "test",
+  "source_1",
+  "column_break_9kar",
+  "source_2",
+  "column_break_sztu",
+  "source_3",
+  "cost_estimate_section",
+  "budgetary_qoute",
+  "column_break_wlbu",
+  "select_budget_qoute",
+  "column_break_r8o1",
+  "attach_budget_quote",
+  "section_break_5kvg",
+  "last_purchase_price",
+  "column_break_jqnr",
+  "select_purchase_order",
+  "column_break_i7sq",
+  "attach_purchase_order",
+  "bid_details_section",
+  "type_of_bid",
+  "amended_from",
+  "history_card_tab",
+  "specification_as_per_last_indent",
+  "stock_position_as_in_dept_register",
+  "month_of_last_procurement",
+  "average_consumption",
+  "requirement_planned_for"
+ ],
+ "fields": [
+  {
+   "fieldname": "cost_range",
+   "fieldtype": "Select",
+   "label": "Cost Range",
+   "options": "\nLess than Rs. 5000/-\nBetween Rs. 5000/- and Rs. 25000/-\nBetween Rs. 25000/- and Rs. 50000/-\nBetween Rs. 50000/- and Rs. 2 lakhs\nRs 2 lakh and Rs 20 lakh\nAbove Rs. 20 lakhs"
+  },
+  {
+   "fieldname": "purchase_indent_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Purchase Indent Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "department_requisition_number",
+   "fieldtype": "Data",
+   "label": "Department Requisition Number"
+  },
+  {
+   "fieldname": "column_break_dqnu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "indent_date",
+   "fieldtype": "Date",
+   "label": "Indent Date"
+  },
+  {
+   "fieldname": "departmentsection",
+   "fieldtype": "Link",
+   "label": "Department/Section",
+   "options": "Department"
+  },
+  {
+   "fieldname": "date_of_requisition",
+   "fieldtype": "Date",
+   "label": "Date of Requisition"
+  },
+  {
+   "fieldname": "store_category",
+   "fieldtype": "Select",
+   "label": "Store Category",
+   "options": "Bonded\nGeneral"
+  },
+  {
+   "fieldname": "column_break_0sa4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_wo_no",
+   "fieldtype": "Data",
+   "label": "Reference WO No"
+  },
+  {
+   "fieldname": "c_form_applicable",
+   "fieldtype": "Select",
+   "label": "C-Form Applicable",
+   "options": "Yes\nNo"
+  },
+  {
+   "fieldname": "in_principle_request",
+   "fieldtype": "Link",
+   "label": "Capex In-Principle Reference",
+   "options": "In-Principle Request"
+  },
+  {
+   "fieldname": "material_request",
+   "fieldtype": "Link",
+   "label": "Material Request",
+   "options": "Material Request"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Indent Details"
+  },
+  {
+   "fieldname": "section_break_l4r0",
+   "fieldtype": "Tab Break",
+   "label": "Particulars"
+  },
+  {
+   "fieldname": "justification",
+   "fieldtype": "Small Text",
+   "label": "Justification"
+  },
+  {
+   "fieldname": "quality_requirements",
+   "fieldtype": "Small Text",
+   "label": "Quality Requirements"
+  },
+  {
+   "fieldname": "qc_sheets",
+   "fieldtype": "Attach",
+   "label": "QC Sheets"
+  },
+  {
+   "fieldname": "special_instructions",
+   "fieldtype": "Small Text",
+   "label": "Special Instructions"
+  },
+  {
+   "fieldname": "source_tab",
+   "fieldtype": "Tab Break",
+   "label": "Source"
+  },
+  {
+   "fieldname": "test",
+   "fieldtype": "Section Break",
+   "label": "Source of Supply Known to Indentors"
+  },
+  {
+   "fieldname": "source_1",
+   "fieldtype": "Link",
+   "label": "Source 1",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "column_break_9kar",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source_2",
+   "fieldtype": "Link",
+   "label": "Source 2",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "column_break_sztu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source_3",
+   "fieldtype": "Link",
+   "label": "Source 3",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "cost_estimate_section",
+   "fieldtype": "Section Break",
+   "label": "Cost Estimate"
+  },
+  {
+   "default": "0",
+   "fieldname": "budgetary_qoute",
+   "fieldtype": "Check",
+   "label": "Budgetary Qoute"
+  },
+  {
+   "default": "0",
+   "fieldname": "last_purchase_price",
+   "fieldtype": "Check",
+   "label": "Last Purchase Price"
+  },
+  {
+   "fieldname": "column_break_wlbu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "select_budget_qoute",
+   "fieldtype": "Link",
+   "label": "Select Budget Qoute",
+   "options": "Budget"
+  },
+  {
+   "fieldname": "select_purchase_order",
+   "fieldtype": "Link",
+   "label": "Select Purchase Order",
+   "options": "Purchase Order"
+  },
+  {
+   "fieldname": "column_break_r8o1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "attach_budget_quote",
+   "fieldtype": "Attach",
+   "label": "Attach Budget Quote"
+  },
+  {
+   "fieldname": "attach_purchase_order",
+   "fieldtype": "Attach",
+   "label": "Attach Purchase Order"
+  },
+  {
+   "fieldname": "bid_details_section",
+   "fieldtype": "Section Break",
+   "label": "Bid Details"
+  },
+  {
+   "fieldname": "type_of_bid",
+   "fieldtype": "Select",
+   "label": "Type of Bid",
+   "options": "Single\nTwo"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Indent",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_tz6n",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_vlk1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_5kvg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_jqnr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_i7sq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "history_card_tab",
+   "fieldtype": "Tab Break",
+   "label": "History Card"
+  },
+  {
+   "fieldname": "specification_as_per_last_indent",
+   "fieldtype": "Data",
+   "label": "Specification as per last Indent"
+  },
+  {
+   "fieldname": "stock_position_as_in_dept_register",
+   "fieldtype": "Data",
+   "label": "Stock position as in dept. register"
+  },
+  {
+   "fieldname": "month_of_last_procurement",
+   "fieldtype": "Data",
+   "label": "Month of last procurement"
+  },
+  {
+   "fieldname": "average_consumption",
+   "fieldtype": "Select",
+   "label": "Average consumption",
+   "options": "\nMonthly\nYearly"
+  },
+  {
+   "fieldname": "requirement_planned_for",
+   "fieldtype": "Data",
+   "label": "Requirement planned for"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-01 14:13:19.642839",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Indent",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
