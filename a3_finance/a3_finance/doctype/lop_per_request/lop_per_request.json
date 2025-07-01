@@ -1,0 +1,165 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{employee_id}-{employee_name}-{#####}",
+ "creation": "2025-06-11 13:36:29.121165",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_id",
+  "payroll_month",
+  "start_date",
+  "column_break_sjra",
+  "employee_name",
+  "payroll_year",
+  "no__of_days",
+  "section_break_tnpv",
+  "base_salary",
+  "column_break_ehwp",
+  "lop_amount",
+  "section_break_pzaw",
+  "employee_service_weightage",
+  "column_break_gypx",
+  "employee_service_weightage_loss",
+  "section_break_zetk",
+  "employee_da_for_payroll_period",
+  "column_break_cdrj",
+  "employee_da_loss_for_payroll_period"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_id",
+   "fieldtype": "Link",
+   "label": "Employee ID",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee_id.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee Name "
+  },
+  {
+   "fieldname": "payroll_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+  },
+  {
+   "fieldname": "payroll_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Year"
+  },
+  {
+   "fieldname": "no__of_days",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "No.  of Days",
+   "precision": "2"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Start date"
+  },
+  {
+   "fieldname": "column_break_sjra",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_tnpv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "base_salary",
+   "fieldtype": "Currency",
+   "label": "Base Salary for Payroll Period"
+  },
+  {
+   "fieldname": "column_break_ehwp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lop_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "LOP Amount For Payroll Period"
+  },
+  {
+   "fieldname": "section_break_pzaw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "employee_service_weightage",
+   "fieldtype": "Currency",
+   "label": "Employee Service Weightage For Payroll Period"
+  },
+  {
+   "fieldname": "column_break_gypx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employee_service_weightage_loss",
+   "fieldtype": "Currency",
+   "label": "Employee Service Weightage Loss For Payroll Period"
+  },
+  {
+   "fieldname": "section_break_zetk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "employee_da_for_payroll_period",
+   "fieldtype": "Float",
+   "label": "Employee DA For Payroll Period"
+  },
+  {
+   "fieldname": "column_break_cdrj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employee_da_loss_for_payroll_period",
+   "fieldtype": "Currency",
+   "label": "Employee DA Loss For Payroll Period"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-24 20:59:28.930456",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Lop Per Request",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}

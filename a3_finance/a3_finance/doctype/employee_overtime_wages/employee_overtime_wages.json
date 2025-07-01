@@ -11,12 +11,12 @@
   "payroll_month",
   "quarter_details",
   "column_break_juux",
-  "overtime_hours",
+  "employee_name",
   "payroll_year",
   "quarter_year",
   "section_break_jp07",
-  "employee_name",
   "basic_pay",
+  "overtime_hours",
   "column_break_vgkg",
   "service_weightage",
   "variable_da",
@@ -99,7 +99,7 @@
    "fieldname": "quarter_details",
    "fieldtype": "Select",
    "label": "Quarter Details",
-   "options": "\nFirst Quarter\nSecond Quarter\nThird Quarter\nFourth Quarter"
+   "options": "\nQ1\nQ2\nQ3\nQ4"
   },
   {
    "fieldname": "quarter_year",
@@ -107,10 +107,9 @@
    "label": "Quarter Year"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-13 13:02:52.030578",
+ "modified": "2025-06-24 08:37:50.775247",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Overtime Wages",
@@ -130,7 +129,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

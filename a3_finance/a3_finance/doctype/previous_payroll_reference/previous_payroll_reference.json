@@ -1,0 +1,111 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PPR-{employee}-{salaried_month}-{salaried_year}",
+ "creation": "2025-06-19 17:30:19.382070",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "salaried_month",
+  "base_salary",
+  "hra_percent",
+  "hra_amount",
+  "column_break_2jhr",
+  "employee_number",
+  "salaried_year",
+  "service_weightage",
+  "da_percent",
+  "variable_da_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_number",
+   "fieldtype": "Data",
+   "label": "Employee Number"
+  },
+  {
+   "fieldname": "base_salary",
+   "fieldtype": "Currency",
+   "label": "Base Salary"
+  },
+  {
+   "fieldname": "service_weightage",
+   "fieldtype": "Currency",
+   "label": "Service Weightage"
+  },
+  {
+   "fieldname": "hra_percent",
+   "fieldtype": "Float",
+   "label": "HRA Percent"
+  },
+  {
+   "fieldname": "da_percent",
+   "fieldtype": "Float",
+   "label": "DA Percent"
+  },
+  {
+   "fieldname": "column_break_2jhr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hra_amount",
+   "fieldtype": "Data",
+   "label": "HRA Amount"
+  },
+  {
+   "fieldname": "variable_da_amount",
+   "fieldtype": "Data",
+   "label": "Variable DA Amount"
+  },
+  {
+   "fieldname": "salaried_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Salaried Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+  },
+  {
+   "fieldname": "salaried_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Salaried Year"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-19 17:45:46.101955",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Previous Payroll Reference",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class LopDaysSummary(Document):
+class ProfessionTax(Document):
 	pass

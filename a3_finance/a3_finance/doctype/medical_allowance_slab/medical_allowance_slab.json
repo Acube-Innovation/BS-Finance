@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:medical_allowance_id",
+ "creation": "2025-06-17 17:25:27.729681",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "medical_allowance_id",
+  "is_active",
+  "column_break_fdhk",
+  "year",
+  "section_break_tiug",
+  "medical_allowance"
+ ],
+ "fields": [
+  {
+   "fieldname": "medical_allowance_id",
+   "fieldtype": "Data",
+   "label": "Medical Allowance ID",
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "column_break_fdhk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Data",
+   "label": "Year"
+  },
+  {
+   "fieldname": "section_break_tiug",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "medical_allowance",
+   "fieldtype": "Table",
+   "label": "Medical Allowance",
+   "options": "Medical Allowance"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-17 17:28:02.481811",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Medical Allowance Slab",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

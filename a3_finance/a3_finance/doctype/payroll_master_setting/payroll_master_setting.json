@@ -1,10 +1,16 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-05-31 23:43:04.337556",
+ "autoname": "format:{payroll_month}-{payroll_year}",
+ "creation": "2025-06-23 17:00:03.888812",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "payroll_month",
+  "quarter",
+  "column_break_qurx",
+  "payroll_year",
+  "payroll_month_number",
   "section_break_xydj",
   "column_break_ueik",
   "service_weightage",
@@ -13,19 +19,22 @@
   "canteen_subsidy",
   "hra_",
   "column_break_pbng",
+  "payroll_days",
   "washing_allowance",
   "book_allowance",
   "night_shift_allowance",
-  "conveyance_allowances",
+  "deputation_allowance",
   "column_break_mxxi",
   "stitching_allowance",
   "shoe_allowance",
   "spectacle_allowance",
   "overtime_wages",
+  "others",
   "column_break_dea2",
   "ex_gratia",
   "arrear",
   "festival_advance",
+  "conveyance_allowances",
   "section_break_dcuz",
   "column_break_dxzt",
   "festival_advance_recovery",
@@ -206,7 +215,7 @@
   {
    "fieldname": "conveyance_allowances",
    "fieldtype": "Float",
-   "label": "conveyance_allowance"
+   "label": "Conveyance Allowance"
   },
   {
    "fieldname": "overtime_wages",
@@ -217,31 +226,86 @@
    "fieldname": "hra_",
    "fieldtype": "Float",
    "label": "HRA %"
+  },
+  {
+   "fieldname": "payroll_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qurx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payroll_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Year",
+   "reqd": 1
+  },
+  {
+   "default": "30.00",
+   "fieldname": "payroll_days",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Days",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payroll_month_number",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Payroll Month Number"
+  },
+  {
+   "fieldname": "quarter",
+   "fieldtype": "Select",
+   "label": "Quarter",
+   "options": "\nQ1\nQ2\nQ3\nQ4"
+  },
+  {
+   "fieldname": "deputation_allowance",
+   "fieldtype": "Currency",
+   "label": "Deputation Allowance"
+  },
+  {
+   "fieldname": "others",
+   "fieldtype": "Currency",
+   "label": "Others"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "issingle": 1,
  "links": [],
- "modified": "2025-06-23 10:58:08.042823",
+ "modified": "2025-06-24 10:54:20.609584",
  "modified_by": "Administrator",
  "module": "A3 Finance",
- "name": "Payroll Master Settings",
+ "name": "Payroll Master Setting",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
    "create": 1,
    "delete": 1,
    "email": 1,
+   "export": 1,
    "print": 1,
    "read": 1,
+   "report": 1,
    "role": "System Manager",
    "share": 1,
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }
