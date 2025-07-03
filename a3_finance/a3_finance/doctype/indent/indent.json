@@ -52,9 +52,37 @@
   "history_card_tab",
   "specification_as_per_last_indent",
   "stock_position_as_in_dept_register",
+  "column_break_gvui",
   "month_of_last_procurement",
   "average_consumption",
-  "requirement_planned_for"
+  "column_break_cwnn",
+  "requirement_planned_for",
+  "check_list_section",
+  "specifications",
+  "quality_requirements_check",
+  "column_break_dr5i",
+  "justification_check",
+  "special_instructions_check",
+  "column_break_eddg",
+  "cost_estimate_in_sealed_envelope",
+  "indent_review_information_tab",
+  "indentor_specification",
+  "stock_position_in_stores",
+  "column_break_cqz1",
+  "date_of_last_procurement",
+  "last_procurement_rate",
+  "column_break_qaty",
+  "current_procurement_rate",
+  "probable_suppliers_section",
+  "supplier_1",
+  "column_break_evv7",
+  "supplier_2",
+  "column_break_ntvz",
+  "supplier_3",
+  "section_break_aitk",
+  "prepared_by",
+  "column_break_boft",
+  "column_break_kroy"
  ],
  "fields": [
   {
@@ -314,13 +342,151 @@
    "fieldname": "requirement_planned_for",
    "fieldtype": "Data",
    "label": "Requirement planned for"
+  },
+  {
+   "fieldname": "column_break_gvui",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "check_list_section",
+   "fieldtype": "Section Break",
+   "label": "Check List"
+  },
+  {
+   "default": "0",
+   "fieldname": "specifications",
+   "fieldtype": "Check",
+   "label": "Specifications"
+  },
+  {
+   "default": "0",
+   "fieldname": "quality_requirements_check",
+   "fieldtype": "Check",
+   "label": "Quality requirements"
+  },
+  {
+   "fieldname": "column_break_dr5i",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "justification_check",
+   "fieldtype": "Check",
+   "label": "Justification"
+  },
+  {
+   "default": "0",
+   "fieldname": "special_instructions_check",
+   "fieldtype": "Check",
+   "label": "Special Instructions"
+  },
+  {
+   "default": "0",
+   "fieldname": "cost_estimate_in_sealed_envelope",
+   "fieldtype": "Check",
+   "label": "Cost Estimate in sealed envelope"
+  },
+  {
+   "fieldname": "indent_review_information_tab",
+   "fieldtype": "Tab Break",
+   "label": "Indent Review Information"
+  },
+  {
+   "fieldname": "indentor_specification",
+   "fieldtype": "Data",
+   "label": "Indentor specification"
+  },
+  {
+   "fieldname": "stock_position_in_stores",
+   "fieldtype": "Data",
+   "label": "Stock position in stores"
+  },
+  {
+   "fieldname": "date_of_last_procurement",
+   "fieldtype": "Date",
+   "label": "Date of last procurement"
+  },
+  {
+   "fieldname": "column_break_cqz1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_procurement_rate",
+   "fieldtype": "Currency",
+   "label": "Last procurement rate"
+  },
+  {
+   "fieldname": "current_procurement_rate",
+   "fieldtype": "Currency",
+   "label": "Current procurement rate"
+  },
+  {
+   "fieldname": "probable_suppliers_section",
+   "fieldtype": "Section Break",
+   "label": "Probable Suppliers"
+  },
+  {
+   "fieldname": "supplier_1",
+   "fieldtype": "Link",
+   "label": "Supplier 1",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "column_break_evv7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_2",
+   "fieldtype": "Link",
+   "label": "Supplier 2",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "column_break_ntvz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_3",
+   "fieldtype": "Link",
+   "label": "Supplier 3",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "section_break_aitk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "prepared_by",
+   "fieldtype": "Link",
+   "label": "Prepared by",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_boft",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_cwnn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_eddg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qaty",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_kroy",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-01 14:13:19.642839",
+ "modified": "2025-07-02 10:50:24.611311",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Indent",
