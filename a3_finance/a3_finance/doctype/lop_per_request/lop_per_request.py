@@ -8,6 +8,8 @@ from frappe.utils import getdate
 
 class LopPerRequest(Document):
 	def validate(self):
+		from frappe.utils import getdate
+
 		if not self.start_date:
 			return
 
@@ -23,10 +25,9 @@ class LopPerRequest(Document):
 		payroll_days = setting.payroll_days or 30
 		da_percent = float(setting.dearness_allowance_ or 0)
 
-		# Store DA % in field
 		self.employee_da_for_payroll_period = da_percent
 
-		# === 2. Get Base Salary from SSA active at start_date ===
+		# === 2. Get Base Salary from SSA (first try from given date, else fallback to latest) ===
 		base_salary = frappe.db.get_value(
 			"Salary Structure Assignment",
 			{
@@ -38,12 +39,24 @@ class LopPerRequest(Document):
 			order_by="from_date desc"
 		)
 
+		# ❗ Fallback if not found: use latest SSA
 		if not base_salary:
-			frappe.throw("No active Salary Structure Assignment found for the LOP start date.")
+			base_salary = frappe.db.get_value(
+				"Salary Structure Assignment",
+				{
+					"employee": self.employee_id,
+					"docstatus": 1
+				},
+				"base",
+				order_by="from_date desc"
+			)
+
+		if not base_salary:
+			frappe.throw("No active Salary Structure Assignment found for the employee.")
 
 		self.base_salary = base_salary
 
-		# === 3. Get Service Weightage for matching payroll month and year ===
+		# === 3. Get Service Weightage ===
 		sw_row = frappe.db.get_value(
 			"Employee Service Weightage",
 			{
@@ -61,12 +74,13 @@ class LopPerRequest(Document):
 		# === 4. Calculate Losses ===
 		try:
 			lop_days = float(self.no__of_days or 0)
-			self.lop_amount = (self.base_salary /payroll_days)*self.no__of_days
+			self.lop_amount = (self.base_salary / payroll_days) * lop_days
+
 			# Service Weightage Loss
 			self.employee_service_weightage_loss = round((service_weightage / payroll_days) * lop_days, 2)
 
 			# DA Loss
-			lop_da_loss = ((base_salary + service_weightage) * (da_percent) / payroll_days) * lop_days
+			lop_da_loss = ((base_salary + service_weightage) * da_percent / payroll_days) * lop_days
 			self.employee_da_loss_for_payroll_period = round(lop_da_loss, 2)
 
 		except Exception as e:

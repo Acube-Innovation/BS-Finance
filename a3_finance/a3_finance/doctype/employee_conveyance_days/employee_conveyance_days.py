@@ -18,15 +18,15 @@ class EmployeeConveyanceDays(Document):
 			return
 
 		# Get payroll month/year from a date field (e.g., self.start_date)
-		if not self.start_date:
-			frappe.throw("Start Date is required to determine Payroll Master Setting.")
+		# if not self.start_date:
+		# 	frappe.throw("Start Date is required to determine Payroll Master Setting.")
 
-		start = getdate(self.start_date)
-		month_number = start.month
-		year = start.year
+		# start = getdate(self.start_date)
+		# month_number = start.month
+		# year = start.year
 
 		# Fetch the applicable Payroll Master Setting
-		setting = get_previous_payroll_master_setting(year, month_number)
+		setting = get_previous_payroll_master_setting(self.payroll_year, self.payroll_date)
 		if not setting:
 			frappe.throw("No applicable Payroll Master Setting found for the given start date.")
 
@@ -55,20 +55,30 @@ class EmployeeConveyanceDays(Document):
 			self.conveyance_charges = monthly_amount
 			self.pro_rata_charges = round(prorated_amount, 2)
 
-	def get_previous_payroll_master_setting(year, month_number):
-		years_to_consider = [year, year - 1]
+@staticmethod
+def get_previous_payroll_master_setting(year, month_number):
+    import calendar
 
-		settings = frappe.get_all(
-			"Payroll Master Setting",
-			filters={"payroll_year": ["in", years_to_consider]},
-			fields=["name", "payroll_year", "payroll_month_number"],
-			order_by="payroll_year desc, payroll_month_number desc",
-			limit=20
-		)
+    year = int(year)
 
-		for record in settings:
-			ry, rm = int(record["payroll_year"]), int(record["payroll_month_number"])
-			if ry < year or (ry == year and rm <= month_number):
-				return frappe.get_doc("Payroll Master Setting", record["name"])
+    # Convert month name to number if needed
+    if isinstance(month_number, str):
+        month_number = list(calendar.month_name).index(month_number)
 
-		return None
+    years_to_consider = [year, year - 1]
+
+    settings = frappe.get_all(
+        "Payroll Master Setting",
+        filters={"payroll_year": ["in", years_to_consider]},
+        fields=["name", "payroll_year", "payroll_month_number"],
+        order_by="payroll_year desc, payroll_month_number desc",
+        limit=20
+    )
+
+    for record in settings:
+        ry = int(record["payroll_year"])
+        rm = int(record["payroll_month_number"])
+        if ry < year or (ry == year and rm <= month_number):
+            return frappe.get_doc("Payroll Master Setting", record["name"])
+
+    return None

@@ -8,18 +8,22 @@
  "engine": "InnoDB",
  "field_order": [
   "employee_id",
-  "reimbursement_date",
   "reimbursement_month",
+  "reimbursement_date",
+  "tl_hours",
   "column_break_ytas",
   "employee_name",
-  "no_of_days",
   "reimbursement_year",
+  "no_of_days",
+  "tl_month",
   "section_break_r2jt",
   "reimbursement_basic_pay",
-  "reimbursement_service_weightage",
-  "column_break_adr3",
+  "actual_basic_pay",
   "reimbursement_hra",
+  "column_break_adr3",
+  "reimbursement_service_weightage",
   "reimbursement_da",
+  "lop_pf_deduction",
   "section_break_xiid",
   "lop_refund_amount"
  ],
@@ -58,14 +62,14 @@
    "fieldname": "reimbursement_month",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Reimbursement Month",
+   "label": "Payroll Month",
    "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   },
   {
    "fieldname": "reimbursement_year",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Reimbursement Year"
+   "label": "Payroll Year"
   },
   {
    "fieldname": "section_break_r2jt",
@@ -73,12 +77,12 @@
   },
   {
    "fieldname": "reimbursement_basic_pay",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Reimbursement Basic Pay"
   },
   {
    "fieldname": "reimbursement_service_weightage",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Reimbursement Service Weightage"
   },
   {
@@ -87,12 +91,12 @@
   },
   {
    "fieldname": "reimbursement_hra",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Reimbursement HRA"
   },
   {
    "fieldname": "reimbursement_da",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Reimbursement DA"
   },
   {
@@ -104,12 +108,31 @@
   {
    "fieldname": "section_break_xiid",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "tl_hours",
+   "fieldtype": "Float",
+   "label": "TL Hours"
+  },
+  {
+   "fieldname": "tl_month",
+   "fieldtype": "Data",
+   "label": "TL Month"
+  },
+  {
+   "fieldname": "actual_basic_pay",
+   "fieldtype": "Currency",
+   "label": "Actual Basic Pay for the PEriod"
+  },
+  {
+   "fieldname": "lop_pf_deduction",
+   "fieldtype": "Currency",
+   "label": "Reimbursment PF"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-13 14:54:02.900494",
+ "modified": "2025-06-26 13:46:59.678013",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Reimbursement Wages",
