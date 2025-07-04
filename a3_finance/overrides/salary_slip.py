@@ -790,8 +790,8 @@ def update_tax_on_salary_slip(slip, method):
         })
 
 
-    if deduction_row != slip.custom_income_tax:
-        slip.save()
+    # if deduction_row != slip.custom_income_tax:
+    #     slip.save()
 def update_tax_after_save(doc, method):
     # This runs after the salary slip is saved
     frappe.logger(f"Slip saved for {doc.employee} — now running tax logic.")
