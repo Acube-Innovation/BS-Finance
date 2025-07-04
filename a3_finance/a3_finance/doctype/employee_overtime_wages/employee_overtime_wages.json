@@ -28,6 +28,9 @@
   {
    "fieldname": "employee_id",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Employee ID",
    "options": "Employee"
   },
@@ -35,33 +38,37 @@
    "fetch_from": "employee_id.employee_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Employee Name"
   },
   {
-   "fetch_from": "employee_id.custom_basic_pay",
    "fieldname": "basic_pay",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Basic Pay"
   },
   {
-   "fetch_from": "employee_id.custom_service_weightage_emp",
    "fieldname": "service_weightage",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Service Weightage"
   },
   {
    "fieldname": "variable_da",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Variable DA"
   },
   {
    "fieldname": "overtime_hours",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Overtime Hours"
   },
   {
    "fieldname": "total_amount",
-   "fieldtype": "Int",
+   "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Overtime Amount"
   },
   {
@@ -109,7 +116,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-26 10:30:29.944252",
+ "modified": "2025-06-27 15:01:56.947046",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Overtime Wages",

@@ -6,12 +6,15 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "section_break_ctig",
+  "column_break_syst",
+  "column_break_pqic",
+  "active",
+  "section_break_dciz",
   "start_date",
+  "payroll_month",
   "column_break_qsza",
   "end_date",
-  "section_break_ctig",
-  "payroll_month",
-  "column_break_pqic",
   "payroll_year",
   "section_break_bfrq",
   "employee",
@@ -20,20 +23,27 @@
   "section_break_nqbt",
   "base_pay",
   "da",
-  "society_deduction",
-  "refund_hours",
   "attendance_days",
   "column_break_dwsn",
   "service_weightage",
   "hra",
-  "deputation_allowance",
   "refund_days",
-  "ot_hrs"
+  "ot_hrs",
+  "section_break_lknb",
+  "actual_earning",
+  "tax_paid",
+  "column_break_smrp",
+  "gross_pay",
+  "lop_hrs",
+  "net_pay"
  ],
  "fields": [
   {
    "fieldname": "payroll_month",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Month",
    "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   },
@@ -44,6 +54,9 @@
   {
    "fieldname": "payroll_year",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Year"
   },
   {
@@ -53,6 +66,9 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Employee",
    "options": "Employee"
   },
@@ -64,6 +80,9 @@
    "fetch_from": "employee.employee_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Employee Name"
   },
   {
@@ -71,14 +90,10 @@
    "fieldtype": "Section Break"
   },
   {
+   "fetch_from": "employee.custom_service_weightage_emp",
    "fieldname": "service_weightage",
    "fieldtype": "Currency",
    "label": "Service Weightage"
-  },
-  {
-   "fieldname": "refund_hours",
-   "fieldtype": "Float",
-   "label": "Refund Hours"
   },
   {
    "fieldname": "attendance_days",
@@ -100,19 +115,10 @@
    "label": "OT Hrs"
   },
   {
+   "fetch_from": "employee.custom_basic_pay",
    "fieldname": "base_pay",
    "fieldtype": "Currency",
-   "label": "Base Pay"
-  },
-  {
-   "fieldname": "society_deduction",
-   "fieldtype": "Currency",
-   "label": "Society Deduction"
-  },
-  {
-   "fieldname": "deputation_allowance",
-   "fieldtype": "Currency",
-   "label": "Deputation Allowance"
+   "label": "Base"
   },
   {
    "fieldname": "start_date",
@@ -134,18 +140,67 @@
   },
   {
    "fieldname": "da",
-   "fieldtype": "Currency",
+   "fieldtype": "Float",
    "label": "DA"
   },
   {
    "fieldname": "hra",
-   "fieldtype": "Currency",
+   "fieldtype": "Float",
    "label": "HRA"
+  },
+  {
+   "fieldname": "gross_pay",
+   "fieldtype": "Currency",
+   "label": "Gross Pay"
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "section_break_lknb",
+   "fieldtype": "Section Break",
+   "label": "Tax Related"
+  },
+  {
+   "fetch_from": "employee.custom_actual_earnings",
+   "fieldname": "actual_earning",
+   "fieldtype": "Currency",
+   "label": "Actual Earnings"
+  },
+  {
+   "fieldname": "tax_paid",
+   "fieldtype": "Currency",
+   "label": "Tax Paid"
+  },
+  {
+   "fieldname": "lop_hrs",
+   "fieldtype": "Currency",
+   "label": "LOP Hrs Amount"
+  },
+  {
+   "fieldname": "column_break_syst",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_dciz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_smrp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_pay",
+   "fieldtype": "Currency",
+   "label": "Net Pay"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-24 17:27:25.584908",
+ "modified": "2025-07-02 12:18:34.874053",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Payroll Details",
@@ -165,6 +220,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

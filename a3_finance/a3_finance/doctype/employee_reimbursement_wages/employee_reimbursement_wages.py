@@ -120,83 +120,111 @@ class EmployeeReimbursementWages(Document):
 
 	def validate(self):
 		from frappe.utils import getdate
+		import calendar
 
 		reimbursement_date = getdate(self.reimbursement_date)
 
 		if not self.employee_id:
 			frappe.throw("Employee is required to fetch salary and service weightage.")
 
-		# Fallback: base from Salary Structure Assignment (Basic component)
-		base = 0
+		# Try fetching base from Salary Structure Assignment
+		base = None
 		assignment = frappe.db.sql("""
 			SELECT base FROM `tabSalary Structure Assignment`
 			WHERE employee = %s AND from_date <= %s AND docstatus = 1
 			ORDER BY from_date DESC LIMIT 1
 		""", (self.employee_id, reimbursement_date), as_dict=True)
 
-		if assignment:
-			base = assignment[0].base
+		if assignment and assignment[0].get("base") is not None:
+			base = assignment[0]["base"]
 
-		if not base:
+		# If base still None, fallback to reimbursement_basic_pay
+		if base is None and self.reimbursement_basic_pay:
 			base = self.reimbursement_basic_pay
-		else:
-			self.reimbursement_basic_pay = base
+
+		# If still None, fallback to actual_basic_pay
+		if base is None and self.actual_basic_pay:
+			base = self.actual_basic_pay
+
+		# Final fail-safe
+		if base is None:
+			frappe.throw("Basic Pay not found from Salary Structure, Reimbursement, or Actual Pay fields.")
 
 		basic_pay = float(base)
+		self.reimbursement_basic_pay = basic_pay  # assign back
 		print(f"Basic Pay: {basic_pay}")
 
-		# Get payroll month/year from reimbursement date
-		month = reimbursement_date.strftime("%B")
-		year = reimbursement_date.strftime("%Y")
+		# Payroll month/year
+		if self.reimbursement_date:
+			month_name = reimbursement_date.strftime("%B")
+			month = list(calendar.month_name).index(month_name)
+			year = int(reimbursement_date.strftime("%Y"))
+		else:
+			try:
+				month = list(calendar.month_name).index(self.tl_month)
+			except:
+				frappe.throw(f"Invalid month format: {self.tl_month}")
+			year = int(self.reimbursement_year)
 
-		# Get DA % from Payroll Master Setting
-		da_doc = get_previous_payroll_master_setting(int(year), reimbursement_date.month)
+		# DA %
+		da_doc = get_previous_payroll_master_setting(year, month)
 		da_percent = float(da_doc.dearness_allowance_ or 0) if da_doc else 0
 
-		# Get Service Weightage
+		# Service Weightage
 		sw_doc = frappe.db.get_value(
 			"Employee Service Weightage",
 			{
 				"employee_id": self.employee_id,
-				"payroll_month": month,
-				"payroll_year": year
+				"payroll_month": calendar.month_name[month],
+				"payroll_year": str(year)
 			},
 			"service_weightage",
 			as_dict=True
 		)
 		service_weightage = float(sw_doc["service_weightage"]) if sw_doc else 0
-		self.reimbursement_service_weightage = (service_weightage / 30) * float(self.no_of_days or 0)
 
+		# Days-based refund
 		if float(self.no_of_days or 0) > 0:
-			# Days-based refund
-			hra = ((self.actual_basic_pay + service_weightage) * 0.16)/30 * self.no_of_days
+			self.reimbursement_service_weightage = (service_weightage / 30) * float(self.no_of_days)
+			self.reimbursement_basic_pay = (self.actual_basic_pay /30) * float(self.no_of_days)
+			hra = ((self.actual_basic_pay + service_weightage) * 0.16) / 30 * self.no_of_days
 			self.reimbursement_hra = hra
 
-			da = ((self.actual_basic_pay + service_weightage) * da_percent)/30 * self.no_of_days
+			da = ((self.actual_basic_pay + service_weightage) * da_percent) / 30 * self.no_of_days
 			self.reimbursement_da = da
 
-			lop_refund = (self.reimbursement_basic_pay + self.reimbursement_service_weightage + self.reimbursement_da + self.reimbursement_hra) 
+			lop_refund = (
+				self.reimbursement_basic_pay +
+				self.reimbursement_service_weightage +
+				self.reimbursement_da +
+				self.reimbursement_hra
+			)
 			self.lop_refund_amount = round(lop_refund, 2)
 
-			# pf_deduction = ((basic_pay + service_weightage + da) * 0.12 )/30 * self.no_of_days
-			# self.lop_pf_deduction = round(pf_deduction, 2)
-
+		# TL-based refund
 		elif float(self.tl_hours or 0) > 0:
-			# Time Loss-based refund
-			refund_hours = float(self.tl_hours)
+			refund_hours = float(self.tl_hours / 8)
+			self.reimbursement_basic_pay = (self.actual_basic_pay / 30) * refund_hours
+			self.reimbursement_service_weightage = (service_weightage / 30) * refund_hours
 
 			vda = (basic_pay + service_weightage) * da_percent
-			self.reimbursement_da = vda
-			self.reimbursement_hra = 0  # HRA is not considered for hours-based refund
+			self.reimbursement_da = (vda / 30) * refund_hours
+			self.reimbursement_hra = 0
 
-			lop_refund = (self.reimbursement_basic_pay + self.reimbursement_service_weightage + self.reimbursement_da + self.reimbursement_hra) 
-			self.lop_refund_amount = round(lop_refund, 2)
+			total_eligible = (
+				self.reimbursement_basic_pay +
+				self.reimbursement_service_weightage +
+				self.reimbursement_da
+			)
+			self.lop_refund_amount = round(total_eligible, 2)
 
 			pf_deduction = (basic_pay + service_weightage + vda) * 0.12 * (refund_hours / 240)
 			self.lop_pf_deduction = round(pf_deduction, 2)
 
 		else:
 			frappe.throw("Either 'No. of Days' or 'LOP Refund Hours' must be provided.")
+
+
 
 
 def get_previous_payroll_master_setting(given_year, given_month_number):

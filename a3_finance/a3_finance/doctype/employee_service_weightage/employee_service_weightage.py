@@ -7,7 +7,15 @@ import calendar
 # MONTH_NAME_MAP = {month: idx for idx, month in enumerate(calendar.month_name) if month}
 
 class EmployeeServiceWeightage(Document):
-    pass
+    def validate(self):
+        if self.employee_id and self.service_weightage is not None:
+            frappe.db.set_value(
+                'Employee',
+                self.employee_id,
+                'custom_service_weightage_emp',
+                self.service_weightage
+            )
+
     # def validate(self):
         # Validate inputs
         # if not self.payroll_month or not self.payroll_year:
