@@ -788,6 +788,7 @@ def update_tax_on_salary_slip(slip, method):
             "salary_component": "Income Tax",
             "amount": tax_amount
         })
+    slip.calculate_net_pay()
 
 
     # if deduction_row != slip.custom_income_tax:
