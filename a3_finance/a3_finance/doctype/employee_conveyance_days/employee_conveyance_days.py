@@ -12,7 +12,7 @@ class EmployeeConveyanceDays(Document):
 			return
 
 		# Fetch vehicle type from Employee
-		self.vehicle_type = frappe.db.get_value("Employee", self.employee, "custom_vehicle_type")
+		# self.vehicle_type = frappe.db.get_value("Employee", self.employee, "custom_vehicle_type")
 
 		if not self.vehicle_type:
 			return

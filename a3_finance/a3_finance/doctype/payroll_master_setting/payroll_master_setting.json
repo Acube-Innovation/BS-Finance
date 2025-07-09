@@ -39,14 +39,17 @@
   "column_break_dxzt",
   "festival_advance_recovery",
   "labour_welfare_fund",
-  "brahmos_recreation_club_contribution",
   "column_break_z9w4",
   "benevolent_fund",
   "canteen_recovery",
+  "column_break_rrwm",
+  "brahmos_recreation_club_contribution",
   "conveyance_allowance_details_section",
   "conveyance_allowance",
   "children_education_allowance_details_section",
-  "children_education_allowance"
+  "children_education_allowance",
+  "medical_allowance_details_section",
+  "medical_allowance"
  ],
  "fields": [
   {
@@ -277,11 +280,26 @@
    "fieldname": "others",
    "fieldtype": "Currency",
    "label": "Others"
+  },
+  {
+   "fieldname": "column_break_rrwm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "medical_allowance_details_section",
+   "fieldtype": "Section Break",
+   "label": "Medical Allowance Details"
+  },
+  {
+   "fieldname": "medical_allowance",
+   "fieldtype": "Table",
+   "label": "Medical Allowance",
+   "options": "Medical Allowance"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-27 15:07:22.568826",
+ "modified": "2025-07-08 12:01:29.358738",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",

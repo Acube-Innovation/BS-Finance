@@ -7,15 +7,17 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "payroll_date",
+  "column_break_cixb",
+  "payroll_year",
+  "section_break_jmix",
   "employee",
   "employee_name",
   "vehicle_type",
-  "total_working_days",
   "column_break_7lzf",
-  "payroll_date",
-  "payroll_year",
-  "present_days",
+  "total_working_days",
   "minimum_working_days",
+  "present_days",
   "conveyance_charges_section",
   "conveyance_charges",
   "column_break_i0ns",
@@ -39,14 +41,14 @@
    "label": "Employee Name"
   },
   {
-   "fetch_from": "employee.custom_vehicle_type",
    "fieldname": "vehicle_type",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "in_filter": 1,
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
-   "label": "Vehicle Type"
+   "label": "Vehicle Type",
+   "options": "\n4 Wheeler\n2 Wheeler\nOthers"
   },
   {
    "fieldname": "present_days",
@@ -112,12 +114,20 @@
    "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Payroll Year"
+  },
+  {
+   "fieldname": "column_break_cixb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_jmix",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-01 14:24:44.212807",
+ "modified": "2025-07-09 12:01:50.297971",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Conveyance Days",
