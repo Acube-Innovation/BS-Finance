@@ -4,7 +4,7 @@
 import frappe
 import math
 from frappe.model.document import Document
-
+from decimal import Decimal, ROUND_HALF_UP
 
 class EmployeeConveyanceDays(Document):
 	def validate(self):
@@ -27,6 +27,15 @@ class EmployeeConveyanceDays(Document):
 
 		# Fetch the applicable Payroll Master Setting
 		setting = get_previous_payroll_master_setting(self.payroll_year, self.payroll_date)
+		no__of_days = frappe.db.get_value(
+        "Lop Per Request",
+        filters={
+            "employee_id": self.employee,
+            "payroll_month": self.payroll_date,
+            "payroll_year": self.payroll_year
+        },
+        fieldname="SUM(no__of_days)"
+    ) or 0
 		if not setting:
 			frappe.throw("No applicable Payroll Master Setting found for the given start date.")
 
@@ -40,9 +49,10 @@ class EmployeeConveyanceDays(Document):
 		self.monthly_conveyance_amount = monthly_amount  # Or however you're storing this field
 		# Calculate minimum working days (75% of total), rounded up
 		self.minimum_working_days = math.ceil(0.75 * self.total_working_days)
+		attendance_days = self.total_working_days - no__of_days
 
 		# Apply rules
-		if self.present_days < 10:
+		if attendance_days < 10 and self.present_days<10:
 			self.conveyance_charges = 0
 			self.pro_rata_charges = 0
 
@@ -53,8 +63,7 @@ class EmployeeConveyanceDays(Document):
 		else:
 			prorated_amount = (monthly_amount / self.minimum_working_days) * self.present_days
 			self.conveyance_charges = monthly_amount
-			self.pro_rata_charges = round(prorated_amount, 2)
-
+			self.pro_rata_charges = int(Decimal(prorated_amount).quantize(0, rounding=ROUND_HALF_UP))
 @staticmethod
 def get_previous_payroll_master_setting(year, month_number):
     import calendar

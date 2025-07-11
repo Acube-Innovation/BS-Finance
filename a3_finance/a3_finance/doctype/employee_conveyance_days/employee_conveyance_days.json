@@ -41,6 +41,7 @@
    "label": "Employee Name"
   },
   {
+   "fetch_from": "employee.custom_vehicle_type",
    "fieldname": "vehicle_type",
    "fieldtype": "Select",
    "in_filter": 1,
@@ -127,7 +128,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-09 12:01:50.297971",
+ "modified": "2025-07-10 15:11:59.605850",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Conveyance Days",

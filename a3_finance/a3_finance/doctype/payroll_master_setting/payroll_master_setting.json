@@ -60,6 +60,7 @@
   {
    "fieldname": "service_weightage",
    "fieldtype": "Int",
+   "hidden": 1,
    "label": "Service Weightage"
   },
   {
@@ -274,6 +275,7 @@
   {
    "fieldname": "deputation_allowance",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Deputation Allowance"
   },
   {
@@ -299,7 +301,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-08 12:01:29.358738",
+ "modified": "2025-07-10 16:11:33.014251",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",

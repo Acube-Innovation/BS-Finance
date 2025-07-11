@@ -27,7 +27,7 @@ class LOPUpload(Document):
 
         for idx, row in df.iterrows():
             try:
-                sl_no = int(row["Sl. No."])
+                sl_no = int(row["Sl. No"])
                 ec = str(row["EC"])
                 name = row["NAME"]
                 tl_hours = float(row.get("TL hrs.", 0) or 0)

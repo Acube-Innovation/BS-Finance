@@ -31,11 +31,11 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_stitching_allowance                    = setting.stitching_allowance if month_number== 1 else 0
     doc.custom_shoe_allowance                         = setting.shoe_allowance if month_number== 1 else 0
     doc.custom_spectacle_allowance                    = setting.spectacle_allowance if month_number== 1 else 0
-    # doc.custom_ex_gratia                              = setting.ex_gratia
+    doc.custom_ex_gratia                              = setting.ex_gratia
     doc.custom_arrear                                 = setting.arrear
     doc.custom_festival_advance                       = setting.festival_advance
     doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
-    doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund
+    doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund if setting.payroll_month_number in [6, 12] else 0
     doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution
     doc.custom_benevolent_fund                        = setting.benevolent_fund
     doc.custom_canteen_recovery                       = setting.canteen_recovery
@@ -92,6 +92,41 @@ def get_previous_payroll_master_setting(year, month_number):
     #             "amount": payout,
     #             "default_amount": payout,
     #         })
+
+import frappe
+from frappe.utils import getdate
+
+def calculate_exgratia(doc, method):
+    if not doc.custom_ex_gratia:
+        return  # Skip if no bonus set
+
+    employee = doc.employee
+    bonus_amount = float(doc.custom_ex_gratia)
+
+    # Determine previous financial year
+    doc_date = getdate(doc.start_date)
+    if doc_date.month >= 4:
+        prev_fy_start = f"{doc_date.year - 1}-04-01"
+        prev_fy_end = f"{doc_date.year}-03-31"
+    else:
+        prev_fy_start = f"{doc_date.year - 2}-04-01"
+        prev_fy_end = f"{doc_date.year - 1}-03-31"
+
+    # Fetch total LOP days from LOP per Request within prev FY
+    total_lop = frappe.db.sql("""
+        SELECT SUM(no__of_days) FROM `tabLop Per Request`
+        WHERE employee_id= %s
+          AND start_date BETWEEN %s AND %s
+    """, (employee, prev_fy_start, prev_fy_end))[0][0] or 0
+
+    # Set total LOP days in field
+    doc.custom_total_lop_previous_year = total_lop
+
+    # Calculate Ex-Gratia
+    exgratia = (bonus_amount / 360.0) * (360.0 - total_lop)
+    doc.custom_ex_gratia = round(exgratia)
+
+    print(f"[DEBUG] Bonus: {bonus_amount}, LOP: {total_lop}, ExGratia: {doc.custom_ex_gratia}")
 
 
 
@@ -302,7 +337,7 @@ def set_basic_pay(doc, method):
         },
         fieldname="SUM(no__of_days)"
     ) or 0
-    doc.custom_uploaded_leave_without_pay = round(no__of_days)
+    doc.custom_uploaded_leave_without_pay = no__of_days
 
     sw_loss = frappe.db.get_value(
     "Lop Per Request",
@@ -329,17 +364,15 @@ def set_basic_pay(doc, method):
 
     # === 2. Fetch full original service weightage for that month/year ===
     sw_row = frappe.db.get_value(
-        "Employee Service Weightage",
+        "Employee",
         {
-            "employee_id": doc.employee,
-            "payroll_month": start_month,
-            "payroll_year": start_year
+            "employee": doc.employee,
         },
-        "service_weightage",
+        "custom_service_weightage_emp",
         as_dict=True
     )
 
-    doc.custom_actual_sw = float(sw_row.service_weightage or 0) if sw_row else 0
+    doc.custom_actual_sw = float(sw_row.custom_service_weightage_emp or 0) if sw_row else 0
     # adjusted_sw = doc.custom_actual_sw - round( sw_loss)
     # doc.custom_service_weightage= round(adjusted_sw, 2)  #reused an unused field (custom_basic_pay)
     adjusted_sw = doc.custom_actual_sw - float(sw_loss)
@@ -347,272 +380,16 @@ def set_basic_pay(doc, method):
 
 
 
-def update_tax_component(doc, method):
-    from frappe.utils import getdate, flt
-
-    employee = doc.employee
-    gross_pay = flt(doc.gross_pay)
-    time_loss_deduction = flt(doc.custom_time_loss_in_hours_deduction)
-    # actual_earnings = flt(frappe.db.get_value('Employee', employee, 'custom_actual_earnings'))
-
-    slip_date = getdate(doc.start_date)
-    current_month = slip_date.strftime("%B")  # e.g., "April"
-    current_year = slip_date.year
-
-    # Calculate fiscal month index (April = 1, May = 2, ..., March = 12)
-    fiscal_month_index = (slip_date.month - 4 + 12) % 12 + 1
-    months_remaining = 12 - (fiscal_month_index - 1)
-
-    # Get past months' tracker entries for this fiscal year
-    past_entries = frappe.get_all(
-        "Taxable Earnings Tracker",
-        filters={
-            "employee": employee,
-            "fiscal_year": current_year,
-        },
-        fields=["gross_pay", "time_loss_deduction"]
-    )
-
-    # Sum up gross - deduction from all previous months
-    cumulative_total = sum(
-        flt(entry["gross_pay"]) - flt(entry["time_loss_deduction"]) for entry in past_entries
-    )
-
-    # Add current month's values
-    cumulative_total += gross_pay - time_loss_deduction
-
-    # Final taxable earnings
-    taxable_earnings = (actual_earnings * months_remaining) + cumulative_total
-
-    # Insert or update the Taxable Earnings Tracker
-    existing = frappe.get_all(
-        "Taxable Earnings Tracker",
-        filters={"employee": employee, "month": current_month, "fiscal_year": current_year},
-        fields=["name"],
-        limit=1
-    )
-
-    if existing:
-        tracker_doc = frappe.get_doc("Taxable Earnings Tracker", existing[0]["name"])
-    else:
-        tracker_doc = frappe.new_doc("Taxable Earnings Tracker")
-
-    tracker_doc.employee = employee
-    tracker_doc.fiscal_year = current_year
-    tracker_doc.month = current_month
-    tracker_doc.gross_pay = gross_pay
-    tracker_doc.time_loss_deduction = time_loss_deduction
-    tracker_doc.cumulative_taxable_earnings = taxable_earnings
-    tracker_doc.save()
-
-    # ✅ Update in Employee
-    # frappe.db.set_value("Employee", employee, "custom_taxable_earnings", taxable_earnings)
-
-
-
-# def update_tax_on_salary_slip(slip, method):
-#     # if slip.docstatus != 0:
-#     #     return
-
-#     from calendar import month_name
-#     from frappe.utils import getdate, flt, cint
-
-#     employee = slip.employee
-#     start_date = getdate(slip.start_date)
-#     month = start_date.strftime("%B")
-#     month_number = start_date.month
-#     year = start_date.year
-
-#     print(f"\n--- Processing Tax for {employee} - {month} {year} ---")
-
-#     base_salary = flt(frappe.db.get_value("Salary Structure Assignment", {"employee":slip.employee}, "base")) or 0
-#     service_weightage = flt(frappe.db.get_value("Employee", employee, "custom_service_weightage_emp")) or 0
-#     employment_type = frappe.db.get_value("Employee", employee, "employment_type") or ""
-#     no_of_children = cint(frappe.db.get_value("Employee", employee, "custom_no_of_children_eligible_for_cea") or 0)
-#     vehicle_type = frappe.db.get_value("Employee", employee, "custom_vehicle_type") or None
-
-#     print(f"Base Salary: {base_salary}")
-#     print(f"Service Weightage: {service_weightage}")
-#     print(f"Employment Type: {employment_type}")
-#     print(f"No of Children: {no_of_children}")
-#     print(f"Vehicle Type: {vehicle_type}")
-
-#     # Get full Payroll Master Setting document
-#     pms_name = frappe.get_value("Payroll Master Setting", {"payroll_month": month, "payroll_year": str(year)}, "name")
-#     if not pms_name:
-#         frappe.throw("Payroll Master Setting not found for the given month and year.")
-
-#     pms = frappe.get_doc("Payroll Master Setting", pms_name)
-
-#     da_amt = round((base_salary + service_weightage) * flt(pms.get("dearness_allowance_", 0)))
-#     hra_amt = round((base_salary + service_weightage) * flt(pms.get("hra_", 0)))
-#     canteen_subsidy = flt(pms.get("canteen_subsidy", 0))
-
-#     print(f"DA (%): {pms.get('dearness_allowance_', 0)}, Amount: {da_amt}")
-#     print(f"HRA (%): {pms.get('hra_', 0)}, Amount: {hra_amt}")
-#     print(f"Canteen Subsidy: {canteen_subsidy}")
-
-#     medical_allowance = 1400 if base_salary <= 29699 else 1700 if base_salary <= 34000 else 2000
-#     washing_allowance = 125 if employment_type.lower() == "workers" else 0
-#     book_allowance= 250 if employment_type.lower() == "officers" else 0
-
-#     print(f"Medical Allowance: {medical_allowance}")
-#     print(f"Washing Allowance: {washing_allowance}")
-
-#     # ✅ Get Conveyance Allowance from PMS child table
-#     conveyance_allowance = 0
-#     if vehicle_type and hasattr(pms, "conveyance_allowance"):
-#         for row in pms.conveyance_allowance:
-#             if row.type_of_vehicles == vehicle_type:
-#                 conveyance_allowance = flt(row.amount_per_month)
-#                 print(f"Matched Vehicle Type in PMS: {row.type_of_vehicles} → ₹{conveyance_allowance}")
-#                 break
-#     else:
-#         print("No conveyance match found or conveyance_allowance table missing.")
-
-#     # children_education_allowance = sum(
-#     # flt(row.amount) for row in slip.earnings
-#     # print(f"Children Education Allowance: {children_education_allowance}")
-#     if no_of_children == 1:
-#         children_education_allowance = 400
-#     elif no_of_children >=2:
-#         children_education_allowance = 800
-#     else:
-#         children_education_allowance=0
-#     print(f"Children Education Allowance: {children_education_allowance}")
-#     # Monthly earning
-#     monthly_earning = (
-#         base_salary + service_weightage + da_amt + hra_amt +
-#         medical_allowance + washing_allowance +
-#         conveyance_allowance + children_education_allowance + canteen_subsidy + book_allowance
-#     )
-#     print(f"Monthly Earning (Estimated): {monthly_earning}")
-#     # Past payroll info
-#     fy_start_year = year if month_number >= 4 else year - 1
-#     fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
-
-#     print(f"Fiscal Year Start: {fy_start_year}")
-#     print(f"Past Months Considered: {fiscal_months}")
-
-#     past_details = frappe.get_list(
-#         "Employee Payroll Details",
-#         filters={
-#             "employee": employee,
-#             "payroll_year": str(fy_start_year),
-#             "payroll_month": ["in", fiscal_months] if fiscal_months else ""
-#         },
-#         fields=["actual_earning","gross_pay", "lop_hrs", "tax_paid"],
-#         order_by="payroll_month asc" if fiscal_months else None
-#     ) if fiscal_months else []
-
-#     total_tax_paid = sum(flt(row.tax_paid) for row in past_details)
-#     total_past_taxable = sum(flt(row.gross_pay) - flt(row.lop_hrs) for row in past_details)
-
-#     print(f"Total Tax Paid So Far: {total_tax_paid}")
-#     print(f"Total Past Taxable Income: {total_past_taxable}")
-#     # monthly_earning = flt(frappe.db.get_value("Employee", employee, "custom_actual_earnings")) or 0
-#     current_gross = flt(slip.gross_pay)
-#     current_lop = round(flt(slip.custom_time_loss_in_hours_deduction))
-#     current_taxable = current_gross - current_lop
-
-#     print(f"Current Gross Pay: {current_gross}")
-#     print(f"Current LOP: {current_lop}")
-#     print(f"Current Taxable Income: {current_taxable}")
-
-#     if month_number >= 4:
-#         months_left = 15 - month_number
-#     else:
-#         months_left = 3 - month_number + 1
-
-#     print(f"Months Left in FY: {months_left}")
-
-#     estimated_total_taxable_income = (
-#         (monthly_earning * months_left) +
-#         total_past_taxable + current_taxable + 65000 - 75000
-#     )
-#     # estimated_total_taxable_income = (
-#     #     (monthly_earning * months_left) +
-#     #     total_past_taxable + current_taxable + 65000 - 75000
-#     # )
-
-#     print(f"Months Left in FY: {months_left}")
-#     print(f"Estimated Full-Year Taxable Income Before Tax Deduction: {estimated_total_taxable_income}")
-
-#     # net_taxable_income = estimated_total_taxable_income - total_tax_paid
-#     net_taxable_income = estimated_total_taxable_income
-
-#     print(f"Net Taxable Income (After Deducting Tax Paid): {net_taxable_income}")
-
-#     # Tax slab calculation
-#     tax = 0
-#     remaining = net_taxable_income
-#     slabs = [
-#     (400000, 0.00),  # First 4L: no tax
-#     (400000, 0.05),  # Next 4L: 5%
-#     (400000, 0.10),  # ...
-#     (400000, 0.15),
-#     (400000, 0.20),
-#     (400000, 0.25),(40000000,0.30)]
-
-#     if remaining > 1200000:
-#         for slab_amt, rate in slabs:
-#             if remaining > slab_amt:
-#                 slab_tax = slab_amt * rate
-#                 tax += slab_tax
-#                 remaining -= slab_amt
-#                 print(f"Slab: {slab_amt} @ {rate*100}% = {slab_tax}")
-#             else:
-#                 slab_tax = remaining * rate
-#                 tax += slab_tax
-#                 print(f"Slab: {remaining} @ {rate*100}% = {slab_tax}")
-#                 remaining = 0
-#                 break
-#     else:
-#         remaining = 0
-#         tax=0
-#     if remaining > 0:
-#         slab_tax = remaining * 0.30
-#         tax += slab_tax
-#         print(f"Remaining: {remaining} @ 30% = {slab_tax}")
-
-#     cess = tax * 0.04
-#     tax *= 1.04
-#     tax-= sum(flt(row.tax_paid) for row in past_details)
-#     # ================================================================
-#     # slip.custom_current_net_total_earnings=estimated_total_taxable_income
-#     # slip.custom_income_tax=sum(flt(row.tax_paid) for row in past_details)
-#     # slip.custom_tax_calculation_month=months_left
-#     # ====================================================================
-#     print(f"Cess (4%): {cess}")
-#     print(f"Final Monthly Tax Payable: {round(tax, 2)}")
-
-#     monthly_tax = round(tax)
-#     slip.custom_income_tax = round(monthly_tax/(months_left+1))
-#     print(f"Final Tax Payable: {round(slip.custom_income_tax, 2)}")
-#     tax_amount = flt(slip.custom_income_tax)
-
-#     # # Update if exists, else append
-#     row = next((d for d in slip.deductions if d.salary_component == "Income Tax"), None)
-
-#     if row:
-#         row.amount = tax_amount
-#     else:
-#         slip.append("deductions", {
-#             "salary_component": "Income Tax",
-#             "amount": tax_amount
-#         })
-#     slip.calculate_net_pay()
-
-
-    # if deduction_row != slip.custom_income_tax:
-    #     slip.save()
-
+import frappe
+from frappe.utils import getdate, nowdate, cint, flt
+from calendar import month_name
 
 @frappe.whitelist()
 def update_tax_on_salary_slip(slip, method):
-
     if isinstance(slip, str):
         slip = frappe.get_doc("Salary Slip", slip)
+
+    print(f"\n--- Updating Tax for Salary Slip: {slip.name} ---")
 
     employee = slip.employee
     start_date = getdate(slip.start_date)
@@ -623,64 +400,47 @@ def update_tax_on_salary_slip(slip, method):
     base_salary = flt(frappe.db.get_value("Salary Structure Assignment", {"employee": employee}, "base")) or 0
     service_weightage = flt(frappe.db.get_value("Employee", employee, "custom_service_weightage_emp")) or 0
     employment_type = frappe.db.get_value("Employee", employee, "employment_type") or ""
+    # has_washing = frappe.db.get_value("Employee", employee, "employment_type") or ""
     no_of_children = cint(frappe.db.get_value("Employee", employee, "custom_no_of_children_eligible_for_cea") or 0)
     vehicle_type = frappe.db.get_value("Employee", employee, "custom_vehicle_type")
 
-    # Get Payroll Master Setting
     pms_name = frappe.get_value("Payroll Master Setting", {"payroll_month": month, "payroll_year": str(year)}, "name")
     if not pms_name:
         frappe.throw("Payroll Master Setting not found for the given month and year.")
     pms = frappe.get_doc("Payroll Master Setting", pms_name)
 
-    # Allowances
     da_amt = round((base_salary + service_weightage) * flt(pms.get("dearness_allowance_", 0)))
     hra_amt = round((base_salary + service_weightage) * flt(pms.get("hra_", 0)))
     canteen_subsidy = flt(pms.get("canteen_subsidy", 0))
 
-    # ✅ Medical Allowance from PMS child table
     medical_allowance = 0
     for row in pms.get("medical_allowance", []):
         if flt(row.from_base_pay) <= base_salary <= flt(row.to_base_pay):
             medical_allowance = flt(row.amount)
             break
 
-    # Book & Washing Allowance (conditional)
     washing_allowance = flt(pms.get("washing_allowance", 0)) if employment_type.lower() == "workers" else 0
     book_allowance = flt(pms.get("book_allowance", 0)) if employment_type.lower() == "officers" else 0
 
-    # Conveyance Allowance (from PMS child table)
     conveyance_allowance = 0
     for row in pms.get("conveyance_allowance", []):
         if row.type_of_vehicles == vehicle_type:
             conveyance_allowance = flt(row.amount_per_month)
             break
 
-    # Children Education Allowance
     children_education_allowance = 0
     for row in pms.get("children_education_allowance", []):
         if cint(row.child_details) == no_of_children:
             children_education_allowance = flt(row.amount)
             break
 
-    # Monthly Earnings
     monthly_earning = (
         base_salary + service_weightage + da_amt + hra_amt + medical_allowance +
         washing_allowance + book_allowance + conveyance_allowance +
         children_education_allowance + canteen_subsidy
     )
-    print(f"Monthly Earning Estimate: {base_salary}")
-    print(f"Monthly Earning Estimate: {service_weightage}")
-    print(f"Monthly Earning Estimate: {da_amt}")
-    print(f"Monthly Earning Estimate: {hra_amt}")
-    print(f"Monthly Earning Estimate: {medical_allowance}")
-    print(f"Monthly Earning Estimate: {washing_allowance}")
-    print(f"Monthly Earning Estimate: {book_allowance}")
-    print(f"Monthly Earning Estimate: {conveyance_allowance}")
-    print(f"Monthly Earning Estimate: {children_education_allowance}")
-    print(f"Monthly Earning Estimate: {canteen_subsidy}")
-    print(f"Monthly Earning Estimate: {monthly_earning}")
+    print(f"Monthly Earning: {monthly_earning}")
 
-    # Past months
     fy_start_year = year if month_number >= 4 else year - 1
     fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
 
@@ -706,99 +466,86 @@ def update_tax_on_salary_slip(slip, method):
     estimated_total_taxable_income = (
         (monthly_earning * months_left) + total_past_taxable + current_taxable + 65000 - 75000
     )
-    net_taxable_income = estimated_total_taxable_income
+    if estimated_total_taxable_income >= 1200000:
+        net_taxable_income = estimated_total_taxable_income
+        print(f"Net Taxable Income: {net_taxable_income}")
 
-    print(f"Net Taxable Income: {net_taxable_income}")
+        slab_candidates = frappe.get_all(
+            "Income Tax Slab",
+            filters={"disabled": 0, "docstatus": 1},
+            fields=["name", "effective_from"]
+        )
+        today = getdate(nowdate())
+        valid_slabs = [doc for doc in slab_candidates if getdate(doc.effective_from) <= today]
+        if not valid_slabs:
+            frappe.throw("No active Income Tax Slab is currently applicable.")
+        latest_slab_doc = max(valid_slabs, key=lambda d: getdate(d.effective_from))
+        slab_doc = frappe.get_doc("Income Tax Slab", latest_slab_doc.name)
 
-    # ✅ Load active Income Tax Slab
-    slab_candidates = frappe.get_all(
-        "Income Tax Slab",
-        filters={"disabled": 0,"docstatus":1},
-        fields=["name", "effective_from"]
-    )
+        relief_threshold = flt(slab_doc.tax_relief_limit or 1200000)
+        marginal_threshold = flt(slab_doc.marginal_relief_limit or 1275000)
+        print(f"Using Tax Slab: {slab_doc.name}, Relief Threshold: {relief_threshold}, Marginal Threshold: {marginal_threshold}")
 
-    today = getdate(nowdate())
-    valid_slabs = [doc for doc in slab_candidates if getdate(doc.effective_from) <= today]
-    if not valid_slabs:
-        frappe.throw("No active Income Tax Slab is currently applicable.")
-    latest_slab_doc = max(valid_slabs, key=lambda d: getdate(d.effective_from))
-    slab_doc = frappe.get_doc("Income Tax Slab", latest_slab_doc.name)
+        slabs = []
+        for row in slab_doc.slabs:
+            from_amt = flt(row.from_amount or 0)
+            to_amt = flt(row.to_amount or 0)
+            rate = flt(row.percent_deduction or 0) / 100
+            slab_range = to_amt - from_amt if to_amt else 40000000
+            slabs.append((slab_range, rate))
+        print(f"Defined Slabs: {slabs}")
 
-    relief_threshold = flt(slab_doc.tax_relief_limit or 0)
-    marginal_threshold = flt(slab_doc.marginal_relief_limit or 0)
+        tax = 0
+        remaining = net_taxable_income
+        for slab_amt, rate in slabs:
+            if remaining > slab_amt:
+                tax += slab_amt * rate
+                remaining -= slab_amt
+            else:
+                tax += remaining * rate
+                remaining = 0
+                break
+        print(f"Tax Before Marginal Relief: {tax}")
 
-    print(f"Relief Threshold: {relief_threshold}, Marginal Threshold: {marginal_threshold}")
+        if (
+            net_taxable_income > relief_threshold and
+            net_taxable_income <= marginal_threshold and
+            tax > (net_taxable_income - relief_threshold)
+        ):
+            marginal_relief = tax - (net_taxable_income - relief_threshold)
+            print(f"Marginal Relief Applied: {marginal_relief}")
+            tax = net_taxable_income - relief_threshold
 
-    # Build slabs
-    slabs = []
-    for row in slab_doc.slabs:
-        from_amt = flt(row.from_amount or 0)
-        to_amt = flt(row.to_amount or 0)
-        rate = flt(row.percent_deduction or 0) / 100
-        slab_range = to_amt - from_amt if to_amt else 40000000
-        slabs.append((slab_range, rate))
+        print(f"Tax After Marginal Relief (Before Cess): {tax}")
 
-    print(f"Tax Slabs: {slabs}")
+        tax_with_cess = round(tax * 1.04)
+        print(f"Tax After Cess: {tax_with_cess}")
 
-    # Calculate tax
-    tax = 0
-    remaining = net_taxable_income
-    for slab_amt, rate in slabs:
-        if remaining > slab_amt:
-            tax += slab_amt * rate
-            remaining -= slab_amt
+        rebate_limit = flt(slab_doc.standard_tax_exemption_amount or 60000)
+        rebate_income_limit = 700000
+        if net_taxable_income <= rebate_income_limit and tax_with_cess <= rebate_limit:
+            print(f"Rebate Applied: {tax_with_cess}")
+            tax_with_cess = 0
+
+        final_tax = tax_with_cess - total_tax_paid
+        monthly_tax = round(final_tax / (months_left + 1)) if final_tax > 0 else 0
+        print(f"Final Tax: {final_tax}, Monthly Tax: {monthly_tax}")
+
+        slip.custom_income_tax = monthly_tax
+
+        row = next((d for d in slip.deductions if d.salary_component == "Income Tax"), None)
+        if row:
+            row.amount = monthly_tax
+            print("Updated existing Income Tax deduction row.")
         else:
-            tax += remaining * rate
-            remaining = 0
-            break
-    if remaining > 0:
-        tax += remaining * 0.30
+            slip.append("deductions", {
+                "salary_component": "Income Tax",
+                "amount": monthly_tax
+            })
+            print("Appended new Income Tax deduction row.")
 
-    print(f"Tax before reliefs/rebate: {tax}")
-
-    # Apply marginal relief if applicable
-    if (
-        net_taxable_income > relief_threshold and
-        net_taxable_income <= marginal_threshold and
-        tax > (net_taxable_income - relief_threshold)
-    ):
-        marginal_relief = tax - (net_taxable_income - relief_threshold)
-        print(f"Marginal Relief Applied: {marginal_relief}")
-        tax -= marginal_relief
-
-    # Apply rebate if applicable
-    if slab_doc.standard_tax_exemption_amount:
-        rebate = flt(slab_doc.standard_tax_exemption_amount or 60000)
-        if tax <= rebate:
-            print("Since tax amount is <= Rebate Limit, rebate applied. Tax set to 0.")
-            tax = 0
-        else:
-            print("Since tax amount is > Rebate Limit, rebate is not applicable.")
-
-    # Apply cess
-    tax *= 1.04
-    print(f"Tax after cess: {tax}")
-
-    tax -= total_tax_paid
-    print(f"Tax after deducting already paid: {tax}")
-
-    monthly_tax = round(tax)
-    slip.custom_income_tax = round(monthly_tax / (months_left + 1))
-    print(f"Final Monthly Tax: {slip.custom_income_tax}")
-
-    # Update or insert Income Tax deduction
-    tax_amount = slip.custom_income_tax
-    row = next((d for d in slip.deductions if d.salary_component == "Income Tax"), None)
-    if row:
-        row.amount = tax_amount
-    else:
-        slip.append("deductions", {
-            "salary_component": "Income Tax",
-            "amount": tax_amount
-        })
-
-    # Recalculate
-    slip.calculate_net_pay()
+        slip.calculate_net_pay()
+        print(f"--- Completed Tax Update for {slip.name} ---\n")
 
 
 
@@ -868,6 +615,64 @@ def enforce_society_deduction_limit(doc, method):
             if row.amount > 0.75 * net_salary:
                 row.amount = 0
                 # frappe.msgprint("Society deduction exceeds 75% of net salary and has been set to 0.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1085,3 +890,202 @@ def enforce_society_deduction_limit(doc, method):
 #             "salary_component": "Income Tax",
 #             "amount": tax_amount
 #         })
+
+
+# def update_tax_on_salary_slip(slip, method):
+#     # if slip.docstatus != 0:
+#     #     return
+
+#     from calendar import month_name
+#     from frappe.utils import getdate, flt, cint
+
+#     employee = slip.employee
+#     start_date = getdate(slip.start_date)
+#     month = start_date.strftime("%B")
+#     month_number = start_date.month
+#     year = start_date.year
+
+#     print(f"\n--- Processing Tax for {employee} - {month} {year} ---")
+
+#     base_salary = flt(frappe.db.get_value("Salary Structure Assignment", {"employee":slip.employee}, "base")) or 0
+#     service_weightage = flt(frappe.db.get_value("Employee", employee, "custom_service_weightage_emp")) or 0
+#     employment_type = frappe.db.get_value("Employee", employee, "employment_type") or ""
+#     no_of_children = cint(frappe.db.get_value("Employee", employee, "custom_no_of_children_eligible_for_cea") or 0)
+#     vehicle_type = frappe.db.get_value("Employee", employee, "custom_vehicle_type") or None
+
+#     print(f"Base Salary: {base_salary}")
+#     print(f"Service Weightage: {service_weightage}")
+#     print(f"Employment Type: {employment_type}")
+#     print(f"No of Children: {no_of_children}")
+#     print(f"Vehicle Type: {vehicle_type}")
+
+#     # Get full Payroll Master Setting document
+#     pms_name = frappe.get_value("Payroll Master Setting", {"payroll_month": month, "payroll_year": str(year)}, "name")
+#     if not pms_name:
+#         frappe.throw("Payroll Master Setting not found for the given month and year.")
+
+#     pms = frappe.get_doc("Payroll Master Setting", pms_name)
+
+#     da_amt = round((base_salary + service_weightage) * flt(pms.get("dearness_allowance_", 0)))
+#     hra_amt = round((base_salary + service_weightage) * flt(pms.get("hra_", 0)))
+#     canteen_subsidy = flt(pms.get("canteen_subsidy", 0))
+
+#     print(f"DA (%): {pms.get('dearness_allowance_', 0)}, Amount: {da_amt}")
+#     print(f"HRA (%): {pms.get('hra_', 0)}, Amount: {hra_amt}")
+#     print(f"Canteen Subsidy: {canteen_subsidy}")
+
+#     medical_allowance = 1400 if base_salary <= 29699 else 1700 if base_salary <= 34000 else 2000
+#     washing_allowance = 125 if employment_type.lower() == "workers" else 0
+#     book_allowance= 250 if employment_type.lower() == "officers" else 0
+
+#     print(f"Medical Allowance: {medical_allowance}")
+#     print(f"Washing Allowance: {washing_allowance}")
+
+#     # ✅ Get Conveyance Allowance from PMS child table
+#     conveyance_allowance = 0
+#     if vehicle_type and hasattr(pms, "conveyance_allowance"):
+#         for row in pms.conveyance_allowance:
+#             if row.type_of_vehicles == vehicle_type:
+#                 conveyance_allowance = flt(row.amount_per_month)
+#                 print(f"Matched Vehicle Type in PMS: {row.type_of_vehicles} → ₹{conveyance_allowance}")
+#                 break
+#     else:
+#         print("No conveyance match found or conveyance_allowance table missing.")
+
+#     # children_education_allowance = sum(
+#     # flt(row.amount) for row in slip.earnings
+#     # print(f"Children Education Allowance: {children_education_allowance}")
+#     if no_of_children == 1:
+#         children_education_allowance = 400
+#     elif no_of_children >=2:
+#         children_education_allowance = 800
+#     else:
+#         children_education_allowance=0
+#     print(f"Children Education Allowance: {children_education_allowance}")
+#     # Monthly earning
+#     monthly_earning = (
+#         base_salary + service_weightage + da_amt + hra_amt +
+#         medical_allowance + washing_allowance +
+#         conveyance_allowance + children_education_allowance + canteen_subsidy + book_allowance
+#     )
+#     print(f"Monthly Earning (Estimated): {monthly_earning}")
+#     # Past payroll info
+#     fy_start_year = year if month_number >= 4 else year - 1
+#     fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
+
+#     print(f"Fiscal Year Start: {fy_start_year}")
+#     print(f"Past Months Considered: {fiscal_months}")
+
+#     past_details = frappe.get_list(
+#         "Employee Payroll Details",
+#         filters={
+#             "employee": employee,
+#             "payroll_year": str(fy_start_year),
+#             "payroll_month": ["in", fiscal_months] if fiscal_months else ""
+#         },
+#         fields=["actual_earning","gross_pay", "lop_hrs", "tax_paid"],
+#         order_by="payroll_month asc" if fiscal_months else None
+#     ) if fiscal_months else []
+
+#     total_tax_paid = sum(flt(row.tax_paid) for row in past_details)
+#     total_past_taxable = sum(flt(row.gross_pay) - flt(row.lop_hrs) for row in past_details)
+
+#     print(f"Total Tax Paid So Far: {total_tax_paid}")
+#     print(f"Total Past Taxable Income: {total_past_taxable}")
+#     # monthly_earning = flt(frappe.db.get_value("Employee", employee, "custom_actual_earnings")) or 0
+#     current_gross = flt(slip.gross_pay)
+#     current_lop = round(flt(slip.custom_time_loss_in_hours_deduction))
+#     current_taxable = current_gross - current_lop
+
+#     print(f"Current Gross Pay: {current_gross}")
+#     print(f"Current LOP: {current_lop}")
+#     print(f"Current Taxable Income: {current_taxable}")
+
+#     if month_number >= 4:
+#         months_left = 15 - month_number
+#     else:
+#         months_left = 3 - month_number + 1
+
+#     print(f"Months Left in FY: {months_left}")
+
+#     estimated_total_taxable_income = (
+#         (monthly_earning * months_left) +
+#         total_past_taxable + current_taxable + 65000 - 75000
+#     )
+#     # estimated_total_taxable_income = (
+#     #     (monthly_earning * months_left) +
+#     #     total_past_taxable + current_taxable + 65000 - 75000
+#     # )
+
+#     print(f"Months Left in FY: {months_left}")
+#     print(f"Estimated Full-Year Taxable Income Before Tax Deduction: {estimated_total_taxable_income}")
+
+#     # net_taxable_income = estimated_total_taxable_income - total_tax_paid
+#     net_taxable_income = estimated_total_taxable_income
+
+#     print(f"Net Taxable Income (After Deducting Tax Paid): {net_taxable_income}")
+
+#     # Tax slab calculation
+#     tax = 0
+#     remaining = net_taxable_income
+#     slabs = [
+#     (400000, 0.00),  # First 4L: no tax
+#     (400000, 0.05),  # Next 4L: 5%
+#     (400000, 0.10),  # ...
+#     (400000, 0.15),
+#     (400000, 0.20),
+#     (400000, 0.25),(40000000,0.30)]
+
+#     if remaining > 1200000:
+#         for slab_amt, rate in slabs:
+#             if remaining > slab_amt:
+#                 slab_tax = slab_amt * rate
+#                 tax += slab_tax
+#                 remaining -= slab_amt
+#                 print(f"Slab: {slab_amt} @ {rate*100}% = {slab_tax}")
+#             else:
+#                 slab_tax = remaining * rate
+#                 tax += slab_tax
+#                 print(f"Slab: {remaining} @ {rate*100}% = {slab_tax}")
+#                 remaining = 0
+#                 break
+#     else:
+#         remaining = 0
+#         tax=0
+#     if remaining > 0:
+#         slab_tax = remaining * 0.30
+#         tax += slab_tax
+#         print(f"Remaining: {remaining} @ 30% = {slab_tax}")
+
+#     cess = tax * 0.04
+#     tax *= 1.04
+#     tax-= sum(flt(row.tax_paid) for row in past_details)
+#     # ================================================================
+#     # slip.custom_current_net_total_earnings=estimated_total_taxable_income
+#     # slip.custom_income_tax=sum(flt(row.tax_paid) for row in past_details)
+#     # slip.custom_tax_calculation_month=months_left
+#     # ====================================================================
+#     print(f"Cess (4%): {cess}")
+#     print(f"Final Monthly Tax Payable: {round(tax, 2)}")
+
+#     monthly_tax = round(tax)
+#     slip.custom_income_tax = round(monthly_tax/(months_left+1))
+#     print(f"Final Tax Payable: {round(slip.custom_income_tax, 2)}")
+#     tax_amount = flt(slip.custom_income_tax)
+
+#     # # Update if exists, else append
+#     row = next((d for d in slip.deductions if d.salary_component == "Income Tax"), None)
+
+#     if row:
+#         row.amount = tax_amount
+#     else:
+#         slip.append("deductions", {
+#             "salary_component": "Income Tax",
+#             "amount": tax_amount
+#         })
+#     slip.calculate_net_pay()
+
+
+    # if deduction_row != slip.custom_income_tax:
+    #     slip.save()
+
