@@ -5,7 +5,7 @@ from datetime import datetime
 from collections import defaultdict
 import calendar
 from frappe.utils import getdate
-
+from frappe.utils import flt, getdate
 @frappe.whitelist()
 def calculate_lop_refund(self, method=None):
     if self.salary_component != "LOP Refund":
@@ -122,37 +122,40 @@ def custom_validate(doc, method):
         if not doc.custom_el_days:
             frappe.throw(_("Please enter EL Days for EL Encashment"))
 
-        # Get latest submitted salary slip
-        latest_slip = frappe.get_all(
-            "Salary Slip",
-            filters={"employee": doc.employee, "docstatus": 1},
-            order_by="start_date desc",
-            limit=1
-        )
+        # Get Basic Pay from Salary Structure Assignment
+        basic = flt(frappe.db.get_value("Salary Structure Assignment", {"employee": doc.employee}, "base")) or 0
+        if not basic:
+            frappe.throw(_("Basic pay not found in Salary Structure Assignment."))
 
-        if not latest_slip:
-            frappe.throw(_("No submitted Salary Slip found for this employee"))
+        # Get Service Weightage from Employee
+        sw = flt(frappe.db.get_value("Employee", doc.employee, "custom_service_weightage_emp")) or 0
 
-        slip_doc = frappe.get_doc("Salary Slip", latest_slip[0].name)
+        # Get current Payroll Master Setting
+        today = getdate(doc.payroll_date)
+        month = today.strftime("%B")
+        year = str(today.year)
+        setting_name = frappe.get_value("Payroll Master Setting", {
+            "payroll_month": month,
+            "payroll_year": year
+        }, "name")
 
-        base = sw = vda = 0
-        for comp in slip_doc.earnings:
-            if comp.salary_component == "Basic":
-                base = comp.amount
-            elif comp.salary_component == "Service Weightage":
-                sw = comp.amount
-            elif comp.salary_component == "VDA":
-                vda = comp.amount
+        if not setting_name:
+            frappe.throw(_("Payroll Master Setting not found for this month."))
 
-        # Use slip start date to fetch setting
-        start = getdate(slip_doc.start_date)
-        setting = get_previous_payroll_master_setting(start.year, start.month)
-        if not setting:
-            frappe.throw(_("No applicable Payroll Master Setting found."))
+        setting = frappe.get_doc("Payroll Master Setting", setting_name)
+        vda_percentage = flt(setting.get("dearness_allowance_", 0))
 
-        payroll_days = setting.payroll_days or 30
-        per_day_rate = (base + sw + vda) / payroll_days
-        doc.amount = doc.custom_el_days * per_day_rate
+        # Compute DA (Dearness Allowance)
+        da = round((basic + sw) * vda_percentage)
+
+        # Compute per day and final amount
+        payroll_days = setting.get("payroll_days") or 30
+        per_day = (basic + sw + da) * doc.custom_el_days
+        doc.amount = round(per_day / payroll_days, 2)
+
+        # Debug log
+        print(f"[DEBUG] Basic: {basic}, SW: {sw}, VDA%: {vda_percentage}, DA: {da}, Per Day: {per_day}, EL Days: {doc.custom_el_days}, Amount: {doc.amount}")
+
 
 def get_previous_payroll_master_setting(year, month_number):
     years_to_consider = [year, year - 1]

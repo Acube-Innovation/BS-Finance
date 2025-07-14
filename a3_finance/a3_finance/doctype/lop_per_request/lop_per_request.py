@@ -58,17 +58,15 @@ class LopPerRequest(Document):
 
 		# === 3. Get Service Weightage ===
 		sw_row = frappe.db.get_value(
-			"Employee Service Weightage",
+			"Employee",
 			{
-				"employee_id": self.employee_id,
-				"payroll_month": start.strftime("%B"),
-				"payroll_year": str(year)
+				"employee": self.employee_id,
 			},
-			"service_weightage",
+			"custom_service_weightage_emp",
 			as_dict=True
 		)
 
-		service_weightage = float(sw_row.service_weightage or 0) if sw_row else 0
+		service_weightage = float(sw_row.custom_service_weightage_emp or 0) if sw_row else 0
 		self.employee_service_weightage = service_weightage
 
 		# === 4. Calculate Losses ===
