@@ -403,6 +403,7 @@ def update_tax_on_salary_slip(slip, method):
     # has_washing = frappe.db.get_value("Employee", employee, "employment_type") or ""
     no_of_children = cint(frappe.db.get_value("Employee", employee, "custom_no_of_children_eligible_for_cea") or 0)
     vehicle_type = frappe.db.get_value("Employee", employee, "custom_vehicle_type")
+    extra_taxable= flt(frappe.db.get_value("Employee", employee, "custom_additional_salary_for_tax") or 0)
 
     pms_name = frappe.get_value("Payroll Master Setting", {"payroll_month": month, "payroll_year": str(year)}, "name")
     if not pms_name:
@@ -461,10 +462,11 @@ def update_tax_on_salary_slip(slip, method):
     current_gross = flt(slip.gross_pay)
     current_lop = round(flt(slip.custom_time_loss_in_hours_deduction))
     current_taxable = current_gross - current_lop
+    
 
     months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
     estimated_total_taxable_income = (
-        (monthly_earning * months_left) + total_past_taxable + current_taxable + 65000 - 75000
+        (monthly_earning * months_left) + total_past_taxable + current_taxable + 65000 - 75000 + extra_taxable
     )
     if estimated_total_taxable_income >= 1200000:
         net_taxable_income = estimated_total_taxable_income
