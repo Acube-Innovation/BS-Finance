@@ -1,0 +1,29 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2025-07-14 12:31:51.385961",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"filters\":[],\"fields\":[[\"name\",\"PF Return Log\"],[\"employee_id\",\"PF Return Log\"],[\"employee_name\",\"PF Return Log\"],[\"payroll_month\",\"PF Return Log\"],[\"payroll_year\",\"PF Return Log\"],[\"uan_number\",\"PF Return Log\"],[\"gross_wages\",\"PF Return Log\"],[\"epf_wages\",\"PF Return Log\"],[\"eps_wages\",\"PF Return Log\"],[\"edli_wages\",\"PF Return Log\"],[\"ee_amount\",\"PF Return Log\"],[\"es_amount\",\"PF Return Log\"],[\"er_amount\",\"PF Return Log\"],[\"ncp_days\",\"PF Return Log\"]],\"order_by\":\"`tabPF Return Log`.`modified` desc\",\"add_totals_row\":0,\"page_length\":20,\"column_widths\":{\"name\":120,\"employee_id\":120,\"employee_name\":120,\"payroll_month\":120,\"payroll_year\":120,\"uan_number\":120,\"gross_wages\":120,\"epf_wages\":120,\"eps_wages\":120,\"edli_wages\":120,\"ee_amount\":120,\"es_amount\":120,\"er_amount\":120,\"ncp_days\":120},\"group_by\":null}",
+ "letterhead": null,
+ "modified": "2025-07-16 17:25:55.766773",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "PF Return Details",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "PF Return Log",
+ "report_name": "PF Return Details",
+ "report_type": "Report Builder",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "timeout": 0
+}

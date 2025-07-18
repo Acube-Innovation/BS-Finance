@@ -7,15 +7,19 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "employee_id",
   "reimbursement_month",
-  "reimbursement_date",
-  "tl_hours",
-  "column_break_ytas",
-  "employee_name",
+  "column_break_rwmy",
   "reimbursement_year",
+  "section_break_uhkq",
+  "employee_id",
+  "employee_name",
+  "employment_type",
+  "column_break_ytas",
+  "reimbursement_date",
   "no_of_days",
+  "column_break_tzyp",
   "tl_month",
+  "tl_hours",
   "section_break_r2jt",
   "reimbursement_basic_pay",
   "actual_basic_pay",
@@ -33,7 +37,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Employee ID",
-   "options": "Employee"
+   "options": "Employee",
+   "reqd": 1
   },
   {
    "fetch_from": "employee_id.employee_name",
@@ -61,14 +66,19 @@
   {
    "fieldname": "reimbursement_month",
    "fieldtype": "Select",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Month",
-   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+   "reqd": 1
   },
   {
    "fieldname": "reimbursement_year",
    "fieldtype": "Data",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Year"
   },
   {
@@ -102,7 +112,9 @@
   {
    "fieldname": "lop_refund_amount",
    "fieldtype": "Float",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "LOP Refund Amount"
   },
   {
@@ -122,17 +134,37 @@
   {
    "fieldname": "actual_basic_pay",
    "fieldtype": "Currency",
-   "label": "Actual Basic Pay for the PEriod"
+   "label": "Actual Basic Pay for the Period"
   },
   {
    "fieldname": "lop_pf_deduction",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Reimbursment PF"
+  },
+  {
+   "fieldname": "column_break_rwmy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_uhkq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "employee_id.employment_type",
+   "fieldname": "employment_type",
+   "fieldtype": "Link",
+   "label": "Employment Type",
+   "options": "Employment Type"
+  },
+  {
+   "fieldname": "column_break_tzyp",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-26 13:46:59.678013",
+ "modified": "2025-07-17 12:26:31.439071",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Reimbursement Wages",

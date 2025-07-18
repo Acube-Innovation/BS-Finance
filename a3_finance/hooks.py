@@ -186,7 +186,8 @@ doc_events = {
         ]
     },
     "Employee": {
-        "autoname": "a3_finance.overrides.employee_updates.autoname"
+        "autoname": "a3_finance.overrides.employee_updates.autoname",
+        "validate": "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe"
     },
     "Salary Structure Assignment":{
         "on_submit":[

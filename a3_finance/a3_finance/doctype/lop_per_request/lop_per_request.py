@@ -10,7 +10,7 @@ class LopPerRequest(Document):
 	def validate(self):
 		from frappe.utils import getdate
 
-		if not self.start_date:
+		if not self.start_date and self.employment_type != "Apprentice":
 			return
 
 		start = getdate(self.start_date)
@@ -23,66 +23,91 @@ class LopPerRequest(Document):
 			frappe.throw("No applicable Payroll Master Setting found for this period.")
 
 		payroll_days = setting.payroll_days or 30
-		da_percent = float(setting.dearness_allowance_ or 0)
+		if self.employment_type != "Apprentice":
+			
+			da_percent = float(setting.dearness_allowance_ or 0)
 
-		self.employee_da_for_payroll_period = da_percent
+			self.employee_da_for_payroll_period = da_percent
 
-		# === 2. Get Base Salary from SSA (first try from given date, else fallback to latest) ===
-		base_salary = frappe.db.get_value(
-			"Salary Structure Assignment",
-			{
-				"employee": self.employee_id,
-				"from_date": ["<=", start],
-				"docstatus": 1
-			},
-			"base",
-			order_by="from_date desc"
-		)
-
-		# ❗ Fallback if not found: use latest SSA
-		if not base_salary:
+			# === 2. Get Base Salary from SSA (first try from given date, else fallback to latest) ===
 			base_salary = frappe.db.get_value(
 				"Salary Structure Assignment",
 				{
 					"employee": self.employee_id,
+					"from_date": ["<=", start],
 					"docstatus": 1
 				},
 				"base",
 				order_by="from_date desc"
 			)
 
-		if not base_salary:
-			frappe.throw("No active Salary Structure Assignment found for the employee.")
+			# ❗ Fallback if not found: use latest SSA
+			if not base_salary:
+				base_salary = frappe.db.get_value(
+					"Salary Structure Assignment",
+					{
+						"employee": self.employee_id,
+						"docstatus": 1
+					},
+					"base",
+					order_by="from_date desc"
+				)
 
-		self.base_salary = base_salary
+			if not base_salary:
+				frappe.throw("No active Salary Structure Assignment found for the employee.")
+
+			self.base_salary = base_salary
 
 		# === 3. Get Service Weightage ===
-		sw_row = frappe.db.get_value(
-			"Employee",
-			{
-				"employee": self.employee_id,
-			},
-			"custom_service_weightage_emp",
-			as_dict=True
-		)
+		
+			sw_row = frappe.db.get_value(
+				"Employee",
+				{
+					"employee": self.employee_id,
+				},
+				"custom_service_weightage_emp",
+				as_dict=True
+			)
 
-		service_weightage = float(sw_row.custom_service_weightage_emp or 0) if sw_row else 0
-		self.employee_service_weightage = service_weightage
+			service_weightage = float(sw_row.custom_service_weightage_emp or 0) if sw_row else 0
+			self.employee_service_weightage = service_weightage
 
-		# === 4. Calculate Losses ===
-		try:
-			lop_days = float(self.no__of_days or 0)
-			self.lop_amount = (self.base_salary / payroll_days) * lop_days
+			# === 4. Calculate Losses ===
+			try:
+				lop_days = float(self.no__of_days or 0)
+				self.lop_amount = (self.base_salary / payroll_days) * lop_days
 
-			# Service Weightage Loss
-			self.employee_service_weightage_loss = round((service_weightage / payroll_days) * lop_days, 2)
+				# Service Weightage Loss
+				self.employee_service_weightage_loss = round((service_weightage / payroll_days) * lop_days, 2)
 
-			# DA Loss
-			lop_da_loss = ((base_salary + service_weightage) * da_percent / payroll_days) * lop_days
-			self.employee_da_loss_for_payroll_period = round(lop_da_loss, 2)
+				# DA Loss
+				lop_da_loss = ((base_salary + service_weightage) * da_percent / payroll_days) * lop_days
+				self.employee_da_loss_for_payroll_period = round(lop_da_loss, 2)
 
-		except Exception as e:
-			frappe.throw(f"Invalid 'LOP Days' value for loss calculations: {e}")
+			except Exception as e:
+				frappe.throw(f"Invalid 'LOP Days' value for loss calculations: {e}")
+		else:
+			try:
+				base_salary = frappe.db.get_value(
+					"Salary Structure Assignment",
+					{
+						"employee": self.employee_id,
+						"docstatus": 1
+					},
+					"base",
+					order_by="from_date desc"
+				)
+
+				if not base_salary:
+					frappe.throw("No active Salary Structure Assignment found for the employee.")
+
+				self.base_salary = base_salary
+
+				lop_days = float(self.no__of_days or 0)
+				
+				self.lop_amount = (self.base_salary / payroll_days) * lop_days
+			except Exception as e:
+				frappe.throw(f"Invalid 'LOP Days' value for loss calculations: {e}")
 
 
 	def get_previous_payroll_master_setting(self, given_year, given_month_number):

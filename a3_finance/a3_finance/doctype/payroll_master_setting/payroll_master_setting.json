@@ -22,7 +22,6 @@
   "payroll_days",
   "washing_allowance",
   "book_allowance",
-  "night_shift_allowance",
   "deputation_allowance",
   "column_break_mxxi",
   "stitching_allowance",
@@ -34,6 +33,7 @@
   "ex_gratia",
   "arrear",
   "festival_advance",
+  "night_shift_allowance",
   "conveyance_allowances",
   "section_break_dcuz",
   "column_break_dxzt",
@@ -49,7 +49,18 @@
   "children_education_allowance_details_section",
   "children_education_allowance",
   "medical_allowance_details_section",
-  "medical_allowance"
+  "medical_allowance",
+  "tab_break_fr2k",
+  "effective_from",
+  "column_break_gxvj",
+  "section_break_csmd",
+  "pf_percentage",
+  "employer_contribution_to_pf",
+  "employer_contribution_to_esi",
+  "column_break_kdwy",
+  "total_earnings",
+  "employee_contribution_to_esi_percentage",
+  "employee_contribution_to_pf_percentage"
  ],
  "fields": [
   {
@@ -66,12 +77,17 @@
   {
    "fieldname": "dearness_allowance_",
    "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Dearness Allowance %",
    "precision": "4"
   },
   {
    "fieldname": "yearly_increment",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Yearly Increment",
    "precision": "2"
   },
@@ -126,6 +142,7 @@
   {
    "fieldname": "arrear",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Arrear",
    "precision": "2"
   },
@@ -219,21 +236,28 @@
   {
    "fieldname": "conveyance_allowances",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Conveyance Allowance"
   },
   {
    "fieldname": "overtime_wages",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Overtime Wages"
   },
   {
    "fieldname": "hra_",
    "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "HRA %"
   },
   {
    "fieldname": "payroll_month",
    "fieldtype": "Select",
+   "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Payroll Month",
@@ -247,6 +271,7 @@
   {
    "fieldname": "payroll_year",
    "fieldtype": "Data",
+   "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Payroll Year",
@@ -256,6 +281,7 @@
    "default": "30.00",
    "fieldname": "payroll_days",
    "fieldtype": "Float",
+   "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Payroll Days",
@@ -281,6 +307,7 @@
   {
    "fieldname": "others",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Others"
   },
   {
@@ -297,11 +324,65 @@
    "fieldtype": "Table",
    "label": "Medical Allowance",
    "options": "Medical Allowance"
+  },
+  {
+   "fieldname": "tab_break_fr2k",
+   "fieldtype": "Tab Break",
+   "hidden": 1,
+   "label": "Canteen Employees"
+  },
+  {
+   "fieldname": "pf_percentage",
+   "fieldtype": "Float",
+   "label": "PF Percentage"
+  },
+  {
+   "fieldname": "column_break_kdwy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_earnings",
+   "fieldtype": "Currency",
+   "label": "Maximum Total Earnings for ESI Contribution"
+  },
+  {
+   "fieldname": "employee_contribution_to_esi_percentage",
+   "fieldtype": "Float",
+   "label": "Employee Contribution to ESI Percentage"
+  },
+  {
+   "fieldname": "employee_contribution_to_pf_percentage",
+   "fieldtype": "Percent",
+   "label": "Employee Contribution to PF Percentage"
+  },
+  {
+   "fieldname": "employer_contribution_to_pf",
+   "fieldtype": "Float",
+   "label": "Employer Contribution to PF"
+  },
+  {
+   "fieldname": "employer_contribution_to_esi",
+   "fieldtype": "Float",
+   "label": "Employer Contribution to ESI"
+  },
+  {
+   "fieldname": "section_break_csmd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gxvj",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-10 16:11:33.014251",
+ "modified": "2025-07-17 12:21:43.607639",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",
