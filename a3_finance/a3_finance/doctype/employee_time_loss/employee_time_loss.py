@@ -146,7 +146,7 @@ class EmployeeTimeLoss(Document):
 
 			if s_weightage is None:
 				# frappe.throw("No Service Weightage found for selected Time Loss Month and Year.")
-				s_weightage=0
+				s_weightage= frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
 
 			self.service_weightage = flt(s_weightage)
 

@@ -183,8 +183,12 @@ class EmployeeReimbursementWages(Document):
 				"service_weightage",
 				as_dict=True
 			)
-			service_weightage = float(sw_doc["service_weightage"]) if sw_doc else 0
-			self.actual_basic_pay = frappe.db.get_value('Salary Structure Assignment',{'employee':self.employee_id},'base')
+			if sw_doc:
+				service_weightage = float(sw_doc["service_weightage"]) 
+			else:
+				service_weightage = frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
+			if not self.actual_basic_pay:
+				self.actual_basic_pay = frappe.db.get_value('Salary Structure Assignment',{'employee':self.employee_id},'base')
 
 			# Days-based refund
 			if float(self.no_of_days or 0) > 0:
