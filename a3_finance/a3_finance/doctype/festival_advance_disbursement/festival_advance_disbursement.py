@@ -42,6 +42,7 @@ class FestivalAdvanceDisbursement(Document):
         })
         advance.insert(ignore_permissions=True)
         advance.submit()
+        self.earning_reference=advance.name
 
         # 2. Create Festival Advance Recovery - Recurring
         recovery = frappe.get_doc({
@@ -57,4 +58,25 @@ class FestivalAdvanceDisbursement(Document):
         })
         recovery.insert(ignore_permissions=True)
         recovery.submit()
+        self.deduction_reference = recovery.name
+        # self.save()
+    
+    # def on_cancel(self):
+    #     print("ggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
+    #     if self.earning_reference:
+    #         try:
+    #             ad_sa = frappe.get_doc('Additional Salary', self.earning_reference)
+                # if ad_sa.docstatus == 1:
+    #                 ad_sa.cancel()
+    #         except Exception as e:
+    #             frappe.log_error(frappe.get_traceback(), f"Error cancelling earning: {self.earning_reference}")
+
+    #     if self.deduction_reference:
+    #         try:
+    #             ded_sal = frappe.get_doc('Additional Salary', self.deduction_reference)
+    #             if ded_sal.docstatus == 1:
+    #                 ded_sal.cancel()
+    #         except Exception as e:
+    #             frappe.log_error(frappe.get_traceback(), f"Error cancelling deduction: {self.deduction_reference}")
+
 

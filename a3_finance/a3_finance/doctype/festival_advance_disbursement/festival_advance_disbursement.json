@@ -16,6 +16,8 @@
   "section_break_gvga",
   "deduction_component",
   "start_recovery_from",
+  "earning_reference",
+  "deduction_reference",
   "column_break_pj9f",
   "monthly_deduction_amount",
   "recovery_end_date",
@@ -67,6 +69,7 @@
    "label": "Recovery End Date"
   },
   {
+   "default": "Festival Advance",
    "fieldname": "earning_component",
    "fieldtype": "Link",
    "label": "Earning Component (Festival Advance)",
@@ -74,6 +77,7 @@
    "reqd": 1
   },
   {
+   "default": "Festival Advance Recovery",
    "fieldname": "deduction_component",
    "fieldtype": "Link",
    "label": "Deduction Component (Festival Advance Recovery)",
@@ -101,13 +105,25 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "earning_reference",
+   "fieldtype": "Link",
+   "label": "Additional Salary Reference For Earnings",
+   "options": "Additional Salary"
+  },
+  {
+   "fieldname": "deduction_reference",
+   "fieldtype": "Link",
+   "label": "Additional Salary Reference For Deduction",
+   "options": "Additional Salary"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-06-19 18:09:47.760113",
+ "modified": "2025-07-21 14:52:55.802099",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Festival Advance Disbursement",
