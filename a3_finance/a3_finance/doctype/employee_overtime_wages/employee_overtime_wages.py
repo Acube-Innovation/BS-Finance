@@ -137,7 +137,10 @@ class EmployeeOvertimeWages(Document):
 				},
 				"service_weightage"
 			)
-			self.service_weightage = flt(s_weightage or 0)
+			if s_weightage:
+				self.service_weightage = flt(s_weightage)
+			else:
+				self.service_weightage = frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
 
 			# Get DA from Payroll Master Setting
 			if quarter == "Q1":

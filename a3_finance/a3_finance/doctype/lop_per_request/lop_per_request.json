@@ -7,12 +7,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "employee_id",
   "payroll_month",
-  "start_date",
-  "column_break_sjra",
-  "employee_name",
+  "column_break_lkut",
   "payroll_year",
+  "section_break_ldan",
+  "employee_id",
+  "employee_name",
+  "employment_type",
+  "column_break_sjra",
+  "start_date",
   "no__of_days",
   "section_break_tnpv",
   "base_salary",
@@ -49,14 +52,16 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Payroll Month",
-   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+   "reqd": 1
   },
   {
    "fieldname": "payroll_year",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Payroll Year"
+   "label": "Payroll Year",
+   "reqd": 1
   },
   {
    "fieldname": "no__of_days",
@@ -132,11 +137,26 @@
    "fieldname": "employee_da_loss_for_payroll_period",
    "fieldtype": "Currency",
    "label": "Employee DA Loss For Payroll Period"
+  },
+  {
+   "fieldname": "column_break_lkut",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ldan",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "employee_id.employment_type",
+   "fieldname": "employment_type",
+   "fieldtype": "Link",
+   "label": "Employment Type",
+   "options": "Employment Type"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-24 20:59:28.930456",
+ "modified": "2025-07-17 11:40:43.366932",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Lop Per Request",
@@ -156,6 +176,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

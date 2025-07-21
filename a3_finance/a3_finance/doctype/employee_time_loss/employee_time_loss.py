@@ -131,58 +131,65 @@ class EmployeeTimeLoss(Document):
 
 		self.basic_pay = flt(base_assignment[0].base)
 
-		# ✅ Get Service Weightage
-		s_weightage = frappe.get_value(
-			"Employee Service Weightage",
-			{
-				"employee_id": self.employee_id,
-				"payroll_month": self.time_loss_month,
-				"payroll_year": self.time_loss_year
-			},
-			"service_weightage"
-		)
+		if self.employment_type != "Apprentice":
 
-		if s_weightage is None:
-			# frappe.throw("No Service Weightage found for selected Time Loss Month and Year.")
-			s_weightage=0
+			# ✅ Get Service Weightage
+			s_weightage = frappe.get_value(
+				"Employee Service Weightage",
+				{
+					"employee_id": self.employee_id,
+					"payroll_month": self.time_loss_month,
+					"payroll_year": self.time_loss_year
+				},
+				"service_weightage"
+			)
 
-		self.service_weightage = flt(s_weightage)
+			if s_weightage is None:
+				# frappe.throw("No Service Weightage found for selected Time Loss Month and Year.")
+				s_weightage= frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
 
-		# ✅ Map Time Loss Month to DA quarter start month
-		def get_da_reference_month(month_num):
-			if month_num in [4, 5, 6]:
-				return 4  # April → Q1
-			elif month_num in [7, 8, 9]:
-				return 7  # July → Q2
-			elif month_num in [10, 11, 12]:
-				return 10  # October → Q3
-			else:
-				return 1  # Jan, Feb, Mar → Q4
+			self.service_weightage = flt(s_weightage)
 
-		da_month_number = get_da_reference_month(tl_month_number)
-		da_month = calendar.month_name[da_month_number]
-		da_year = self.time_loss_year
-		if da_month_number == 1:  # Q4 starts Jan, which may belong to next financial year
-			da_year = int(self.time_loss_year) + 1 if tl_month_number in [1, 2, 3] else self.time_loss_year
+			# ✅ Map Time Loss Month to DA quarter start month
+			def get_da_reference_month(month_num):
+				if month_num in [4, 5, 6]:
+					return 4  # April → Q1
+				elif month_num in [7, 8, 9]:
+					return 7  # July → Q2
+				elif month_num in [10, 11, 12]:
+					return 10  # October → Q3
+				else:
+					return 1  # Jan, Feb, Mar → Q4
 
-		# ✅ Get DA from Payroll Master Setting for quarter-start month
-		da_percent = frappe.db.get_value(
-			"Payroll Master Setting",
-			{
-				"payroll_month_number": da_month_number,
-				"payroll_year": self.time_loss_year
-			},
-			"dearness_allowance_"
-		) or 0
+			da_month_number = get_da_reference_month(tl_month_number)
+			da_month = calendar.month_name[da_month_number]
+			da_year = self.time_loss_year
+			if da_month_number == 1:  # Q4 starts Jan, which may belong to next financial year
+				da_year = int(self.time_loss_year) + 1 if tl_month_number in [1, 2, 3] else self.time_loss_year
 
-		# ✅ Calculate Variable DA and Time Loss Amount
-		variable_da = (self.basic_pay + self.service_weightage) * (flt(da_percent))
-		self.variable_da = round(variable_da, 2)
+			# ✅ Get DA from Payroll Master Setting for quarter-start month
+			da_percent = frappe.db.get_value(
+				"Payroll Master Setting",
+				{
+					"payroll_month_number": da_month_number,
+					"payroll_year": self.time_loss_year
+				},
+				"dearness_allowance_"
+			) or 0
 
-		self.time_loss_amount = round(
-			(self.basic_pay + self.service_weightage + self.variable_da) * flt(self.time_loss_hours) / 240,
-			2
-		)
+			# ✅ Calculate Variable DA and Time Loss Amount
+			variable_da = (self.basic_pay + self.service_weightage) * (flt(da_percent))
+			self.variable_da = round(variable_da, 2)
+
+			self.time_loss_amount = round(
+				(self.basic_pay + self.service_weightage + self.variable_da) * flt(self.time_loss_hours) / 240,
+				2
+			)
+		else:
+			self.time_loss_amount = round(
+				(self.basic_pay) * flt(self.time_loss_hours) / 240,
+				2
+			)
 
 
 

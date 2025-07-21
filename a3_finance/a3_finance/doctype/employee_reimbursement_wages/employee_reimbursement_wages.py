@@ -155,75 +155,102 @@ class EmployeeReimbursementWages(Document):
 		print(f"Basic Pay: {basic_pay}")
 
 		# Payroll month/year
-		if self.reimbursement_date:
-			month_name = reimbursement_date.strftime("%B")
-			month = list(calendar.month_name).index(month_name)
-			year = int(reimbursement_date.strftime("%Y"))
-		else:
-			try:
-				month = list(calendar.month_name).index(self.tl_month)
-			except:
-				frappe.throw(f"Invalid month format: {self.tl_month}")
-			year = int(self.reimbursement_year)
+		if self.employment_type != "Apprentice":
+			if self.reimbursement_date:
+				month_name = reimbursement_date.strftime("%B")
+				month = list(calendar.month_name).index(month_name)
+				year = int(reimbursement_date.strftime("%Y"))
+			else:
+				try:
+					month = list(calendar.month_name).index(self.tl_month)
+				except:
+					frappe.throw(f"Invalid month format: {self.tl_month}")
+				year = int(self.reimbursement_year)
 
-		# DA %
-		da_doc = get_previous_payroll_master_setting(year, month)
-		da_percent = float(da_doc.dearness_allowance_ or 0) if da_doc else 0
+			# DA %
+			da_doc = get_previous_payroll_master_setting(year, month)
+			da_percent = float(da_doc.dearness_allowance_ or 0) if da_doc else 0
+			hra_percent = float(da_doc.hra_ or 0.16)if da_doc else 0 
 
-		# Service Weightage
-		sw_doc = frappe.db.get_value(
-			"Employee Service Weightage",
-			{
-				"employee_id": self.employee_id,
-				"payroll_month": calendar.month_name[month],
-				"payroll_year": str(year)
-			},
-			"service_weightage",
-			as_dict=True
-		)
-		service_weightage = float(sw_doc["service_weightage"]) if sw_doc else 0
-		self.actual_basic_pay = frappe.db.get_value('Salary Structure Assignment',{'employee':self.employee_id},'base')
-
-		# Days-based refund
-		if float(self.no_of_days or 0) > 0:
-			self.reimbursement_service_weightage = (service_weightage / 30) * float(self.no_of_days)
-			self.reimbursement_basic_pay = (self.actual_basic_pay /30) * float(self.no_of_days)
-			hra = ((self.actual_basic_pay + service_weightage) * 0.16) / 30 * self.no_of_days
-			self.reimbursement_hra = hra
-
-			da = ((self.actual_basic_pay + service_weightage) * da_percent) / 30 * self.no_of_days
-			self.reimbursement_da = da
-
-			lop_refund = (
-				self.reimbursement_basic_pay +
-				self.reimbursement_service_weightage +
-				self.reimbursement_da +
-				self.reimbursement_hra
+			# Service Weightage
+			sw_doc = frappe.db.get_value(
+				"Employee Service Weightage",
+				{
+					"employee_id": self.employee_id,
+					"payroll_month": calendar.month_name[month],
+					"payroll_year": str(year)
+				},
+				"service_weightage",
+				as_dict=True
 			)
-			self.lop_refund_amount = round(lop_refund, 2)
+			if sw_doc:
+				service_weightage = float(sw_doc["service_weightage"]) 
+			else:
+				service_weightage = frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
+			if not self.actual_basic_pay:
+				self.actual_basic_pay = frappe.db.get_value('Salary Structure Assignment',{'employee':self.employee_id},'base')
 
-		# TL-based refund
-		elif float(self.tl_hours or 0) > 0:
-			refund_hours = float(self.tl_hours / 8)
-			self.reimbursement_basic_pay = (self.actual_basic_pay / 30) * refund_hours
-			self.reimbursement_service_weightage = (service_weightage / 30) * refund_hours
+			# Days-based refund
+			if float(self.no_of_days or 0) > 0:
+				self.reimbursement_service_weightage = (service_weightage / 30) * float(self.no_of_days)
+				self.reimbursement_basic_pay = (self.actual_basic_pay /30) * float(self.no_of_days)
+				hra = ((self.actual_basic_pay + service_weightage) * hra_percent) / 30 * self.no_of_days
+				self.reimbursement_hra = hra
 
-			vda = (basic_pay + service_weightage) * da_percent
-			self.reimbursement_da = (vda / 30) * refund_hours
-			self.reimbursement_hra = 0
+				da = ((self.actual_basic_pay + service_weightage) * da_percent) / 30 * self.no_of_days
+				self.reimbursement_da = da
 
-			total_eligible = (
-				self.reimbursement_basic_pay +
-				self.reimbursement_service_weightage +
-				self.reimbursement_da
-			)
-			self.lop_refund_amount = round(total_eligible, 2)
+				lop_refund = (
+					self.reimbursement_basic_pay +
+					self.reimbursement_service_weightage +
+					self.reimbursement_da +
+					self.reimbursement_hra
+				)
+				self.lop_refund_amount = round(lop_refund, 2)
 
-			pf_deduction = (basic_pay + service_weightage + vda) * 0.12 * (refund_hours / 240)
-			self.lop_pf_deduction = round(pf_deduction, 2)
+			# TL-based refund
+			elif float(self.tl_hours or 0) > 0:
+				refund_hours = float(self.tl_hours / 8)
+				self.reimbursement_basic_pay = (self.actual_basic_pay / 30) * refund_hours
+				self.reimbursement_service_weightage = (service_weightage / 30) * refund_hours
 
-		else:
-			frappe.throw("Either 'No. of Days' or 'LOP Refund Hours' must be provided.")
+				vda = (basic_pay + service_weightage) * da_percent
+				self.reimbursement_da = (vda / 30) * refund_hours
+				self.reimbursement_hra = 0
+
+				total_eligible = (
+					self.reimbursement_basic_pay +
+					self.reimbursement_service_weightage +
+					self.reimbursement_da
+				)
+				self.lop_refund_amount = round(total_eligible, 2)
+
+				pf_deduction = (basic_pay + service_weightage + vda) * 0.12 * (refund_hours / 240)
+				self.lop_pf_deduction = round(pf_deduction, 2)
+
+			else:
+				frappe.throw("Either 'No. of Days' or 'LOP Refund Hours' must be provided.")
+
+		# If Apprentice, skip HRA, DA, Service Weightage
+		if self.employment_type == "Apprentice":
+			if float(self.no_of_days or 0) > 0:
+				self.reimbursement_basic_pay = (basic_pay / 30) * float(self.no_of_days)
+				self.reimbursement_service_weightage = 0
+				self.reimbursement_da = 0
+				self.reimbursement_hra = 0
+				self.lop_refund_amount = round(self.reimbursement_basic_pay, 2)
+
+			elif float(self.tl_hours or 0) > 0:
+				refund_hours = float(self.tl_hours) / 8
+				self.reimbursement_basic_pay = (basic_pay / 30) * refund_hours
+				self.reimbursement_service_weightage = 0
+				self.reimbursement_da = 0
+				self.reimbursement_hra = 0
+				self.lop_refund_amount = round(self.reimbursement_basic_pay, 2)
+				self.lop_pf_deduction = 0
+			else:
+				frappe.throw("Either 'No. of Days' or 'LOP Refund Hours' must be provided.")
+			return  # Skip rest of the logic for apprentice
 
 
 

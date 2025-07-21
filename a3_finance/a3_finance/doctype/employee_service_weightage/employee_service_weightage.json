@@ -36,6 +36,7 @@
   {
    "fieldname": "total_years_of_service",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Total Years of Service"
   },
   {
@@ -50,6 +51,7 @@
   {
    "fieldname": "months",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Months"
   },
   {
@@ -61,16 +63,14 @@
    "fieldname": "payroll_month",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Payroll Month",
-   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
-   "reqd": 1
+   "label": "Since Payroll Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   },
   {
    "fieldname": "payroll_year",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Payroll Year",
-   "reqd": 1
+   "label": "Since Payroll Year"
   },
   {
    "fieldname": "column_break_iujh",
@@ -79,7 +79,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-24 20:09:03.465666",
+ "modified": "2025-07-17 14:51:34.932086",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Service Weightage",
@@ -99,6 +99,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
