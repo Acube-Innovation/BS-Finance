@@ -1,0 +1,170 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PFDL-{employee}-{#######}",
+ "creation": "2025-07-21 20:55:21.668431",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "payroll_month",
+  "employee",
+  "column_break_bjvl",
+  "payroll_year",
+  "employee_name",
+  "employee_pension_scheme",
+  "section_break_myic",
+  "base",
+  "da",
+  "da_percentage",
+  "lop_refund",
+  "er",
+  "epf_wages",
+  "salary_slip",
+  "column_break_xpkn",
+  "service_weightage",
+  "lop_in_hours",
+  "reimbursement_hra",
+  "eps",
+  "edli_wages",
+  "pf"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_myic",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "payroll_month",
+   "fieldtype": "Data",
+   "label": "Payroll Month"
+  },
+  {
+   "fieldname": "payroll_year",
+   "fieldtype": "Data",
+   "label": "Payroll Year"
+  },
+  {
+   "fetch_from": "employee.custom_basic_pay",
+   "fieldname": "base",
+   "fieldtype": "Currency",
+   "label": "Base"
+  },
+  {
+   "fetch_from": "employee.custom_service_weightage_emp",
+   "fieldname": "service_weightage",
+   "fieldtype": "Currency",
+   "label": "Service Weightage"
+  },
+  {
+   "fieldname": "da",
+   "fieldtype": "Currency",
+   "label": "DA"
+  },
+  {
+   "fieldname": "lop_in_hours",
+   "fieldtype": "Currency",
+   "label": "LOP in Hours"
+  },
+  {
+   "fieldname": "lop_refund",
+   "fieldtype": "Currency",
+   "label": "LOP Refund"
+  },
+  {
+   "fieldname": "reimbursement_hra",
+   "fieldtype": "Currency",
+   "label": "Reimbursement HRA"
+  },
+  {
+   "fieldname": "er",
+   "fieldtype": "Currency",
+   "label": "ER"
+  },
+  {
+   "fieldname": "eps",
+   "fieldtype": "Currency",
+   "label": "EPS"
+  },
+  {
+   "fieldname": "epf_wages",
+   "fieldtype": "Currency",
+   "label": "EPF Wages"
+  },
+  {
+   "fieldname": "edli_wages",
+   "fieldtype": "Currency",
+   "label": "EDLI Wages"
+  },
+  {
+   "fieldname": "column_break_xpkn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bjvl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "salary_slip",
+   "fieldtype": "Link",
+   "label": "Salary Slip",
+   "options": "Salary Slip"
+  },
+  {
+   "fieldname": "pf",
+   "fieldtype": "Currency",
+   "label": "PF"
+  },
+  {
+   "fetch_from": "employee.custom_employee_pension_scheme",
+   "fieldname": "employee_pension_scheme",
+   "fieldtype": "Select",
+   "label": "Employee Pension Scheme",
+   "options": "\nEPS-9.49  ER-2.51\nEPS-0  ER-12\nEPS-1250  ER-550\nEPS-0  ER-1800\nEPS-1250  ER-12%-1250\nEPS-8.33  ER-3.67"
+  },
+  {
+   "fieldname": "da_percentage",
+   "fieldtype": "Float",
+   "label": "DA Percentage"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-07-21 21:55:27.897034",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "PF Detailed Log",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}

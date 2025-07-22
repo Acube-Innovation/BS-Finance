@@ -23,6 +23,7 @@
   "washing_allowance",
   "book_allowance",
   "deputation_allowance",
+  "edli_wages",
   "column_break_mxxi",
   "stitching_allowance",
   "shoe_allowance",
@@ -378,11 +379,16 @@
   {
    "fieldname": "column_break_gxvj",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "edli_wages",
+   "fieldtype": "Currency",
+   "label": "EDLI Wages"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-17 12:21:43.607639",
+ "modified": "2025-07-21 20:48:24.609497",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",

@@ -36,8 +36,9 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_festival_advance                       = setting.festival_advance
     doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
     doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund if setting.payroll_month_number in [6, 12] else 0
-    doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution
-    doc.custom_benevolent_fund                        = setting.benevolent_fund
+    doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution if setting.brahmos_recreation_club_contribution else 20
+    if not doc.custom_benevolent_fund:
+        doc.custom_benevolent_fund                        = setting.benevolent_fund if setting.benevolent_fund else 50
     doc.custom_canteen_recovery                       = setting.canteen_recovery
     # doc.custom_conveyance_allowances                  = setting.conveyance_allowances
     doc.custom_overtime_wages                         = setting.overtime_wages
@@ -131,17 +132,71 @@ def calculate_exgratia(doc, method):
 
 
 
+# def set_professional_tax(doc, method):
+#     print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+#     # Only apply tax in January (1) and July (7)
+#     salary_month = getdate(doc.start_date).month
+#     if salary_month not in [1, 7]:
+#         return  # Do nothing in other months
+
+#     if not doc.gross_pay:
+#         return  # If gross pay is not available, exit
+#     if doc.gross_pay ==0:
+#         frappe.db.set_value("Salary Slip", doc.name, "custom_professional_tax", slab.tax_amount)
+#     # Get active Profession Tax document
+#     profession_tax = frappe.get_value("Profession Tax", {"is_active": 1}, "name")
+#     if not profession_tax:
+#         frappe.log_error("No active Profession Tax document found", "Professional Tax Calculation")
+#         return
+
+#     profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
+    
+#     # Loop through tax slabs
+#     for slab in profession_tax_doc.profession__tax_slab:
+#         if slab.from_gross_salary <= doc.gross_pay <= slab.to_gross_salary:
+#             doc.custom_professional_tax = slab.tax_amount
+#             print(f"doc.gross_payyyyyyyyyyyyyyyy",{doc.gross_pay})
+#             frappe.db.set_value("Salary Slip", doc.name, "custom_professional_tax", slab.tax_amount)
+#             print(f"✅ [Professional Tax] Gross Pay: {doc.gross_pay} → Applied Tax: {slab.tax_amount}")
+#             break  # Stop at first match
+#         # else:
+#         #     print(f"⚠️ [Professional Tax] No slab matched for Gross Pay: {doc.gross_pay}")
+#     doc.calculate_net_pay()
+
+from frappe.utils import getdate
+from datetime import datetime
+
 def set_professional_tax(doc, method):
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-    # Only apply tax in January (1) and July (7)
     salary_month = getdate(doc.start_date).month
+    salary_year = getdate(doc.start_date).year
+
     if salary_month not in [1, 7]:
-        return  # Do nothing in other months
+        return  # Apply tax only in Jan or July
 
-    if not doc.gross_pay:
-        return  # If gross pay is not available, exit
+    if not doc.employee:
+        return
 
-    # Get active Profession Tax document
+    # Define financial year range for the current tax window
+    if salary_month == 7:
+        # July → Apr to Sep of same financial year
+        start = datetime(salary_year, 4, 1)
+        end = datetime(salary_year, 9, 30)
+    else:  # January
+        # Jan → Oct to Mar (spans two calendar years)
+        if salary_month == 1:
+            start = datetime(salary_year - 1, 10, 1)
+            end = datetime(salary_year, 3, 31)
+
+    # Sum gross pay for eligible months
+    gross_total = frappe.db.sql("""
+        SELECT SUM(gross_pay) as total
+        FROM `tabSalary Slip`
+        WHERE employee = %s
+          AND posting_date BETWEEN %s AND %s
+          AND docstatus = 1
+    """, (doc.employee, start, end), as_dict=True)[0]["total"] or 0
+
+    # Fetch active Profession Tax
     profession_tax = frappe.get_value("Profession Tax", {"is_active": 1}, "name")
     if not profession_tax:
         frappe.log_error("No active Profession Tax document found", "Professional Tax Calculation")
@@ -149,16 +204,15 @@ def set_professional_tax(doc, method):
 
     profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
 
-    # Loop through tax slabs
+    # Match slab based on gross total
     for slab in profession_tax_doc.profession__tax_slab:
-        if slab.from_gross_salary <= doc.gross_pay <= slab.to_gross_salary:
+        if slab.from_gross_salary <= gross_total <= slab.to_gross_salary:
             doc.custom_professional_tax = slab.tax_amount
             frappe.db.set_value("Salary Slip", doc.name, "custom_professional_tax", slab.tax_amount)
-            print(f"✅ [Professional Tax] Gross Pay: {doc.gross_pay} → Applied Tax: {slab.tax_amount}")
-            break  # Stop at first match
-        else:
-            print(f"⚠️ [Professional Tax] No slab matched for Gross Pay: {doc.gross_pay}")
+            frappe.logger().info(f"[Professional Tax] Applied ₹{slab.tax_amount} for cumulative gross ₹{gross_total}")
+            break
 
+    doc.calculate_net_pay()
 
 
 
@@ -465,24 +519,40 @@ def update_tax_on_salary_slip(slip, method):
     
 
     months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
-    estimated_total_taxable_income = (
-        (monthly_earning * months_left) + total_past_taxable + current_taxable + 65000 - 75000 + extra_taxable
-    )
-    if estimated_total_taxable_income >= 1200000:
-        net_taxable_income = estimated_total_taxable_income
-        print(f"Net Taxable Income: {net_taxable_income}")
-
-        slab_candidates = frappe.get_all(
+    slab_candidates = frappe.get_all(
             "Income Tax Slab",
             filters={"disabled": 0, "docstatus": 1},
             fields=["name", "effective_from"]
         )
+    slab_doc=""
+    if slab_candidates:
         today = getdate(nowdate())
         valid_slabs = [doc for doc in slab_candidates if getdate(doc.effective_from) <= today]
-        if not valid_slabs:
-            frappe.throw("No active Income Tax Slab is currently applicable.")
         latest_slab_doc = max(valid_slabs, key=lambda d: getdate(d.effective_from))
         slab_doc = frappe.get_doc("Income Tax Slab", latest_slab_doc.name)
+    else:
+        frappe.msgprint("Plaese Set Up the income tax Slabs")
+    ex_gratia= slab_doc.custom_ex_gratia if slab_doc.custom_ex_gratia else 65000
+    std_exemption = slab_doc.marginal_relief_limit - slab_doc.tax_relief_limit if slab_doc.marginal_relief_limit and slab_doc.tax_relief_limit else 75000
+    estimated_total_taxable_income = (
+        (monthly_earning * months_left) + total_past_taxable + current_taxable + ex_gratia - std_exemption + extra_taxable
+    )
+    if estimated_total_taxable_income >= slab_doc.tax_relief_limit:
+        net_taxable_income = estimated_total_taxable_income
+        print(f"Net Taxable Income: {net_taxable_income}")
+
+        # slab_candidates = frappe.get_all(
+        #     "Income Tax Slab",
+        #     filters={"disabled": 0, "docstatus": 1},
+        #     fields=["name", "effective_from"]
+        # )
+        # today = getdate(nowdate())
+
+        # valid_slabs = [doc for doc in slab_candidates if getdate(doc.effective_from) <= today]
+        if not valid_slabs:
+            frappe.throw("No active Income Tax Slab is currently applicable.")
+        # latest_slab_doc = max(valid_slabs, key=lambda d: getdate(d.effective_from))
+        # slab_doc = frappe.get_doc("Income Tax Slab", latest_slab_doc.name)
 
         relief_threshold = flt(slab_doc.tax_relief_limit or 1200000)
         marginal_threshold = flt(slab_doc.marginal_relief_limit or 1275000)
@@ -519,8 +589,9 @@ def update_tax_on_salary_slip(slip, method):
             tax = net_taxable_income - relief_threshold
 
         print(f"Tax After Marginal Relief (Before Cess): {tax}")
-
-        tax_with_cess = round(tax * 1.04)
+        cess_rate = slab_doc.custom_cess_rate if slab_doc.custom_cess_rate else 4
+        cess = 1+ (cess_rate/100)
+        tax_with_cess = round(tax * cess)
         print(f"Tax After Cess: {tax_with_cess}")
 
         rebate_limit = flt(slab_doc.standard_tax_exemption_amount or 60000)
@@ -608,6 +679,7 @@ def update_employee_payroll_details(slip, method):
     doc.save(ignore_permissions=True)
 
 def enforce_society_deduction_limit(doc, method):
+    doc.calculate_net_pay()
     total_earnings = sum([row.amount for row in doc.earnings])
     total_deductions = sum([row.amount for row in doc.deductions])
     net_salary = total_earnings - total_deductions
@@ -620,14 +692,175 @@ def enforce_society_deduction_limit(doc, method):
 
 
 
+def create_benevolent_fund_log(doc, method):
+    if not doc.employee:
+        return
+
+    # Check if employee is eligible
+    is_beneficiary = frappe.db.get_value('Employee', doc.employee, 'custom_has_benevolent_fund_contribution')
+    if not is_beneficiary:
+        return
+
+    # Check if Benevolent Fund component is present and its amount is 0
+    fund_amount = 0
+    for row in doc.deductions:
+        if row.salary_component == "BENEVOLENT FUND":
+            fund_amount = row.amount or 0
+            break
+
+    if fund_amount == 0:
+        start_date = getdate(doc.start_date)
+        payroll_month = start_date.strftime("%m")
+        payroll_year = start_date.strftime("%Y")
+
+        # Avoid duplicate logs
+        exists = frappe.db.exists("Benevolent Fund Log", {
+            "employee": doc.employee,
+            "payroll_month": payroll_month,
+            "payroll_year":payroll_year,
+            "amount": doc.custom_benevolent_fund
+        })
+        if not exists:
+            frappe.get_doc({
+                "doctype": "Benevolent Fund Log",
+                "employee_id": doc.employee,
+                "payroll_month": payroll_month,
+                "payroll_year":payroll_year
+            }).insert(ignore_permissions=True)
 
 
 
+from frappe.utils import getdate
+
+def set_pending_benevolent_fund(doc, method):
+    if not doc.employee:
+        return
+    MONTHLY_AMOUNT = 50
+    # Check eligibility
+    is_beneficiary = frappe.db.get_value("Employee", doc.employee, "custom_has_benevolent_fund_contribution")
+    if not is_beneficiary:
+        doc.custom_benevolent_fund = 0
+        return
+
+    
+    gross = doc.gross_pay or 0
+    to_deduct = 0
+
+    # Get unpaid logs in oldest-to-newest order
+    unpaid_logs = frappe.get_all("Benevolent Fund Log",
+        filters={"employee_id": doc.employee, "status": "Unpaid"},
+        fields=["name", "amount"],
+        order_by="payroll_month asc"
+    )
+
+    remaining_gross = gross
+    for log in unpaid_logs:
+        amt = log.amount or MONTHLY_AMOUNT
+        if remaining_gross >= amt:
+            to_deduct += amt
+            remaining_gross -= amt
+        else:
+            break
+
+    # Now check if current month can be included
+    if remaining_gross >= MONTHLY_AMOUNT:
+        to_deduct += MONTHLY_AMOUNT
+
+    doc.custom_benevolent_fund = to_deduct
+
+def mark_paid_benevolent_logs(doc, method):
+    if not doc.employee or not doc.custom_benevolent_fund:
+        return
+
+    is_beneficiary = frappe.db.get_value("Employee", doc.employee, "custom_has_benevolent_fund_contribution")
+    if not is_beneficiary:
+        return
+
+    remaining_amount = doc.custom_benevolent_fund
+
+    # Fetch unpaid logs in chronological order
+    unpaid_logs = frappe.get_all("Benevolent Fund Log",
+        filters={"employee_id": doc.employee, "status": "Unpaid"},
+        fields=["name", "amount"],
+        order_by="payroll_month asc"
+    )
+
+    for log in unpaid_logs:
+        amt = log.amount or 0
+        if remaining_amount >= amt:
+            frappe.db.set_value("Benevolent Fund Log", log.name, {
+                "status": "Paid",
+                "salary_slip":doc.name
+            })
+            remaining_amount -= amt
+        else:
+            break
+
+def reset_benevolent_logs_on_cancel(doc, method):
+    if not doc.employee:
+        return
+
+    # Bulk update logs where salary slip is linked to this one
+    frappe.db.sql("""
+        UPDATE `tabBenevolent Fund Log`
+        SET status = 'Unpaid', salary_slip = NULL
+        WHERE employee_id = %s AND salary_slip = %s AND status = 'Paid'
+    """, (doc.employee, doc.name))
 
 
+def create_pf_detailed_summary(doc, method):
+    from frappe.utils import getdate
 
+    if not doc.start_date or not doc.employee:
+        return
 
+    # Extract year and month from start_date
+    start_date = getdate(doc.start_date)
+    payroll_month = start_date.strftime("%m")
+    payroll_year = start_date.strftime("%Y")
 
+    # Get LOP Deduction and LOP Refund from salary components
+    lop_in_hours = 0
+    lop_refund = 0
+    for comp in doc.deductions:
+        if comp.salary_component == "LOP (in Hours) Deduction":
+            lop_in_hours = comp.amount
+        elif comp.salary_component == "LOP Refund":
+            lop_refund = comp.amount
+        elif comp.salary_component == "Employee PF":
+            pf = comp.amount
+
+    # Check if record exists
+    existing = frappe.db.exists("PF Detailed Log", {
+        "employee": doc.employee,
+        "payroll_month": payroll_month,
+        "payroll_year": payroll_year
+    })
+
+    values = {
+        "employee": doc.employee,
+        "payroll_month": payroll_month,
+        "payroll_year": payroll_year,
+        "da_percentage": doc.custom_dearness_allowence_percentage,
+        "lop_in_hours": lop_in_hours,
+        "lop_refund": lop_refund,
+        "reimbursement_hra": doc.custom_reimbursement_hra_amount,
+        "pf":pf,
+        "salary_slip": doc.name
+    }
+
+    if existing:
+        pf_doc = frappe.get_doc("PF Detailed Log", existing)
+        pf_doc.update(values)
+        pf_doc.save(ignore_permissions=True)
+    else:
+        frappe.get_doc({
+            "doctype": "PF Detailed Log",
+            **values
+        }).insert(ignore_permissions=True)
+
+         
+    
 
 
 
