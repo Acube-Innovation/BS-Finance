@@ -374,7 +374,7 @@
    "fieldname": "effective_from",
    "fieldtype": "Date",
    "label": "Effective From",
-   "reqd": 1
+   "reqd": 0
   },
   {
    "fieldname": "column_break_gxvj",
