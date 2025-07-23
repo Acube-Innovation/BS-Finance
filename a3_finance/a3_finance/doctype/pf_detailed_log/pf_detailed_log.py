@@ -4,7 +4,7 @@
 import frappe
 from frappe.model.document import Document
 from frappe.utils.data import flt
-
+from a3_finance.utils.math_utils import round_half_up
 class PFDetailedLog(Document):
     def validate(self):
         self.calculate_epf_wages()
@@ -24,11 +24,11 @@ class PFDetailedLog(Document):
         # Continue only if base is valid
         if self.base:
             # Calculate DA (assume percentage)
-            self.da = (self.base + self.service_weightage) * (self.da_percentage or 0)
+            self.da = round_half_up((self.base + self.service_weightage) * (self.da_percentage or 0))
             self.edli_wages = 15000
 
             # Compute EPF wages
-            self.epf_wages = (
+            self.epf_wages = round_half_up(
                 self.base
                 + self.service_weightage
                 + self.da
@@ -38,6 +38,7 @@ class PFDetailedLog(Document):
             )
 
             scheme = frappe.db.get_value("Employee", self.employee, "custom_employee_pension_scheme")
+            eps_addl = frappe.db.get_value("Employee", self.employee,"custom_eps_addl") or 0
 
             if scheme == "EPS-9.49  ER-2.51":
                 self.eps = self.epf_wages * 9.49 / 100
@@ -63,6 +64,9 @@ class PFDetailedLog(Document):
                 self.epf_wages = self.edli_wages
                 self.er = (self.pf if self.pf else 0) - 1250
 
-            elif scheme == "EPS-8.33  ER-3.67":
+            elif scheme == "EPS-8.33  ER-3.67" and eps_addl == 0:
                 self.eps = self.epf_wages * 8.33 / 100
                 self.er = self.epf_wages * 3.67 / 100
+            elif scheme == "EPS-8.33  ER-3.67" and eps_addl != 0:
+                self.eps = round_half_up((self.epf_wages * 8.33 / 100) + (self.epf_wages - self.edli_wages)*eps_addl/100)
+                self.er = round_half_up(self.pf - self.eps)

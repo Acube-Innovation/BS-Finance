@@ -170,7 +170,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_basic_pay",
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
-            "a3_finance.overrides.salary_slip.enforce_society_deduction_limit",
+            # "a3_finance.overrides.salary_slip.enforce_society_deduction_limit",
             "a3_finance.overrides.salary_slip.calculate_exgratia",
             "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
