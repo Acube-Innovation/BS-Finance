@@ -7,6 +7,7 @@ from frappe.utils import getdate, flt
 from calendar import month_name
 from frappe.utils import getdate, flt, cint, nowdate
 from frappe.utils import getdate, nowdate
+from a3_finance.utils.math_utils import round_half_up
 def pull_values_from_payroll_master(doc, method):
     doc.get_emp_and_working_day_details()
 
@@ -259,7 +260,7 @@ def set_overtime_wages(slip, method):
 
     # Round and assign
     if total_overtime_amount:
-        slip.custom_overtime_wages = round(total_overtime_amount)  # Rounded to nearest rupee
+        slip.custom_overtime_wages = round_half_up(total_overtime_amount)  # Rounded to nearest rupee
 
 
 
@@ -284,9 +285,9 @@ def set_employee_reimbursement_wages(slip, method):
         lop_sum = flt(result[0].total_lop_refund or 0)
         total_reimbursement = hra_sum + lop_sum
 
-        slip.custom_employee_reimbursement_wages = lop_sum
-        slip.custom_reimbursement_hra_amount = hra_sum
-        slip.custom_total_reimbursement = total_reimbursement
+        slip.custom_employee_reimbursement_wages = round_half_up(lop_sum)
+        slip.custom_reimbursement_hra_amount = round_half_up(hra_sum)
+        slip.custom_total_reimbursement = round_half_up(total_reimbursement)
 
         print(f"HRA Sum: {hra_sum}, LOP Refund Sum: {lop_sum}, Total: {total_reimbursement}")
 
@@ -301,20 +302,14 @@ def set_lop_in_hours_deduction(slip, method):
     month = start_date.strftime("%B")     # e.g., "June"
     year = start_date.strftime("%Y")      # e.g., "2025"
 
-    # Query for matching Employee Service Weightage
-    row = frappe.db.get_value(
-        "Employee Time Loss",
-        {
-            "employee_id": slip.employee,
-            "payroll_year": year,
-            "payroll_month": month
-        },
-        ["time_loss_amount"],
-        as_dict=True
-    )
+    # Get sum of time_loss_amount (will retain decimals)
+    total_time_loss = frappe.db.sql("""
+        SELECT SUM(time_loss_amount)
+        FROM `tabEmployee Time Loss`
+        WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
+    """, (slip.employee, year, month))[0][0] or 0
 
-    if row and row.time_loss_amount:
-        slip.custom_time_loss_in_hours_deduction = row.time_loss_amount
+    slip.custom_time_loss_in_hours_deduction = round_half_up(total_time_loss)
 
 
 # LOP Days Summary for taking leave
@@ -380,7 +375,7 @@ def set_basic_pay(doc, method):
         },
         fieldname="SUM(lop_amount)"
     ) or 0
-    doc.custom_uploaded_lop_loss_amount = final_lop
+    doc.custom_uploaded_lop_loss_amount = round_half_up(final_lop)
 
     no__of_days = frappe.db.get_value(
         "Lop Per Request",
@@ -414,7 +409,7 @@ def set_basic_pay(doc, method):
         },
         fieldname="SUM(employee_da_loss_for_payroll_period)"
     ) or 0
-    doc.custom_dearness_allowance_ = da_loss
+    doc.custom_dearness_allowance_ = round_half_up(da_loss)
 
     # === 2. Fetch full original service weightage for that month/year ===
     sw_row = frappe.db.get_value(
@@ -454,7 +449,7 @@ def update_tax_on_salary_slip(slip, method):
     base_salary = flt(frappe.db.get_value("Salary Structure Assignment", {"employee": employee}, "base")) or 0
     service_weightage = flt(frappe.db.get_value("Employee", employee, "custom_service_weightage_emp")) or 0
     employment_type = frappe.db.get_value("Employee", employee, "employment_type") or ""
-    # has_washing = frappe.db.get_value("Employee", employee, "employment_type") or ""
+    has_washing = frappe.db.get_value("Employee", employee, "custom_has_uniform") or "0"
     no_of_children = cint(frappe.db.get_value("Employee", employee, "custom_no_of_children_eligible_for_cea") or 0)
     vehicle_type = frappe.db.get_value("Employee", employee, "custom_vehicle_type")
     extra_taxable= flt(frappe.db.get_value("Employee", employee, "custom_additional_salary_for_tax") or 0)
@@ -474,7 +469,7 @@ def update_tax_on_salary_slip(slip, method):
             medical_allowance = flt(row.amount)
             break
 
-    washing_allowance = flt(pms.get("washing_allowance", 0)) if employment_type.lower() == "workers" else 0
+    washing_allowance = flt(pms.get("washing_allowance", 0)) if employment_type.lower() == "workers" and has_washing == 1 else 0
     book_allowance = flt(pms.get("book_allowance", 0)) if employment_type.lower() == "officers" else 0
 
     conveyance_allowance = 0
@@ -860,7 +855,11 @@ def create_pf_detailed_summary(doc, method):
         }).insert(ignore_permissions=True)
 
          
-    
+def final_calculation(doc,method):
+    doc.calculate_net_pay()
+    # doc.set_totals()
+    doc.set_net_pay()
+
 
 
 
