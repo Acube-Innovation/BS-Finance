@@ -228,7 +228,8 @@ def set_conveyance_allowance(slip, method):
 
     # Use SQL to calculate SUM of pro_rata_charges
     result = frappe.db.sql("""
-        SELECT SUM(pro_rata_charges) AS total
+        SELECT SUM(pro_rata_charges) AS total,
+        SUM(present_days) AS days
         FROM `tabEmployee Conveyance Days`
         WHERE employee = %s
         AND payroll_year = %s
@@ -239,6 +240,7 @@ def set_conveyance_allowance(slip, method):
 
     # Set the custom field
     slip.custom_conveyance_allowances = total
+    slip.custom_conveyance_days = flt(result[0].days)
 
   
 
@@ -257,10 +259,15 @@ def set_overtime_wages(slip, method):
         SELECT SUM(total_amount) FROM `tabEmployee Overtime Wages`
         WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
     """, (slip.employee, year, month))[0][0] or 0
+    total_overtime_hrs = frappe.db.sql("""
+        SELECT SUM(overtime_hours) FROM `tabEmployee Overtime Wages`
+        WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
+    """, (slip.employee, year, month))[0][0] or 0
 
     # Round and assign
     if total_overtime_amount:
         slip.custom_overtime_wages = round_half_up(total_overtime_amount)  # Rounded to nearest rupee
+        slip.custom_ot_hrs = total_overtime_hrs
 
 
 
@@ -275,11 +282,13 @@ def set_employee_reimbursement_wages(slip, method):
     result = frappe.db.sql("""
         SELECT 
             SUM(reimbursement_hra) AS total_hra,
-            SUM(lop_refund_amount) AS total_lop_refund
+            SUM(lop_refund_amount) AS total_lop_refund,
+            SUM(no_of_days) AS refund_days,
+            SUM(tl_hours) AS refund_hrs
         FROM `tabEmployee Reimbursement Wages`
         WHERE employee_id = %s AND reimbursement_month = %s AND reimbursement_year = %s
     """, (slip.employee, month, year), as_dict=True)
-
+    
     if result and result[0]:
         hra_sum = flt(result[0].total_hra or 0)
         lop_sum = flt(result[0].total_lop_refund or 0)
@@ -288,6 +297,8 @@ def set_employee_reimbursement_wages(slip, method):
         slip.custom_employee_reimbursement_wages = round_half_up(lop_sum)
         slip.custom_reimbursement_hra_amount = round_half_up(hra_sum)
         slip.custom_total_reimbursement = round_half_up(total_reimbursement)
+        slip.custom_lop_refund_days = flt(result[0].refund_days or 0)
+        slip.custom_lop_refund_hrs = flt(result[0].refund_hrs or 0)
 
         print(f"HRA Sum: {hra_sum}, LOP Refund Sum: {lop_sum}, Total: {total_reimbursement}")
 
@@ -308,8 +319,14 @@ def set_lop_in_hours_deduction(slip, method):
         FROM `tabEmployee Time Loss`
         WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
     """, (slip.employee, year, month))[0][0] or 0
+    time_loss_hours = frappe.db.sql("""
+        SELECT SUM(time_loss_hours)
+        FROM `tabEmployee Time Loss`
+        WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
+    """, (slip.employee, year, month))[0][0] or 0
 
     slip.custom_time_loss_in_hours_deduction = round_half_up(total_time_loss)
+    slip.custom_lop_hrs = time_loss_hours
 
 
 # LOP Days Summary for taking leave
@@ -506,6 +523,7 @@ def update_tax_on_salary_slip(slip, method):
     ) if fiscal_months else []
 
     total_tax_paid = sum(flt(row.tax_paid) for row in past_details)
+    slip.custom_current_total_tax_paid = total_tax_paid
     total_past_taxable = sum(flt(row.gross_pay) - flt(row.lop_hrs) for row in past_details)
 
     current_gross = flt(slip.gross_pay)
@@ -532,6 +550,8 @@ def update_tax_on_salary_slip(slip, method):
     estimated_total_taxable_income = (
         (monthly_earning * months_left) + total_past_taxable + current_taxable + ex_gratia - std_exemption + extra_taxable
     )
+    slip.custom_current_net_total_earnings = estimated_total_taxable_income + std_exemption
+    
     if estimated_total_taxable_income >= slab_doc.tax_relief_limit:
         net_taxable_income = estimated_total_taxable_income
         print(f"Net Taxable Income: {net_taxable_income}")
@@ -596,6 +616,7 @@ def update_tax_on_salary_slip(slip, method):
             tax_with_cess = 0
 
         final_tax = tax_with_cess - total_tax_paid
+        slip.custom_deputation_allowance = tax_with_cess
         monthly_tax = round(final_tax / (months_left + 1)) if final_tax > 0 else 0
         print(f"Final Tax: {final_tax}, Monthly Tax: {monthly_tax}")
 
