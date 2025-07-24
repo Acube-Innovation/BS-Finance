@@ -57,6 +57,7 @@ class EmployeeConveyanceDays(Document):
 			self.pro_rata_charges = 0
 
 		elif self.present_days >= self.minimum_working_days:
+			self.present_days = self.minimum_working_days
 			self.conveyance_charges = monthly_amount
 			self.pro_rata_charges = monthly_amount
 
