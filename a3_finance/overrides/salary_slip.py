@@ -442,7 +442,7 @@ def set_basic_pay(doc, method):
     # adjusted_sw = doc.custom_actual_sw - round( sw_loss)
     # doc.custom_service_weightage= round(adjusted_sw, 2)  #reused an unused field (custom_basic_pay)
     adjusted_sw = doc.custom_actual_sw - float(sw_loss)
-    doc.custom_service_weightage = round(adjusted_sw, 2)
+    doc.custom_service_weightage = round_half_up(adjusted_sw)
 
 
 
@@ -592,7 +592,7 @@ def update_tax_on_salary_slip(slip, method):
                 tax += remaining * rate
                 remaining = 0
                 break
-        print(f"Tax Before Marginal Relief: {tax}")
+        print(f"Tax Before Marginal Relief: {round_half_up(tax)}")
 
         if (
             net_taxable_income > relief_threshold and
@@ -601,12 +601,12 @@ def update_tax_on_salary_slip(slip, method):
         ):
             marginal_relief = tax - (net_taxable_income - relief_threshold)
             print(f"Marginal Relief Applied: {marginal_relief}")
-            tax = net_taxable_income - relief_threshold
+            tax = round_half_up(net_taxable_income - relief_threshold)
 
-        print(f"Tax After Marginal Relief (Before Cess): {tax}")
+        print(f"Tax After Marginal Relief (Before Cess): {round_half_up(tax)}")
         cess_rate = slab_doc.custom_cess_rate if slab_doc.custom_cess_rate else 4
         cess = 1+ (cess_rate/100)
-        tax_with_cess = round(tax * cess)
+        tax_with_cess = round_half_up(round_half_up(tax) * cess)
         print(f"Tax After Cess: {tax_with_cess}")
 
         rebate_limit = flt(slab_doc.standard_tax_exemption_amount or 60000)
@@ -621,6 +621,8 @@ def update_tax_on_salary_slip(slip, method):
         print(f"Final Tax: {final_tax}, Monthly Tax: {monthly_tax}")
 
         slip.custom_income_tax = monthly_tax
+        if monthly_tax !=0:
+            slip.custom_std_deduction = marginal_threshold - relief_threshold
 
         row = next((d for d in slip.deductions if d.salary_component == "Income Tax"), None)
         if row:
@@ -877,12 +879,90 @@ def create_pf_detailed_summary(doc, method):
 
          
 def final_calculation(doc,method):
+    doc.compute_component_wise_year_to_date()
     doc.calculate_net_pay()
     # doc.set_totals()
     doc.set_net_pay()
 
 
+def apprentice_working_days(doc, method):
+    if doc.custom_employment_type == "Apprentice":
+        # Get apprentice contract end date
+        app_end_date = getdate(frappe.db.get_value('Employee', doc.employee, 'contract_end_date'))
+        end_date = getdate(doc.end_date)
+        start_date = getdate(doc.start_date)
 
+        # frappe.msgprint(f"Apprentice End Date: {app_end_date}, Salary Slip End Date: {end_date}")
+
+        if app_end_date < end_date:
+            # Calculate number of working days after apprentice contract ends
+            total_working_days = (app_end_date - start_date).days + 1
+            # frappe.msgprint(f"Total working days after apprentice contract end: {total_working_days}")
+            doc.custom_weekly_payment_days = total_working_days
+        else:
+            doc.custom_weekly_payment_days = 30
+
+import frappe
+
+def set_actual_amounts(doc, method):
+    total = 0
+    total_ytd =0
+    # Fetch related values only once
+    ssa = frappe.db.get_value(
+        "Salary Structure Assignment",
+        {"employee": doc.employee, "docstatus": 1},
+        ["base"], as_dict=True
+    )
+
+    emp = frappe.db.get_value(
+        "Employee",
+        doc.employee,
+        ["custom_service_weightage_emp","custom_vehicle_type"],  # adjust the field name
+        as_dict=True
+    )
+
+    for row in doc.earnings:
+        if row.abbr == "BP":
+            row.custom_actual_amount = ssa.base if ssa else 0
+            total += row.custom_actual_amount
+
+        elif row.abbr == "SW":
+            row.custom_actual_amount = emp.custom_service_weightage_emp if emp else 0
+            total += row.custom_actual_amount
+
+        elif row.abbr == "VDA":
+            row.custom_actual_amount = round_half_up((ssa.base+emp.custom_service_weightage_emp) * doc.custom_dearness_allowence_percentage )if emp else 0
+            total += row.custom_actual_amount
+        
+        elif row.abbr == "HRA":
+            row.custom_actual_amount = round_half_up ((ssa.base+emp.custom_service_weightage_emp) * doc.custom_hra )if emp else 0
+            total += row.custom_actual_amount
+        
+        elif row.abbr == "Canteen Subsidy":
+            row.custom_actual_amount= doc.custom_canteen_subsidy
+            total += row.custom_actual_amount
+        
+        elif row.abbr == "Medical Allowance":
+            row.custom_actual_amount= (1400 if ssa.base <= 29699 else 1700 if ssa.base <= 34000 else 2000)
+            total += row.custom_actual_amount
+        
+        elif row.abbr == "Conv. Allowance":
+            row.custom_actual_amount= (1400 if emp.custom_vehicle_type == "4 Wheeler" else 750 if emp.custom_vehicle_type == "2 Wheeler" else 350 if emp.custom_vehicle_type == "Others" else 0)
+            total += row.custom_actual_amount
+
+        else:
+            # For other components, either copy row.amount or set to 0
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+
+    doc.custom_gross_actual_amount=total
+
+    for row in doc.deductions:
+        # Add the YTD value (if None, treat as 0)
+        total_ytd += (row.year_to_date or 0)
+
+    # Assign to your custom field
+    doc.custom_gross_deduction_year_to_date = total_ytd
 
 
 
