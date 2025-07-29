@@ -121,9 +121,23 @@ def custom_validate(doc, method):
     elif doc.salary_component == "EL Encashment":
         if not doc.custom_el_days:
             frappe.throw(_("Please enter EL Days for EL Encashment"))
-
+        el_days = getdate(doc.custom_el_days)
         # Get Basic Pay from Salary Structure Assignment
-        basic = flt(frappe.db.get_value("Salary Structure Assignment", {"employee": doc.employee}, "base")) or 0
+        ssa = frappe.get_all(
+            "Salary Structure Assignment",
+            filters={
+                "employee": doc.employee,
+                "from_date": ["<=", el_days],
+                "docstatus": 1
+            },
+            fields=["base"],
+            order_by="from_date desc",
+            limit=1
+        )
+
+        basic = flt(ssa[0].base) if ssa else 0
+
+        # basic = flt(frappe.db.get_value("Salary Structure Assignment", {"employee": doc.employee}, "base")) or 0
         if not basic:
             frappe.throw(_("Basic pay not found in Salary Structure Assignment."))
 
@@ -325,3 +339,37 @@ def process_overtime_amount(self, method=None):
 
     self.amount = ot_amount
     frappe.msgprint(f"Calculated Overtime: ₹{ot_amount} for {total_hours} hrs based on Salary Structure in {reference_date.strftime('%B %Y')}.")
+
+def create_festival_advance(doc, method=None):
+    if doc.salary_component != "Festival Advance":
+        return
+
+    if not doc.amount:
+        frappe.throw(_("Please enter Festival Advance Amount."))
+
+    # Get the current month and year
+    # today = datetime.now()
+    # month = today.strftime("%B")
+    # year = str(today.year)
+
+    # Create or update Festival Advance record
+    festival_advance = frappe.get_doc({
+        "doctype": "Festival Advance Disbursement",
+        "employee": doc.employee,
+        "disbursement_month":doc.payroll_date,
+        "festival_advance_amount": doc.amount,
+        "earning_component": doc.salary_component,
+        "earning_reference": doc.name
+    })
+
+    festival_advance.insert(ignore_permissions=True)
+    festival_advance.submit()
+    frappe.db.commit()  # Ensure the document is saved before showing message
+    frappe.msgprint(_("Festival Advance created successfully."))
+
+def society_deduction_processing(doc,method):
+    if doc.salary_component != "Society":
+        return
+
+    else:
+        doc.overwrite_salary_structure_amount = 0
