@@ -30,19 +30,19 @@ class FestivalAdvanceDisbursement(Document):
 
 
     def on_submit(self):
-        # 1. Create Festival Advance - Lump sum
-        advance = frappe.get_doc({
-            "doctype": "Additional Salary",
-            "employee": self.employee,
-            "salary_component": self.earning_component,
-            "payroll_date": self.disbursement_month,
-            "amount": self.festival_advance_amount,
-            "overwrite_salary_structure_amount": 1,
-            "company": frappe.db.get_value("Employee", self.employee, "company")
-        })
-        advance.insert(ignore_permissions=True)
-        advance.submit()
-        self.earning_reference=advance.name
+        # # 1. Create Festival Advance - Lump sum
+        # advance = frappe.get_doc({
+        #     "doctype": "Additional Salary",
+        #     "employee": self.employee,
+        #     "salary_component": self.earning_component,
+        #     "payroll_date": self.disbursement_month,
+        #     "amount": self.festival_advance_amount,
+        #     "overwrite_salary_structure_amount": 1,
+        #     "company": frappe.db.get_value("Employee", self.employee, "company")
+        # })
+        # advance.insert(ignore_permissions=True)
+        # advance.submit()
+        # self.earning_reference=advance.name
 
         # 2. Create Festival Advance Recovery - Recurring
         recovery = frappe.get_doc({

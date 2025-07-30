@@ -46,7 +46,9 @@ app_license = "mit"
 doctype_js = {
     "Asset Category" : "public/js/asset_category.js",
     "Item" : "public/js/item.js",
-    "Supplier" : "public/js/supplier.js"
+    "Supplier" : "public/js/supplier.js",
+    "Salary Slip" : "public/js/salary_slip.js",
+    "Payroll Entry" : "public/js/payroll_entry.js",
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -162,22 +164,25 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_conveyance_allowance",
             "a3_finance.overrides.salary_slip.set_overtime_wages",
             "a3_finance.overrides.salary_slip.apprentice_working_days",
+            "a3_finance.overrides.salary_slip.set_weekly_present_days_from_canteen",
             # "a3_finance.overrides.salary_slip.set_lop_summary",
             # "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
             "a3_finance.overrides.salary_slip.set_employee_reimbursement_wages",
             "a3_finance.overrides.salary_slip.set_lop_in_hours_deduction",
             # "a3_finance.overrides.salary_slip.set_custom_medical_allowance",
             "a3_finance.overrides.salary_slip.set_basic_pay",
-            "a3_finance.overrides.salary_slip.final_calculation",
-            "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
+            
             # "a3_finance.overrides.salary_slip.enforce_society_deduction_limit",
             "a3_finance.overrides.salary_slip.calculate_exgratia",
             "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
+            "a3_finance.overrides.salary_slip.final_calculation",
             # "a3_finance.overrides.salary_slip.final_calculation"
-            "a3_finance.overrides.salary_slip.set_actual_amounts"
-            
+            "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
+            "a3_finance.overrides.salary_slip.set_actual_amounts",
+            "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
         ],
+        # "before_save":["a3_finance.overrides.salary_slip.custom_skip_society"],
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
             "a3_finance.overrides.salary_slip.create_benevolent_fund_log",
@@ -193,8 +198,12 @@ doc_events = {
             "a3_finance.overrides.additional_salary.calculate_lop_refund",
             "a3_finance.overrides.additional_salary.custom_validate",
             "a3_finance.overrides.additional_salary.process_lop_hour_refund",
-            "a3_finance.overrides.additional_salary.process_overtime_amount"
-        ]
+            "a3_finance.overrides.additional_salary.process_overtime_amount",
+            "a3_finance.overrides.additional_salary.society_deduction_processing"
+        ],
+        "on_submit": [
+            "a3_finance.overrides.additional_salary.create_festival_advance"
+        ],
     },
     "Employee": {
         "autoname": "a3_finance.overrides.employee_updates.autoname",

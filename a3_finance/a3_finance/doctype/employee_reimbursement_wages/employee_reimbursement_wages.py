@@ -188,6 +188,19 @@ class EmployeeReimbursementWages(Document):
 			else:
 				service_weightage = frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
 			if not self.actual_basic_pay:
+			# 	if self.reimbursement_date:
+			# 		ssa = frappe.get_all(
+			# 	"Salary Structure Assignment",
+			# 	filters={
+			# 		"employee": self.employee_id,
+			# 		"from_date": ["<=", reimbursement_date],
+			# 		"docstatus": 1
+			# 	},
+			# 	fields=["base"],
+			# 	order_by="from_date desc",
+			# 	limit=1
+			# )
+			# 		self.actual_basic_pay = flt(ssa[0].base) if ssa else 0
 				self.actual_basic_pay = frappe.db.get_value('Salary Structure Assignment',{'employee':self.employee_id},'base')
 
 			# Days-based refund
