@@ -373,8 +373,7 @@
   {
    "fieldname": "effective_from",
    "fieldtype": "Date",
-   "label": "Effective From",
-   "reqd": 0
+   "label": "Effective From"
   },
   {
    "fieldname": "column_break_gxvj",
@@ -388,7 +387,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-21 20:48:24.609497",
+ "modified": "2025-07-30 14:44:39.049136",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",
