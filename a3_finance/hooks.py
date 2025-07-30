@@ -171,20 +171,16 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_lop_in_hours_deduction",
             # "a3_finance.overrides.salary_slip.set_custom_medical_allowance",
             "a3_finance.overrides.salary_slip.set_basic_pay",
-            "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
+            
             # "a3_finance.overrides.salary_slip.enforce_society_deduction_limit",
             "a3_finance.overrides.salary_slip.calculate_exgratia",
             "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
-            
             "a3_finance.overrides.salary_slip.final_calculation",
             # "a3_finance.overrides.salary_slip.final_calculation"
             "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
-            
-            
-
-            
+            "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
         ],
         # "before_save":["a3_finance.overrides.salary_slip.custom_skip_society"],
         "on_submit":[

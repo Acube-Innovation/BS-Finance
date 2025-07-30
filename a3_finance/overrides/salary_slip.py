@@ -479,7 +479,7 @@ def update_tax_on_salary_slip(slip, method):
         ORDER BY from_date DESC
         LIMIT 1
         """,
-        (doc.employee, doc.start_date),
+        (slip.employee, slip.start_date),
     )
 
     base_salary = flt(base_salary[0][0]) if base_salary else 0
@@ -657,6 +657,7 @@ def update_tax_on_salary_slip(slip, method):
 
         slip.calculate_net_pay()
         print(f"--- Completed Tax Update for {slip.name} ---\n")
+    # slip.calculate_net_pay()
 
 
 
@@ -1038,11 +1039,14 @@ def set_actual_amounts(doc, method):
 """, (doc.employee,))
 
     doc.custom_payment_days_ytd = payment_days[0][0] if payment_days and payment_days[0][0] else 0
-
+    doc.custom_conveyance_days_ytd = frappe.db.sql("""SELECT SUM(ss.custom_conveyance_days) FROM `tabSalary Slip` AS ss WHERE ss.employee = %s AND ss.docstatus != 2""", (doc.employee,))[0][0] or 0
     custom_lop_refund_days_ytd = frappe.db.sql("""SELECT SUM(ss.custom_lop_refund_days) FROM `tabSalary Slip` AS ss WHERE ss.employee = %s AND ss.docstatus !=2""",(doc.employee))
 
     doc.custom_lop_refund_days_ytd = custom_lop_refund_days_ytd[0][0]
-
+    doc.custom_lop_refund_hrs_ytd = frappe.db.sql("""SELECT SUM(ss.custom_lop_refund_hrs) FROM `tabSalary Slip` AS ss WHERE ss.employee = %s AND ss.docstatus != 2""", (doc.employee,))[0][0] or 0
+    doc.custom_lop_hrs_ytd = frappe.db.sql("""SELECT SUM(ss.custom_lop_hrs) FROM `tabSalary Slip` AS ss WHERE ss.employee = %s AND ss.docstatus != 2""", (doc.employee,))[0][0] or 0
+    doc.custom_lop_days_ytd = frappe.db.sql("""SELECT SUM(ss.custom_uploaded_leave_without_pay) FROM `tabSalary Slip` AS ss WHERE ss.employee = %s AND ss.docstatus != 2""", (doc.employee,))[0][0] or 0
+    doc.custom_ot_hrs_ytd = frappe.db.sql("""SELECT SUM(ss.custom_ot_hrs) FROM `tabSalary Slip` AS ss WHERE ss.employee = %s AND ss.docstatus != 2""", (doc.employee,))[0][0] or 0
 
 def set_weekly_present_days_from_canteen(doc,method):
     self=doc
@@ -1077,6 +1081,10 @@ def apply_society_deduction_cap(doc, method):
     If there are multiple 'Society' rows (one from structure, one from Additional Salary),
     the linked rows are unlinked so values don't revert.
     """
+    for row in doc.deductions:
+        if row.salary_component == "Society":
+            if row.amount == 0:
+                return
     total_earnings = sum(e.amount for e in doc.earnings)
     max_deductions = total_earnings * 0.75
     total_deductions = sum(d.amount for d in doc.deductions)
