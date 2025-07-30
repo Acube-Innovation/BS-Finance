@@ -47,7 +47,7 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_deputation_allowance                   = setting.deputation_allowance
     doc.custom_other                                  = setting.others
     current_month = getdate(doc.start_date).month
-
+    doc.custom_shoe_allowance_month = current_month if current_month <= 12 else 12
     if doc.custom_employment_type in ["Workers", "Officers"]:
         # Calculate days between start_date and end_date (inclusive)
         start = getdate(doc.start_date)
@@ -1081,6 +1081,7 @@ def apply_society_deduction_cap(doc, method):
     If there are multiple 'Society' rows (one from structure, one from Additional Salary),
     the linked rows are unlinked so values don't revert.
     """
+    # Society
     for row in doc.deductions:
         if row.salary_component == "Society":
             if row.amount == 0:
