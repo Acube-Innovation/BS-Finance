@@ -399,7 +399,7 @@ def set_basic_pay(doc, method):
         },
         fieldname="SUM(lop_amount)"
     ) or 0
-    doc.custom_uploaded_lop_loss_amount = round_half_up(final_lop)
+    doc.custom_uploaded_lop_loss_amount = final_lop
 
     no__of_days = frappe.db.get_value(
         "Lop Per Request",
@@ -433,7 +433,7 @@ def set_basic_pay(doc, method):
         },
         fieldname="SUM(employee_da_loss_for_payroll_period)"
     ) or 0
-    doc.custom_dearness_allowance_ = round_half_up(da_loss)
+    doc.custom_dearness_allowance_ = da_loss
 
     # === 2. Fetch full original service weightage for that month/year ===
     sw_row = frappe.db.get_value(
