@@ -1086,10 +1086,12 @@ def apply_society_deduction_cap(doc, method):
         if row.salary_component == "Society":
             if row.amount == 0:
                 return
+    frappe.logger().info("apply_society_deduction_cap triggered")
     total_earnings = sum(e.amount for e in doc.earnings)
     max_deductions = total_earnings * 0.75
     total_deductions = sum(d.amount for d in doc.deductions)
 
+    frappe.logger().info("apply_society_deduction_cap triggered")
     print(f"Society deduction cap check: Max={max_deductions}, Current={total_deductions}")
 
     if total_deductions <= max_deductions:
@@ -1114,6 +1116,8 @@ def apply_society_deduction_cap(doc, method):
 
     # Choose which row to adjust: prefer structure-based
     target = society_main or (society_linked[0] if society_linked else None)
+    frappe.logger().info("apply_society_deduction_cap triggered")
+
     if not target:
         return  # No Society row found to adjust
 
@@ -1140,8 +1144,6 @@ def apply_society_deduction_cap(doc, method):
     # doc.set_net_pay()
 
 
-
-
 def custom_skip_society(doc, method):
     """
     Remove Society components that came from Additional Salary
@@ -1159,6 +1161,100 @@ def custom_skip_society(doc, method):
         new_deductions.append(d)
 
     # doc.deductions = new_deductions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # def calculate_deductions_totals(doc):
@@ -1235,56 +1331,6 @@ def custom_skip_society(doc, method):
 
 #     # Refresh totals
 #     doc.set_totals()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # # def calculate_current_actual_base(doc,method):
