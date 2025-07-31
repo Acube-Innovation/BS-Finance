@@ -1086,12 +1086,12 @@ def apply_society_deduction_cap(doc, method):
         if row.salary_component == "Society":
             if row.amount == 0:
                 return
-    frappe.logger().info("apply_society_deduction_cap triggered")
+    frappe.log_error("apply_society_deduction_cap started", "DEBUG")
     total_earnings = sum(e.amount for e in doc.earnings)
     max_deductions = total_earnings * 0.75
     total_deductions = sum(d.amount for d in doc.deductions)
 
-    frappe.logger().info("apply_society_deduction_cap triggered")
+    frappe.log_error("apply_society_deduction_cap started", "DEBUG")
     print(f"Society deduction cap check: Max={max_deductions}, Current={total_deductions}")
 
     if total_deductions <= max_deductions:
