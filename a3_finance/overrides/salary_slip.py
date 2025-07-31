@@ -48,7 +48,7 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_other                                  = setting.others
     current_month = getdate(doc.start_date).month
     doc.custom_shoe_allowance_month = current_month if current_month <= 12 else 12
-    if doc.custom_employment_type in ["Workers", "Officers"]:
+    if doc.custom_employment_type in ["Workers", "Officers","Canteen Employee"]:
         # Calculate days between start_date and end_date (inclusive)
         start = getdate(doc.start_date)
         end = getdate(doc.end_date)
