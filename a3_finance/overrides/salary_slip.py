@@ -1074,6 +1074,36 @@ def set_weekly_present_days_from_canteen(doc,method):
 
     if present_days:
         self.custom_weekly_present_days = present_days[0].present_days
+# import frappe
+
+def add_society_deduction(doc, method):
+    """Add society deductions for this salary slip if payroll_date falls within the pay period."""
+
+    if not (doc.employee and doc.start_date and doc.end_date):
+        return
+
+    # Prepare a set of (salary_component, amount) already in deductions
+    existing = {(d.salary_component, float(d.amount)) for d in doc.deductions}
+
+    # Fetch matching society deductions directly using DB filter
+    society_records = frappe.get_all(
+        "Society Deduction",
+        filters={
+            "employee": doc.employee,
+            "payroll_date": ["between", [doc.start_date, doc.end_date]],
+        },
+        fields=["salary_component", "amount"]
+    )
+    # doc.custom_society_deduction = society_records
+
+    # Append only new deductions
+    # for rec in society_records:
+    #     key = (rec.salary_component, float(rec.amount))
+    #     if key not in existing:
+    #         doc.append("deductions", {
+    #             "salary_component": rec.salary_component,
+    #             "amount": rec.amount
+    #         })
 
 def apply_society_deduction_cap(doc, method):
     """
@@ -1126,7 +1156,10 @@ def apply_society_deduction_cap(doc, method):
 
     # Round down to the nearest 1000
     adjusted_amount = (adjusted_amount // 1000) * 1000
-    target.amount = adjusted_amount
+    if adjusted_amount > 1000:
+        target.amount = adjusted_amount
+    else:
+        target.amount = 0
 
     # Recalculate totals
     total_current = sum(d.amount for d in doc.deductions)
