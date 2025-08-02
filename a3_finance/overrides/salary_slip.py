@@ -201,7 +201,6 @@ def set_professional_tax(doc, method):
         FROM `tabSalary Slip`
         WHERE employee = %s
           AND posting_date BETWEEN %s AND %s
-          AND docstatus = 1
     """, (doc.employee, start, end), as_dict=True)[0]["total"] or 0
 
     # Fetch active Profession Tax
@@ -211,6 +210,7 @@ def set_professional_tax(doc, method):
         return
 
     profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
+    print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
 
     # Match slab based on gross total
     for slab in profession_tax_doc.profession__tax_slab:
@@ -1076,24 +1076,24 @@ def set_weekly_present_days_from_canteen(doc,method):
         self.custom_weekly_present_days = present_days[0].present_days
 # import frappe
 
-def add_society_deduction(doc, method):
-    """Add society deductions for this salary slip if payroll_date falls within the pay period."""
+# def add_society_deduction(doc, method):
+#     """Add society deductions for this salary slip if payroll_date falls within the pay period."""
 
-    if not (doc.employee and doc.start_date and doc.end_date):
-        return
+#     if not (doc.employee and doc.start_date and doc.end_date):
+#         return
 
-    # Prepare a set of (salary_component, amount) already in deductions
-    existing = {(d.salary_component, float(d.amount)) for d in doc.deductions}
+#     # Prepare a set of (salary_component, amount) already in deductions
+#     existing = {(d.salary_component, float(d.amount)) for d in doc.deductions}
 
-    # Fetch matching society deductions directly using DB filter
-    society_records = frappe.get_all(
-        "Society Deduction",
-        filters={
-            "employee": doc.employee,
-            "payroll_date": ["between", [doc.start_date, doc.end_date]],
-        },
-        fields=["salary_component", "amount"]
-    )
+#     # Fetch matching society deductions directly using DB filter
+#     society_records = frappe.get_all(
+#         "Society Deduction",
+#         filters={
+#             "employee": doc.employee,
+#             "payroll_date": ["between", [doc.start_date, doc.end_date]],
+#         },
+#         fields=["salary_component", "amount"]
+#     )
     # doc.custom_society_deduction = society_records
 
     # Append only new deductions

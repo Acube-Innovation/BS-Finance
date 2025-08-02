@@ -151,8 +151,9 @@ class EmployeeOvertimeWages(Document):
 				year_number = self.quarter_year
 			else:
 				# Default: fallback to last month of quarter
-				month_number = end_date.month
-				year_number = end_date.year
+				month_number = ssa_date.month
+				print("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",month_number)
+				year_number = ssa_date.year
 
 			da_setting = frappe.get_all(
 				"Payroll Master Setting",
