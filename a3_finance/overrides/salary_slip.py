@@ -216,6 +216,8 @@ def set_professional_tax(doc, method):
     # Match slab based on gross total
     for slab in profession_tax_doc.profession__tax_slab:
         if slab.from_gross_salary <= gross_total <= slab.to_gross_salary:
+            
+            slab.tax_amount = 1250
             doc.custom_professional_tax = slab.tax_amount
             frappe.db.set_value("Salary Slip", doc.name, "custom_professional_tax", slab.tax_amount)
             frappe.logger().info(f"[Professional Tax] Applied ₹{slab.tax_amount} for cumulative gross ₹{gross_total}")
