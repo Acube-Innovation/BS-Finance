@@ -171,6 +171,7 @@ def calculate_exgratia(doc, method):
 #         #     print(f"⚠️ [Professional Tax] No slab matched for Gross Pay: {doc.gross_pay}")
 #     doc.calculate_net_pay()
 
+
 from frappe.utils import getdate
 from datetime import datetime
 
