@@ -14,7 +14,7 @@
 //                 fetch_employees(frm, ['Apprentices']);
 //             });
 //         }
-//     }
+//     }client
 // });
 
 // function fetch_employees(frm, types) {
