@@ -171,6 +171,7 @@ def calculate_exgratia(doc, method):
 #         #     print(f"⚠️ [Professional Tax] No slab matched for Gross Pay: {doc.gross_pay}")
 #     doc.calculate_net_pay()
 
+
 from frappe.utils import getdate
 from datetime import datetime
 
@@ -1017,10 +1018,19 @@ def set_actual_amounts(doc, method):
             row.custom_actual_amount= (1400 if emp.custom_vehicle_type == "4 Wheeler" else 750 if emp.custom_vehicle_type == "2 Wheeler" else 350 if emp.custom_vehicle_type == "Others" else 0)
             total += row.custom_actual_amount
 
-        else:
+        elif row.abbr == "Children Education Allowance":
             # For other components, either copy row.amount or set to 0
             row.custom_actual_amount = row.amount
             total += row.custom_actual_amount
+
+        elif row.abbr == "Washing Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+        
+        elif row.abbr == "Book Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+
 
     doc.custom_gross_actual_amount=total
 
