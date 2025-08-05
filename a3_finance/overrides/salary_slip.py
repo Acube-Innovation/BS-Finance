@@ -219,7 +219,7 @@ def set_professional_tax(doc, method):
     # Match slab based on gross total
     for slab in profession_tax_doc.profession__tax_slab:
         if slab.from_gross_salary <= gross_total <= slab.to_gross_salary:
-            # slab.tax_amount = 1250
+            slab.tax_amount = 1250
             doc.custom_professional_tax = slab.tax_amount
             frappe.db.set_value("Salary Slip", doc.name, "custom_professional_tax", slab.tax_amount)
             frappe.logger().info(f"[Professional Tax] Applied ₹{slab.tax_amount} for cumulative gross ₹{gross_total}")
@@ -1121,76 +1121,117 @@ def add_society_deduction(doc, method):
     #             "amount": rec.amount
     #         })
 
+# def apply_society_deduction_cap(doc, method):
+#     """
+#     Cap total deductions to 75% of earnings by adjusting Society deduction.
+#     If there are multiple 'Society' rows (one from structure, one from Additional Salary),
+#     the linked rows are unlinked so values don't revert.
+#     """
+#     # Society
+#     for row in doc.deductions:
+#         if row.salary_component == "Society":
+#             if row.amount == 0:
+#                 return
+#     frappe.log_error("apply_society_deduction_cap started", "DEBUG")
+#     total_earnings = sum(e.amount for e in doc.earnings)
+#     max_deductions = total_earnings * 0.75
+#     total_deductions = sum(d.amount for d in doc.deductions)
+
+#     frappe.log_error("apply_society_deduction_cap started", "DEBUG")
+#     print(f"Society deduction cap check: Max={max_deductions}, Current={total_deductions}")
+
+#     if total_deductions <= max_deductions:
+#         return  # No adjustment required
+
+#     excess = total_deductions - max_deductions
+
+#     society_main = None
+#     society_linked = []
+
+#     # Separate Society rows into structure-based and linked
+#     for row in doc.deductions:
+#         if row.salary_component == "Society":
+#             if getattr(row, "additional_salary", None):
+#                 society_linked.append(row)
+#             else:
+#                 society_main = row
+
+#     # Unlink any linked Society rows so ERPNext won't refresh them
+#     for row in society_linked:
+#         row.additional_salary = None
+
+#     # Choose which row to adjust: prefer structure-based
+#     target = society_main or (society_linked[0] if society_linked else None)
+#     frappe.logger().info("apply_society_deduction_cap triggered")
+
+#     if not target:
+#         return  # No Society row found to adjust
+
+#     # Adjust amount to enforce the cap
+#     adjusted_amount = max(target.amount - excess, 0)
+
+#     # Round down to the nearest 1000
+#     adjusted_amount = (adjusted_amount // 1000) * 1000
+#     if adjusted_amount > 1000:
+#         target.amount = adjusted_amount
+#     else:
+#         target.amount = 0
+
+#     # Recalculate totals
+#     total_current = sum(d.amount for d in doc.deductions)
+#     total_ytd = sum(
+#         getattr(d, "year_to_date", 0) or 0 for d in doc.deductions
+#     )
+
+#     doc.total_deduction = total_current
+#     doc.net_pay = doc.gross_pay - doc.total_deduction
+#     doc.custom_gross_deduction_year_to_date = total_ytd
+#     doc.rounded_total = rounded(doc.net_pay)
+#     doc.compute_year_to_date()
+#     doc.compute_month_to_date()
+#     doc.calculate_net_pay()
+#     # doc.set_net_pay()
+
+
 def apply_society_deduction_cap(doc, method):
     """
     Cap total deductions to 75% of earnings by adjusting Society deduction.
-    If there are multiple 'Society' rows (one from structure, one from Additional Salary),
-    the linked rows are unlinked so values don't revert.
+    Society is no longer an additional salary, so simply overwrite amount.
     """
-    # Society
-    for row in doc.deductions:
-        if row.salary_component == "Society":
-            if row.amount == 0:
-                return
-    frappe.log_error("apply_society_deduction_cap started", "DEBUG")
+    # Find Society row
+    society_row = next((row for row in doc.deductions if row.salary_component == "Society"), None)
+
+    if not society_row or society_row.amount == 0:
+        return  # Nothing to adjust
+
     total_earnings = sum(e.amount for e in doc.earnings)
     max_deductions = total_earnings * 0.75
     total_deductions = sum(d.amount for d in doc.deductions)
 
-    frappe.log_error("apply_society_deduction_cap started", "DEBUG")
     print(f"Society deduction cap check: Max={max_deductions}, Current={total_deductions}")
 
     if total_deductions <= max_deductions:
-        return  # No adjustment required
+        return  # No capping needed
 
     excess = total_deductions - max_deductions
 
-    society_main = None
-    society_linked = []
+    # Reduce the society amount by excess, not below 0
+    adjusted_amount = max(society_row.amount - excess, 0)
 
-    # Separate Society rows into structure-based and linked
-    for row in doc.deductions:
-        if row.salary_component == "Society":
-            if getattr(row, "additional_salary", None):
-                society_linked.append(row)
-            else:
-                society_main = row
-
-    # Unlink any linked Society rows so ERPNext won't refresh them
-    for row in society_linked:
-        row.additional_salary = None
-
-    # Choose which row to adjust: prefer structure-based
-    target = society_main or (society_linked[0] if society_linked else None)
-    frappe.logger().info("apply_society_deduction_cap triggered")
-
-    if not target:
-        return  # No Society row found to adjust
-
-    # Adjust amount to enforce the cap
-    adjusted_amount = max(target.amount - excess, 0)
-
-    # Round down to the nearest 1000
+    # Round down to nearest 1000
     adjusted_amount = (adjusted_amount // 1000) * 1000
-    if adjusted_amount > 1000:
-        target.amount = adjusted_amount
-    else:
-        target.amount = 0
 
-    # Recalculate totals
-    total_current = sum(d.amount for d in doc.deductions)
-    total_ytd = sum(
-        getattr(d, "year_to_date", 0) or 0 for d in doc.deductions
-    )
+    society_row.amount = adjusted_amount if adjusted_amount > 1000 else 0
 
-    doc.total_deduction = total_current
+    # Recompute totals
+    doc.total_deduction = sum(d.amount for d in doc.deductions)
     doc.net_pay = doc.gross_pay - doc.total_deduction
-    doc.custom_gross_deduction_year_to_date = total_ytd
+    doc.custom_gross_deduction_year_to_date = sum((d.year_to_date or 0) for d in doc.deductions)
     doc.rounded_total = rounded(doc.net_pay)
     doc.compute_year_to_date()
     doc.compute_month_to_date()
     # doc.calculate_net_pay()
-    # doc.set_net_pay()
+
 
 
 def custom_skip_society(doc, method):
