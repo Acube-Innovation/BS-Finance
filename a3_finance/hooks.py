@@ -180,6 +180,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
+            
         ],
         # "before_save":["a3_finance.overrides.salary_slip.custom_skip_society"],
         "on_submit":[
