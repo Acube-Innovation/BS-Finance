@@ -373,3 +373,9 @@ def society_deduction_processing(doc,method):
 
     else:
         doc.overwrite_salary_structure_amount = 0
+
+
+def override_validate_duplicate_additional_salary (self):
+    frappe.log_error(f"Bypassing validate_duplicates for Job Requisition {self.name}", "Custom Validation Bypass")
+    # Add any custom logic here if needed
+    pass  # Do nothing to bypass the validation
