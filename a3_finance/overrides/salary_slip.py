@@ -215,7 +215,7 @@ def set_professional_tax(doc, method):
 
     profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
-    gross_total += flt(doc.custom_gross_actual_amount) * 2
+    gross_total += flt(doc.gross_pay) * 2
     # Match slab based on gross total
     for slab in profession_tax_doc.profession__tax_slab:
         if slab.from_gross_salary <= gross_total <= slab.to_gross_salary:
