@@ -7,7 +7,9 @@
  "engine": "InnoDB",
  "field_order": [
   "employee",
-  "present_days"
+  "present_days",
+  "tl_hours",
+  "other_deductions"
  ],
  "fields": [
   {
@@ -23,13 +25,25 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Present Days"
+  },
+  {
+   "fieldname": "tl_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "TL Hours"
+  },
+  {
+   "fieldname": "other_deductions",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Other Deductions"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-07-29 10:52:32.340660",
+ "modified": "2025-07-31 11:57:44.994582",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Uploaded Details",
