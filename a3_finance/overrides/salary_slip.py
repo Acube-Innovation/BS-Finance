@@ -53,6 +53,9 @@ def pull_values_from_payroll_master(doc, method):
         start = getdate(doc.start_date)
         end = getdate(doc.end_date)
         doc.custom_weekly_payment_days = (end - start).days + 1
+    if doc.custom_payroll_days == 0:
+        print("ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",setting.payroll_days)
+        doc.custom_payroll_days = setting.payroll_days if setting.payroll_days else 30
 
 def get_previous_payroll_master_setting(year, month_number):
     years_to_consider = [year, year - 1]
@@ -212,12 +215,11 @@ def set_professional_tax(doc, method):
 
     profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
-
+    gross_total += flt(doc.custom_gross_actual_amount) * 2
     # Match slab based on gross total
     for slab in profession_tax_doc.profession__tax_slab:
         if slab.from_gross_salary <= gross_total <= slab.to_gross_salary:
-            
-            slab.tax_amount = 1250
+            # slab.tax_amount = 1250
             doc.custom_professional_tax = slab.tax_amount
             frappe.db.set_value("Salary Slip", doc.name, "custom_professional_tax", slab.tax_amount)
             frappe.logger().info(f"[Professional Tax] Applied ₹{slab.tax_amount} for cumulative gross ₹{gross_total}")
@@ -1088,25 +1090,27 @@ def set_weekly_present_days_from_canteen(doc,method):
         self.custom_weekly_present_days = present_days[0].present_days
 # import frappe
 
-# def add_society_deduction(doc, method):
-#     """Add society deductions for this salary slip if payroll_date falls within the pay period."""
+def add_society_deduction(doc, method):
+    """Add society deductions for this salary slip if payroll_date falls within the pay period."""
+    doc.calculate_net_pay()
+    if not (doc.employee and doc.start_date and doc.end_date):
+        return
 
-#     if not (doc.employee and doc.start_date and doc.end_date):
-#         return
+    # Prepare a set of (salary_component, amount) already in deductions
+    # existing = {(d.salary_component, float(d.amount)) for d in doc.deductions}
 
-#     # Prepare a set of (salary_component, amount) already in deductions
-#     existing = {(d.salary_component, float(d.amount)) for d in doc.deductions}
-
-#     # Fetch matching society deductions directly using DB filter
-#     society_records = frappe.get_all(
-#         "Society Deduction",
-#         filters={
-#             "employee": doc.employee,
-#             "payroll_date": ["between", [doc.start_date, doc.end_date]],
-#         },
-#         fields=["salary_component", "amount"]
-#     )
-    # doc.custom_society_deduction = society_records
+    # Fetch matching society deductions directly using DB filter
+    society_records = frappe.get_all(
+        "Society Deduction",
+        filters={
+            "employee": doc.employee,
+            "payroll_date": ["between", [doc.start_date, doc.end_date]],
+        },
+        fields=["salary_component", "amount"]
+    )
+    doc.custom_society_deduction = society_records[0].amount if society_records else 0
+    doc.calculate_net_pay()
+    
 
     # Append only new deductions
     # for rec in society_records:
