@@ -140,8 +140,9 @@ doctype_js = {
 # }
 scheduler_events = {
     "daily": [
-        "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
-        "a3_finance.overrides.account_validity.update_account_status"
+        # "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
+        "a3_finance.overrides.account_validity.update_account_status",
+        "a3_finance.scheduler.update_employee_total_service.update_total_service_for_all_employees"
     ]
 }
 
@@ -207,7 +208,9 @@ doc_events = {
     },
     "Employee": {
         "autoname": "a3_finance.overrides.employee_updates.autoname",
-        "validate": "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe"
+        "validate": [
+            "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe",
+            "a3_finance.a3_finance.doc_events.employee.update_total_service"]
     },
     "Salary Structure Assignment":{
         "on_submit":[

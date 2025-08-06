@@ -34,6 +34,10 @@
   {
    "fieldname": "employee_id",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Employee ID",
    "options": "Employee",
    "reqd": 1
@@ -89,7 +93,8 @@
   {
    "fieldname": "base_salary",
    "fieldtype": "Currency",
-   "label": "Base Salary for Payroll Period"
+   "label": "Base Salary for Payroll Period",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_ehwp",
@@ -100,7 +105,8 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "LOP Amount For Payroll Period"
+   "label": "LOP Amount For Payroll Period",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_pzaw",
@@ -109,7 +115,8 @@
   {
    "fieldname": "employee_service_weightage",
    "fieldtype": "Currency",
-   "label": "Employee Service Weightage For Payroll Period"
+   "label": "Employee Service Weightage For Payroll Period",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_gypx",
@@ -118,7 +125,10 @@
   {
    "fieldname": "employee_service_weightage_loss",
    "fieldtype": "Currency",
-   "label": "Employee Service Weightage Loss For Payroll Period"
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Employee Service Weightage Loss For Payroll Period",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_zetk",
@@ -127,7 +137,8 @@
   {
    "fieldname": "employee_da_for_payroll_period",
    "fieldtype": "Float",
-   "label": "Employee DA For Payroll Period"
+   "label": "Employee DA For Payroll Period",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_cdrj",
@@ -136,7 +147,10 @@
   {
    "fieldname": "employee_da_loss_for_payroll_period",
    "fieldtype": "Currency",
-   "label": "Employee DA Loss For Payroll Period"
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Employee DA Loss For Payroll Period",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_lkut",
@@ -151,12 +165,13 @@
    "fieldname": "employment_type",
    "fieldtype": "Link",
    "label": "Employment Type",
-   "options": "Employment Type"
+   "options": "Employment Type",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-17 11:40:43.366932",
+ "modified": "2025-08-06 11:50:22.332397",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Lop Per Request",
