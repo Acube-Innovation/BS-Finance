@@ -14,7 +14,11 @@
   {
    "fieldname": "asset",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
    "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Asset",
    "options": "Asset"
   },
@@ -36,7 +40,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-06-05 16:54:48.566007",
+ "modified": "2025-08-06 13:44:02.863064",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Asset Verification Item",

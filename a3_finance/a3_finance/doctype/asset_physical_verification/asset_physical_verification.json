@@ -39,6 +39,10 @@
   {
    "fieldname": "location",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Location",
    "options": "Location"
   },
@@ -46,6 +50,11 @@
    "fetch_from": "location.custom_shop",
    "fieldname": "shop",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Shop",
    "options": "Shop"
   },
@@ -53,6 +62,10 @@
    "fetch_from": "location.custom_section",
    "fieldname": "section",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Section",
    "options": "Section"
   },
@@ -77,6 +90,10 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Status",
    "options": "\nVerified\nNot Verified"
   },
@@ -114,6 +131,8 @@
   {
    "fieldname": "asset",
    "fieldtype": "Table",
+   "in_filter": 1,
+   "in_standard_filter": 1,
    "label": "Asset",
    "options": "Asset Verification Item"
   },
@@ -134,7 +153,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-06-05 16:56:32.194779",
+ "modified": "2025-08-06 13:45:31.647795",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Asset Physical Verification",
