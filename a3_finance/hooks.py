@@ -49,6 +49,7 @@ doctype_js = {
     "Supplier" : "public/js/supplier.js",
     "Salary Slip" : "public/js/salary_slip.js",
     "Payroll Entry" : "public/js/payroll_entry.js",
+    "Asset Physical Verification": "public/js/asset_physical_verification.js"
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -217,9 +218,9 @@ doc_events = {
     "Income Tax Slab":{
         "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate",
     },
-    # "Asset":{
-    #     "after_insert": "a3_finance.a3_finance.doc_events.asset.on_purchase_receipt_submit",
-    # }
+    "Asset Physical Verification": {
+        "on_submit": "a3_finance.a3_finance.doctype.asset_physical_verification.asset_physical_verification.on_submit"
+    }
 }
 
 

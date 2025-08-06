@@ -6,12 +6,15 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "filters_section",
   "location",
   "section",
   "column_break_bbay",
   "floor",
   "shop",
+  "company",
   "section_break_eobe",
+  "get_assets",
   "asset",
   "section_break_yeip",
   "amended_from",
@@ -147,13 +150,30 @@
   {
    "fieldname": "section_break_eobe",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "filters_section",
+   "fieldtype": "Section Break",
+   "label": "Filters"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "description": "Click here to get the assets using above filters",
+   "fieldname": "get_assets",
+   "fieldtype": "Button",
+   "label": "Get Assets"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-08-06 13:45:31.647795",
+ "modified": "2025-08-06 19:18:31.294813",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Asset Physical Verification",
