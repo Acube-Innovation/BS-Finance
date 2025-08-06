@@ -215,8 +215,11 @@ doc_events = {
             "a3_finance.a3_finance.doc_events.salary_structure_assignment.update_in_employee"]
     },
     "Income Tax Slab":{
-        "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate"
-    }
+        "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate",
+    },
+    # "Asset":{
+    #     "after_insert": "a3_finance.a3_finance.doc_events.asset.on_purchase_receipt_submit",
+    # }
 }
 
 
@@ -320,3 +323,6 @@ override_doctype_dashboards = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+fixtures = [
+    {"dt": "Property Setter", "filters": [["doc_type", "in", ["Asset Category"]]]}
+]
