@@ -43,6 +43,12 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
+fixtures = [
+    {
+        "doctype": "Document Naming Rule",
+        "filters": [["document_type", "in", ["Supplier"]]]
+    }
+]
 doctype_js = {
     "Asset Category" : "public/js/asset_category.js",
     "Item" : "public/js/item.js",
