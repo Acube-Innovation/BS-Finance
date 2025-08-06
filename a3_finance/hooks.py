@@ -219,6 +219,9 @@ doc_events = {
     },
     "Income Tax Slab":{
         "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate"
+    },
+    "Supplier":{
+        "before_insert":"a3_finance.a3_finance.doc_events.supplier.before_insert"
     }
 }
 
@@ -227,23 +230,23 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"a3_finance.tasks.all"
-# 	],
-# 	"daily": [
-# 		"a3_finance.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"a3_finance.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"a3_finance.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"a3_finance.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	# "all": [
+	# 	"a3_finance.tasks.all"
+	# ],
+	"daily": [
+		"a3_finance.a3_finance.doc_events.supplier.change_supplier_status"
+	],
+	# "hourly": [
+	# 	"a3_finance.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"a3_finance.tasks.weekly"
+	# ],
+	# "monthly": [
+	# 	"a3_finance.tasks.monthly"
+	# ],
+}
 
 # Testing
 # -------
