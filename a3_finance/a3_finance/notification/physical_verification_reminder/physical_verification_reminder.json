@@ -1,0 +1,31 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition": "doc.frequency == \"Half-yearly\"\n",
+ "creation": "2025-08-06 23:11:38.919891",
+ "date_changed": "verification_date",
+ "days_in_advance": 180,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Asset Physical Verification",
+ "enabled": 1,
+ "event": "Days After",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "Hi, <br><br>\nThis is a reminder that physical verification should be done every 6 months for assets.<br>\nPlease ensure that a new Asset Physical Verification is created.<br><br>\nThank you.",
+ "message_type": "Plain Text",
+ "modified": "2025-08-06 23:12:11.904063",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Physical Verification Reminder",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "All"
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 0,
+ "set_property_after_alert": "next_verification_due",
+ "subject": "Physical Verification Due"
+}
