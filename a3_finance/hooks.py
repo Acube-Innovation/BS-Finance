@@ -43,6 +43,12 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
+fixtures = [
+    {
+        "doctype": "Document Naming Rule",
+        "filters": [["document_type", "in", ["Supplier"]]]
+    }
+]
 doctype_js = {
     "Asset Category" : "public/js/asset_category.js",
     "Item" : "public/js/item.js",
@@ -141,8 +147,9 @@ doctype_js = {
 # }
 scheduler_events = {
     "daily": [
-        "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
-        "a3_finance.overrides.account_validity.update_account_status"
+        # "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
+        "a3_finance.overrides.account_validity.update_account_status",
+        "a3_finance.scheduler.update_employee_total_service.update_total_service_for_all_employees"
     ]
 }
 
@@ -208,7 +215,9 @@ doc_events = {
     },
     "Employee": {
         "autoname": "a3_finance.overrides.employee_updates.autoname",
-        "validate": "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe"
+        "validate": [
+            "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe",
+            "a3_finance.a3_finance.doc_events.employee.update_total_service"]
     },
     "Salary Structure Assignment":{
         "on_submit":[
@@ -220,6 +229,9 @@ doc_events = {
     },
     "Asset Physical Verification": {
         "on_submit": "a3_finance.a3_finance.doctype.asset_physical_verification.asset_physical_verification.on_submit"
+    },
+    "Supplier":{
+        "before_insert":"a3_finance.a3_finance.doc_events.supplier.before_insert"
     }
 }
 
@@ -228,23 +240,23 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"a3_finance.tasks.all"
-# 	],
-# 	"daily": [
-# 		"a3_finance.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"a3_finance.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"a3_finance.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"a3_finance.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	# "all": [
+	# 	"a3_finance.tasks.all"
+	# ],
+	"daily": [
+		"a3_finance.a3_finance.doc_events.supplier.change_supplier_status"
+	],
+	# "hourly": [
+	# 	"a3_finance.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"a3_finance.tasks.weekly"
+	# ],
+	# "monthly": [
+	# 	"a3_finance.tasks.monthly"
+	# ],
+}
 
 # Testing
 # -------
