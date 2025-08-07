@@ -57,7 +57,6 @@
    "options": "Item"
   },
   {
-   "fetch_from": "asset.custom_last_inspection_date",
    "fieldname": "last_inspection_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -70,21 +69,26 @@
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Failure Date",
-   "mandatory_depends_on": "eval:doc.new_status == 'Repaired'"
+   "mandatory_depends_on": "eval:doc.new_status === 'Repaired'"
   },
   {
    "fieldname": "new_status",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_global_search": 1,
    "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "New Status",
-   "options": "\nOk\nScrapped\nRepaired"
+   "options": "\nOk\nScrapped\nRepaired",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-08-06 22:54:57.800031",
+ "modified": "2025-08-07 18:50:57.909346",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Asset Verification Item",
