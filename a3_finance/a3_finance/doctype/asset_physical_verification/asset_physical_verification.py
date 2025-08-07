@@ -10,16 +10,14 @@ from frappe.utils import nowdate
 class AssetPhysicalVerification(Document):
 	pass
 
-import frappe
-
 def on_submit(doc, method):
     submission_date = nowdate()
     for row in doc.asset:
         if row.new_status == "Scrapped":
             with suppress_msgprint():
-                scrap_asset(row.asset)  # ✅ This triggers ERPNext's built-in scrapping process
+                scrap_asset(row.asset)  
             
-        # Handle Repaired Assets (set to Out of Order)
+        # Handle Repaired Assets 
         elif row.new_status == "Repaired":
             # Get required asset values
             asset_doc = frappe.get_doc("Asset", row.asset)            
@@ -34,20 +32,8 @@ def on_submit(doc, method):
             repair_doc.failure_date = row.failure_date or frappe.utils.today()
 
             # Insert (status will auto-change to 'Out of Order')
-            repair_doc.insert(ignore_permissions=True)
-
+            repair_doc.insert(ignore_permissions=True)       
         
-        # # ✅ Update last inspection date before creating repair doc
-        # if row.last_inspection_date:
-        #     try:
-        #         asset_doc = frappe.get_doc("Asset", row.asset)
-        #         asset_doc.custom_last_inspection_date = nowdate()
-        #         # asset_doc.custom_last_inspection_date = row.last_inspection_date
-        #         asset_doc.save(ignore_permissions=True)
-        #         # frappe.logger().info(f"Updated inspection date: {row.last_inspection_date} for {asset_doc.name}")
-        #     except Exception as e:
-        #         frappe.log_error(f"Failed to update inspection date for asset {row.asset}: {str(e)}", "Asset Verification Error")
-        # ✅ Always update last inspection date to submission date
         try:
             asset_doc = frappe.get_doc("Asset", row.asset)
             asset_doc.custom_last_inspection_date = submission_date
@@ -55,28 +41,6 @@ def on_submit(doc, method):
         except Exception as e:
             frappe.log_error(f"Failed to update inspection date for asset {row.asset}: {str(e)}", "Asset Verification Error")
         
-
-
-
-# @frappe.whitelist()
-# def get_assets_by_location(location):
-#     if not location:
-#         return []
-
-# 	# Only include assets that are NOT in Draft or Scrapped status
-#     assets = frappe.get_all(
-#         "Asset",
-#         filters={
-#             "location": location,
-#             "custom_shop":shop,
-#             "docstatus": ["!=", 0],               # Exclude Draft (0)
-#             "status": ["not in", ["Scrapped","Out of Order"]]    # Exclude Scrapped
-#         },
-#         fields=["name", "asset_category", "item_name"]
-#     )
-#     # assets = frappe.get_all("Asset", filters={"location": location}, fields=["name","asset_category","item_name", "custom_last_inspection_date"])
-#     return assets
-
 
 @frappe.whitelist()
 def get_filtered_assets(shop=None, section=None, floor=None, location=None):
@@ -95,12 +59,7 @@ def get_filtered_assets(shop=None, section=None, floor=None, location=None):
         filters["location"] = location
 
     # Also update the field list with correct custom fields
-    assets = frappe.get_all("Asset", 
-        # filters={
-        #     "location": location,
-        #     "docstatus": ["!=", 0],               # Exclude Draft (0)
-        #     "status": ["not in", ["Scrapped","Out of Order"]]    # Exclude Scrapped
-        # },                    
+    assets = frappe.get_all("Asset",                            
         fields=["name", "asset_name", "asset_category","item_name", "status", "location", "custom_last_inspection_date", "custom_shop", "custom_section", "custom_floor"],
         filters=filters
     )
