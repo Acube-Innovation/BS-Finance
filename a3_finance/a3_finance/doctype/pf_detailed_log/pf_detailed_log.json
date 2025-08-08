@@ -26,7 +26,9 @@
   "reimbursement_hra",
   "eps",
   "edli_wages",
-  "pf"
+  "pf",
+  "lop_days",
+  "return_days"
  ],
  "fields": [
   {
@@ -137,12 +139,22 @@
    "fieldname": "da_percentage",
    "fieldtype": "Float",
    "label": "DA Percentage"
+  },
+  {
+   "fieldname": "lop_days",
+   "fieldtype": "Float",
+   "label": "LOP Days"
+  },
+  {
+   "fieldname": "return_days",
+   "fieldtype": "Float",
+   "label": "Return Days"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-23 11:51:10.555485",
+ "modified": "2025-08-07 14:59:00.459125",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PF Detailed Log",

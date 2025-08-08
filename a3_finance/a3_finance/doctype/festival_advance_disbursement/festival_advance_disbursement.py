@@ -53,7 +53,7 @@ class FestivalAdvanceDisbursement(Document):
             "is_recurring": 1,
             "from_date": self.start_recovery_from,
             "to_date": self.recovery_end_date,
-            "overwrite_salary_structure_amount": 1,
+            "overwrite_salary_structure_amount": 0,
             "company": frappe.db.get_value("Employee", self.employee, "company")
         })
         recovery.insert(ignore_permissions=True)

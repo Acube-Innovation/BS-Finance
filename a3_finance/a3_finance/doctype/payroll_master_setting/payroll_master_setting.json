@@ -15,15 +15,15 @@
   "column_break_ueik",
   "service_weightage",
   "dearness_allowance_",
-  "yearly_increment",
-  "canteen_subsidy",
   "hra_",
+  "canteen_subsidy",
+  "edli_wages",
   "column_break_pbng",
   "payroll_days",
   "washing_allowance",
   "book_allowance",
   "deputation_allowance",
-  "edli_wages",
+  "yearly_increment",
   "column_break_mxxi",
   "stitching_allowance",
   "shoe_allowance",
@@ -38,13 +38,14 @@
   "conveyance_allowances",
   "section_break_dcuz",
   "column_break_dxzt",
-  "festival_advance_recovery",
   "labour_welfare_fund",
+  "festival_advance_recovery",
   "column_break_z9w4",
   "benevolent_fund",
-  "canteen_recovery",
   "column_break_rrwm",
   "brahmos_recreation_club_contribution",
+  "column_break_asin",
+  "canteen_recovery",
   "conveyance_allowance_details_section",
   "conveyance_allowance",
   "children_education_allowance_details_section",
@@ -135,6 +136,7 @@
    "precision": "2"
   },
   {
+   "description": "Only set on the month of disbursement.",
    "fieldname": "ex_gratia",
    "fieldtype": "Float",
    "label": "Ex Gratia",
@@ -161,6 +163,7 @@
   {
    "fieldname": "festival_advance_recovery",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Festival Advance Recovery",
    "precision": "2"
   },
@@ -173,7 +176,7 @@
   {
    "fieldname": "brahmos_recreation_club_contribution",
    "fieldtype": "Float",
-   "label": "Brahmos Recreation Club Contribution",
+   "label": "Recreation Club Contribution",
    "precision": "2"
   },
   {
@@ -291,13 +294,15 @@
   {
    "fieldname": "payroll_month_number",
    "fieldtype": "Int",
-   "label": "Payroll Month Number"
+   "label": "Payroll Month Number",
+   "read_only": 1
   },
   {
    "fieldname": "quarter",
    "fieldtype": "Select",
    "label": "Quarter",
-   "options": "\nQ1\nQ2\nQ3\nQ4"
+   "options": "\nQ1\nQ2\nQ3\nQ4",
+   "read_only": 1
   },
   {
    "fieldname": "deputation_allowance",
@@ -383,11 +388,15 @@
    "fieldname": "edli_wages",
    "fieldtype": "Currency",
    "label": "EDLI Wages"
+  },
+  {
+   "fieldname": "column_break_asin",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-30 14:44:39.049136",
+ "modified": "2025-08-07 11:17:03.049907",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",

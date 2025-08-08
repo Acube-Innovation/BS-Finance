@@ -42,3 +42,17 @@ def create_payroll_summary(doc, method):
 
 def update_in_employee(doc,method):
     frappe.db.set_value('Employee',doc.employee,'custom_basic_pay',doc.base)
+
+def create_arrear_details_log(doc, method):
+    """
+    Create a log entry for arrear details when Salary Slip is submitted.
+    """
+    if doc.custom_effective_from and doc.custom_process_arrear_on:
+        abl= frappe.get_doc({
+            "doctype": "Arrear Breakup Log",
+            "employee": doc.employee,
+            "current_base": doc.base,
+            "effective_from": doc.custom_effective_from,
+            "payroll_month": doc.custom_process_arrear_on,
+            "payroll_year": getdate(doc.custom_process_arrear_on).year})
+        abl.insert(ignore_permissions=True)

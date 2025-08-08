@@ -170,15 +170,16 @@ doc_events = {
             # "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
             "a3_finance.overrides.salary_slip.set_employee_reimbursement_wages",
             "a3_finance.overrides.salary_slip.set_lop_in_hours_deduction",
-            # "a3_finance.overrides.salary_slip.set_custom_medical_allowance",
             "a3_finance.overrides.salary_slip.set_basic_pay",
-            # "a3_finance.overrides.salary_slip.enforce_society_deduction_limit",
+            "a3_finance.overrides.salary_slip.set_medical_allowance_from_slabs",
             "a3_finance.overrides.salary_slip.calculate_exgratia",
+            "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.add_society_deduction",
             "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
+            "a3_finance.overrides.salary_slip.handle_suspension_in_employee",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
             
@@ -188,7 +189,8 @@ doc_events = {
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
             "a3_finance.overrides.salary_slip.create_benevolent_fund_log",
             "a3_finance.overrides.salary_slip.mark_paid_benevolent_logs",
-            "a3_finance.overrides.salary_slip.create_pf_detailed_summary"
+            "a3_finance.overrides.salary_slip.create_pf_detailed_summary",
+            "a3_finance.overrides.salary_slip.update_ex_gratia_in_employee",
         ],
         "on_cancel":[
             "a3_finance.overrides.salary_slip.reset_benevolent_logs_on_cancel"
