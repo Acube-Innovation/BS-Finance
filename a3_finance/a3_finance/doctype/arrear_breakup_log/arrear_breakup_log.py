@@ -277,14 +277,14 @@ class ArrearBreakupLog(Document):
                     "employee_id": self.employee,
                     "payroll_month": slip_month,
                     "payroll_year": slip_year,
-                    "start_date": ["<", self.effective_from]
+                    "start_date": ["<", self.from_date]
                 },
                 fields=["lop_amount", "employee_service_weightage_loss", "employee_da_loss_for_payroll_period"]
             )
             for lop in lops:
-                actual_bp += flt(lop.base_salary)
-                actual_sw += flt(lop.employee_service_weightage)
-                actual_da += flt(lop.employee_da_loss)
+                actual_bp += flt(lop.lop_amount)
+                actual_sw += flt(lop.employee_service_weightage_loss)
+                actual_da += flt(lop.employee_da_loss_for_payroll_period)
 
             expected_bp = self.current_base
             expected_da = round_half_up((expected_bp + actual_sw) * da_percent)
@@ -453,8 +453,8 @@ class ArrearBreakupLog(Document):
     def get_component_value(self, slip, component_name):
         for comp in slip.earnings:
             if comp.salary_component == component_name:
-                return flt(comp.amount)
+                return flt(comp.custom_actual_amount)
         for comp in slip.deductions:
             if comp.salary_component == component_name:
-                return flt(comp.amount)
+                return flt(comp.custom_actual_amount)
         return 0.0
