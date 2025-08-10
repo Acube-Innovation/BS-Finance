@@ -49,7 +49,7 @@ fixtures = [
         "filters": [["document_type", "in", ["Supplier"]]]
     },
     {
-        "doctype": "Print Format",
+        "dt": "Print Format",
         "filters": [
             ["name", "in", [
                 "Petty Cash Receipt",
