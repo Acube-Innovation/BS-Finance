@@ -26,7 +26,7 @@ app_license = "mit"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/a3_finance/css/a3_finance.css"
-# app_include_js = "/assets/a3_finance/js/a3_finance.js"
+app_include_js = "/assets/a3_finance/js/asset_category_tree.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/a3_finance/css/a3_finance.css"
@@ -47,6 +47,25 @@ fixtures = [
     {
         "doctype": "Document Naming Rule",
         "filters": [["document_type", "in", ["Supplier"]]]
+    },
+    {
+        "dt": "Print Format",
+        "filters": [
+            ["name", "in", [
+                "Petty Cash Receipt",
+                "Petty Cash Receipt Voucher",
+                "Bank Payment Advice",
+                "Bank Payment Voucher",
+                "Credit Note Voucher",
+                "Purchase Goods Voucher",
+                "Cash Payment Voucher",
+                "Purchase Service Voucher",
+                "Bank Receipt Voucher",
+                "Bank Receipt",
+                "Goods Receipt Note",
+            
+            ]]
+        ]
     }
 ]
 doctype_js = {
@@ -79,7 +98,7 @@ doctype_js = {
 
 # Generators
 # ----------
-
+treeviews = ["Asset Category"]
 # automatically create page for each record of this doctype
 # website_generators = ["Web Page"]
 
