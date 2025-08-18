@@ -36,8 +36,8 @@ class EmployeeOvertimeWages(Document):
         if quarter not in quarter_ranges:
             frappe.throw("Invalid Quarter selected.")
 
-        start_date = getdate(quarter_ranges[quarter][0])
-        is_current_quarter = self.is_current_quarter(start_date)
+        end_date = getdate(quarter_ranges[quarter][1])
+        is_current_quarter = self.is_current_quarter(end_date)
 
         # 2. Get Base Pay
         self.basic_pay = self.get_base_salary(start_date, is_current_quarter)

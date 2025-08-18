@@ -2,13 +2,11 @@
 # For license information, please see license.txt
 
 
-# Copyright (c) 2025, Acube and contributors
-# For license information, please see license.txt
-
 import frappe
 from frappe.model.document import Document
 from frappe.utils import getdate
 import calendar
+from datetime import timedelta
 from a3_finance.utils.payroll_master import get_previous_payroll_master_setting
 
 class EmployeeReimbursementWages(Document):
@@ -51,12 +49,12 @@ class EmployeeReimbursementWages(Document):
 
     def get_effective_reimbursement_date(self):
         if self.reimbursement_date:
-            return getdate(self.reimbursement_date)
+            return getdate(self.reimbursement_date) + timedelta(days=1)
         elif self.tl_month and self.reimbursement_year:
             try:
                 month = list(calendar.month_name).index(self.tl_month)
                 year = int(self.reimbursement_year)
-                return getdate(f"{year}-{month:02d}-01")
+                return getdate(f"{year}-{month:02d}-02")
             except Exception:
                 frappe.throw(f"Invalid TL Month/Year: {self.tl_month} {self.reimbursement_year}")
         return None
@@ -154,12 +152,6 @@ class EmployeeReimbursementWages(Document):
             self.lop_pf_deduction = 0
         else:
             frappe.throw("Either 'No. of Days' or 'LOP Refund Hours' must be provided.")
-
-
-
-
-
-
 
 
 

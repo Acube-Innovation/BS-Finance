@@ -162,12 +162,14 @@ doc_events = {
     "Salary Slip": {
         "validate": [
             "a3_finance.overrides.salary_slip.pull_values_from_payroll_master",
+            "a3_finance.overrides.salary_slip.set_final_exgratia",
             "a3_finance.overrides.salary_slip.set_conveyance_allowance",
             "a3_finance.overrides.salary_slip.set_overtime_wages",
             "a3_finance.overrides.salary_slip.apprentice_working_days",
             "a3_finance.overrides.salary_slip.set_weekly_present_days_from_canteen",
             # "a3_finance.overrides.salary_slip.set_lop_summary",
             # "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
+            "a3_finance.overrides.salary_slip.set_custom_payroll_days_for_suspended",
             "a3_finance.overrides.salary_slip.set_employee_reimbursement_wages",
             "a3_finance.overrides.salary_slip.set_lop_in_hours_deduction",
             "a3_finance.overrides.salary_slip.set_basic_pay",
@@ -179,7 +181,8 @@ doc_events = {
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.add_society_deduction",
             "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
-            "a3_finance.overrides.salary_slip.handle_suspension_in_employee",
+            "a3_finance.overrides.salary_slip.set_subsistence_allowance",
+            "a3_finance.overrides.salary_slip.festival_advance_recovery_validate",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
             
@@ -188,6 +191,7 @@ doc_events = {
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
             "a3_finance.overrides.salary_slip.create_benevolent_fund_log",
+            "a3_finance.overrides.salary_slip.festival_advance_recovery_on_submit",
             "a3_finance.overrides.salary_slip.mark_paid_benevolent_logs",
             "a3_finance.overrides.salary_slip.create_pf_detailed_summary",
             "a3_finance.overrides.salary_slip.update_ex_gratia_in_employee",
@@ -217,10 +221,14 @@ doc_events = {
     "Salary Structure Assignment":{
         "on_submit":[
             "a3_finance.a3_finance.doc_events.salary_structure_assignment.create_payroll_summary",
-            "a3_finance.a3_finance.doc_events.salary_structure_assignment.update_in_employee"]
+            "a3_finance.a3_finance.doc_events.salary_structure_assignment.update_in_employee",
+            "a3_finance.a3_finance.doc_events.salary_structure_assignment.create_arrear_details_log"]
     },
     "Income Tax Slab":{
         "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate"
+    },
+    "Employee Promotion":{
+        "on_submit":"a3_finance.a3_finance.doc_events.employee_promotion.create_sal_str_assignment"
     }
 }
 
