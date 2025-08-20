@@ -17,17 +17,18 @@
   "da",
   "da_percentage",
   "lop_refund",
-  "er",
-  "epf_wages",
   "salary_slip",
   "column_break_xpkn",
   "service_weightage",
   "lop_in_hours",
   "reimbursement_hra",
-  "eps",
-  "edli_wages",
   "pf",
   "lop_days",
+  "column_break_lezl",
+  "er",
+  "eps",
+  "edli_wages",
+  "epf_wages",
   "return_days"
  ],
  "fields": [
@@ -149,12 +150,16 @@
    "fieldname": "return_days",
    "fieldtype": "Float",
    "label": "Return Days"
+  },
+  {
+   "fieldname": "column_break_lezl",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-07 14:59:00.459125",
+ "modified": "2025-08-20 16:57:25.888424",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PF Detailed Log",

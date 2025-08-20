@@ -180,11 +180,12 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.add_society_deduction",
-            "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
+            
             "a3_finance.overrides.salary_slip.set_subsistence_allowance",
             "a3_finance.overrides.salary_slip.festival_advance_recovery_validate",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
+            "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             
         ],
         # "before_save":["a3_finance.overrides.salary_slip.custom_skip_society"],
@@ -216,7 +217,8 @@ doc_events = {
         "autoname": "a3_finance.overrides.employee_updates.autoname",
         "validate": [
             "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe",
-            "a3_finance.a3_finance.doc_events.employee.update_total_service"]
+            "a3_finance.a3_finance.doc_events.employee.update_total_service",
+            "a3_finance.overrides.employee_updates.create_suspension",]
     },
     "Salary Structure Assignment":{
         "on_submit":[

@@ -55,9 +55,11 @@ def pull_values_from_payroll_master(doc, method):
         start = getdate(doc.start_date)
         end = getdate(doc.end_date)
         doc.custom_weekly_payment_days = (end - start).days + 1
-    if doc.custom_payroll_days == 0 and doc.custom_employee_status == "Active":
+    if doc.custom_payroll_days == 0 and doc.custom_employee_status == "Active" or doc.custom_employment_type in ["Workers", "Officers"]:
         print("ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",setting.payroll_days)
         doc.custom_payroll_days = setting.payroll_days if setting.payroll_days else 30
+    else:
+        doc.custom_payroll_days = 7
     """Set slip.custom_arrear from 'Arrear Breakup Log' for this employee/month/year."""
     # month name (e.g., "August") and year from slip.start_date
     d = getdate(doc.start_date)
@@ -303,26 +305,27 @@ def set_employee_reimbursement_wages(slip, method):
 
 
 def set_lop_in_hours_deduction(slip, method):
-    start_date = getdate(slip.start_date)
+    if slip.custom_employment_type in ["Workers", "Officers"]:
+        start_date = getdate(slip.start_date)
 
-    # Extract month name and year from start date
-    month = start_date.strftime("%B")     # e.g., "June"
-    year = start_date.strftime("%Y")      # e.g., "2025"
+        # Extract month name and year from start date
+        month = start_date.strftime("%B")     # e.g., "June"
+        year = start_date.strftime("%Y")      # e.g., "2025"
 
-    # Get sum of time_loss_amount (will retain decimals)
-    total_time_loss = frappe.db.sql("""
-        SELECT SUM(time_loss_amount)
-        FROM `tabEmployee Time Loss`
-        WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
-    """, (slip.employee, year, month))[0][0] or 0
-    time_loss_hours = frappe.db.sql("""
-        SELECT SUM(time_loss_hours)
-        FROM `tabEmployee Time Loss`
-        WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
-    """, (slip.employee, year, month))[0][0] or 0
+        # Get sum of time_loss_amount (will retain decimals)
+        total_time_loss = frappe.db.sql("""
+            SELECT SUM(time_loss_amount)
+            FROM `tabEmployee Time Loss`
+            WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
+        """, (slip.employee, year, month))[0][0] or 0
+        time_loss_hours = frappe.db.sql("""
+            SELECT SUM(time_loss_hours)
+            FROM `tabEmployee Time Loss`
+            WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
+        """, (slip.employee, year, month))[0][0] or 0
 
-    slip.custom_time_loss_in_hours_deduction = round_half_up(total_time_loss)
-    slip.custom_lop_hrs = time_loss_hours
+        slip.custom_time_loss_in_hours_deduction = round_half_up(total_time_loss)
+        slip.custom_lop_hrs = time_loss_hours
 
 
 # LOP Days Summary for taking leave
@@ -878,7 +881,8 @@ def create_pf_detailed_summary(doc, method):
         "lop_refund": lop_refund,
         "reimbursement_hra": doc.custom_reimbursement_hra_amount,
         "pf":pf,
-        "salary_slip": doc.name
+        "salary_slip": doc.name,
+        "return_days": doc.custom_uploaded_leave_without_pay
     }
 
     if existing:
@@ -935,17 +939,20 @@ def apprentice_working_days(doc, method):
 
         # frappe.msgprint(f"Apprentice End Date: {app_end_date}, Salary Slip End Date: {end_date}")
 
-        if app_end_date < end_date:
+        if app_end_date and app_end_date < end_date :
+            print("rrrrrrrrrrrrrrrrrrrrrrrrr")
             # Calculate number of working days after apprentice contract ends
             total_working_days = (app_end_date - start_date).days + 1
             # frappe.msgprint(f"Total working days after apprentice contract end: {total_working_days}")
             doc.custom_weekly_payment_days = total_working_days
         elif doj > start_date and doj <= end_date:
+            print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
             # Calculate number of working days from date of joining to end date
             total_working_days = (end_date - doj).days + 1
             frappe.msgprint(f"Total working days from date of joining: {total_working_days}")
             doc.custom_weekly_payment_days = total_working_days
         else:
+            print("dddddddddddddddddddddddddddddddddddddd")
             doc.custom_weekly_payment_days = 30
     elif doc.custom_employment_type in ["Worker", "Officer"]:
         doc.custom_weekly_payment_days = (end_date - start_date).days + 1
@@ -1059,24 +1066,32 @@ def set_weekly_present_days_from_canteen(doc,method):
     # Directly join parent and child tables to get present_days in one query
     present_days = frappe.db.sql(
         """
-        SELECT child.present_days
-        FROM `tabCanteen Employee Attendace` AS parent
+        SELECT child.present_days, child.tl_hours, child.other_deductions
+        FROM `tabCanteen Employee Attendance` AS parent
         JOIN `tabUploaded Details` AS child
             ON child.parent = parent.name
         WHERE parent.from_date = %s
             AND parent.to_date = %s
             AND child.employee = %s
-            AND child.parenttype = 'Canteen Employee Attendace'
+            AND child.parenttype = 'Canteen Employee Attendance'
             AND child.parentfield = 'employee_attendance'
         LIMIT 1
         """,
         (self.start_date, self.end_date, self.employee),
         as_dict=True,
     )
+    print(f"Present Days Query Result: {present_days}")
 
     if present_days:
-        self.custom_weekly_present_days = present_days[0].present_days
-# import frappe
+        record = present_days[0]
+        doc.custom_weekly_present_days = record.present_days
+        doc.custom_lop_hrs = record.tl_hours
+        base = _get_bp_from_ssa(doc.employee, doc.end_date)
+        if base:
+            doc.custom_time_loss_in_hours_deduction = round_half_up(base / 8 * doc.custom_lop_hrs)
+        print(f"Setting custom_weekly_present_days to {doc.custom_lop_hrs} for {record.tl_hours}")
+        doc.custom_other = record.other_deductions
+# import frappecustom_other
 
 def add_society_deduction(doc, method):
     """Add society deductions for this salary slip if payroll_date falls within the pay period."""
@@ -1096,7 +1111,10 @@ def add_society_deduction(doc, method):
         },
         fields=["salary_component", "amount"]
     )
+    # if doc.custom_society_deduction == 0:
     doc.custom_society_deduction = society_records[0].amount if society_records else 0
+    society_row = next((row for row in doc.deductions if row.salary_component == "Society"), None)
+    print(f"Societyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy deduction: {society_row}")
     doc.calculate_net_pay()
  
 
@@ -1108,19 +1126,20 @@ def apply_society_deduction_cap(doc, method):
     # Find Society row
     society_row = next((row for row in doc.deductions if row.salary_component == "Society"), None)
 
-    if not society_row or society_row.amount == 0:
+    if not society_row:
         return  # Nothing to adjust
-
+    doc.calculate_net_pay()
     total_earnings = sum(e.amount for e in doc.earnings)
     max_deductions = total_earnings * 0.75
-    total_deductions = sum(d.amount for d in doc.deductions)
+    total_deductions = sum(d.amount for d in doc.deductions) 
 
-    print(f"Society deduction cap check: Max={max_deductions}, Current={total_deductions}")
+    print(f"Societyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy deduction cap check: Max={max_deductions}, Current={total_deductions}")
 
     if total_deductions <= max_deductions:
         return  # No capping needed
 
     excess = total_deductions - max_deductions
+    print("excess:", excess)
 
     # Reduce the society amount by excess, not below 0
     adjusted_amount = max(society_row.amount - excess, 0)
@@ -1129,6 +1148,7 @@ def apply_society_deduction_cap(doc, method):
     adjusted_amount = (adjusted_amount // 1000) * 1000
 
     society_row.amount = adjusted_amount if adjusted_amount > 1000 else 0
+    doc.custom_society_deduction = adjusted_amount if adjusted_amount > 1000 else 0
 
     # Recompute totals
     doc.total_deduction = sum(d.amount for d in doc.deductions)
@@ -1513,8 +1533,6 @@ def festival_advance_recovery_validate(slip, method=None):
 
 
 # ---------------- Submit: mark picked rows as recovered ----------------
-
-
 # ---------------- Helpers ----------------
 
 def _sum_other_deductions(slip):
@@ -1568,16 +1586,6 @@ def _upsert_fa_deduction(slip, amount, picked_ids):
 
     if hasattr(slip, "set_totals"): slip.set_totals()
     if hasattr(slip, "calculate_net_pay"): slip.calculate_net_pay()
-
-
-
-
-
-
-
-
-
-
 
 
 def festival_advance_recovery_on_submit(slip, method=None):
