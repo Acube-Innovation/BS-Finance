@@ -1,0 +1,34 @@
+[
+ {
+  "default_value": null,
+  "doc_type": "Asset Category",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "is_system_generated": 0,
+  "modified": "2025-08-10 21:32:11.070010",
+  "module": null,
+  "name": "Asset Category-main-field_order",
+  "property": "field_order",
+  "property_type": "Data",
+  "row_name": null,
+  "value": "[\"asset_category_name\", \"custom_is_group\", \"column_break_3\", \"custom_parent_asset_category\", null, \"custom_description\", \"depreciation_options\", \"enable_cwip_accounting\", \"non_depreciable_category\", \"finance_book_detail\", \"finance_books\", \"section_break_2\", \"accounts\"]"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Asset Category",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "is_system_generated": 0,
+  "modified": "2025-08-06 18:18:02.328578",
+  "module": "A3 Finance",
+  "name": "Asset Category-main-is_tree",
+  "property": "is_tree",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
+ }
+]

@@ -6,24 +6,23 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "location",
-  "section",
-  "column_break_bbay",
+  "filters_section",
   "floor",
   "shop",
+  "last_inspection_frequency",
+  "column_break_bbay",
+  "section",
+  "location",
+  "company",
   "section_break_eobe",
+  "get_assets",
   "asset",
   "section_break_yeip",
   "amended_from",
-  "signed_off_by",
-  "sign_off_date",
-  "frequency",
   "remarks",
   "column_break_75ik",
-  "status",
   "verification_date",
-  "next_verification_due",
-  "verified_by"
+  "next_verification_due"
  ],
  "fields": [
   {
@@ -39,25 +38,35 @@
   {
    "fieldname": "location",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Location",
    "options": "Location"
   },
   {
-   "fetch_from": "location.custom_shop",
    "fieldname": "shop",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Shop",
    "options": "Shop"
   },
   {
-   "fetch_from": "location.custom_section",
    "fieldname": "section",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Section",
    "options": "Section"
   },
   {
-   "fetch_from": "location.custom_floor",
    "fieldname": "floor",
    "fieldtype": "Link",
    "label": "Floor",
@@ -69,32 +78,9 @@
    "label": "Verification Date"
   },
   {
-   "fieldname": "verified_by",
-   "fieldtype": "Link",
-   "label": "Verified By",
-   "options": "User"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "\nVerified\nNot Verified"
-  },
-  {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
    "label": "Remarks"
-  },
-  {
-   "fieldname": "signed_off_by",
-   "fieldtype": "Link",
-   "label": "Signed Off By",
-   "options": "User"
-  },
-  {
-   "fieldname": "sign_off_date",
-   "fieldtype": "Date",
-   "label": "Sign off Date"
   },
   {
    "fieldname": "next_verification_due",
@@ -106,14 +92,10 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "frequency",
-   "fieldtype": "Select",
-   "label": "Frequency",
-   "options": "\nMonthly\nQuarterly\nHalf-yearly\nAnnually"
-  },
-  {
    "fieldname": "asset",
    "fieldtype": "Table",
+   "in_filter": 1,
+   "in_standard_filter": 1,
    "label": "Asset",
    "options": "Asset Verification Item"
   },
@@ -128,13 +110,36 @@
   {
    "fieldname": "section_break_eobe",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "filters_section",
+   "fieldtype": "Section Break",
+   "label": "Filters"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "description": "Click here to get the assets using above filters",
+   "fieldname": "get_assets",
+   "fieldtype": "Button",
+   "label": "Get Assets"
+  },
+  {
+   "fieldname": "last_inspection_frequency",
+   "fieldtype": "Select",
+   "label": "Last Inspection Frequency",
+   "options": "\nMonthly\nQuarterly\nHalf-yearly\nAnnually"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-06-05 16:56:32.194779",
+ "modified": "2025-08-07 19:39:41.753447",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Asset Physical Verification",
