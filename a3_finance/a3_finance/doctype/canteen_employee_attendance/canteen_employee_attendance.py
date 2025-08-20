@@ -7,7 +7,7 @@ from frappe.utils.file_manager import get_file_path
 from frappe.model.document import Document
 
 
-class CanteenEmployeeAttendace(Document):
+class CanteenEmployeeAttendance(Document):
     def validate(self):
         """
         On Save: Read the uploaded Excel file and fill the child table.
@@ -42,4 +42,6 @@ class CanteenEmployeeAttendace(Document):
             self.append("employee_attendance", {
                 "employee": str(row["Employee"]).strip(),
                 "present_days": float(row["Present Days"]) if row["Present Days"] else 0,
+                "tl_hours": float(row.get("TL Hours", 0)),
+                "other_deductions": float(row.get("Other Deductions", 0)),
             })

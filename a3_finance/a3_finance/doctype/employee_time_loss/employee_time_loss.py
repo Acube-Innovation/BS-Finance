@@ -46,7 +46,7 @@ class EmployeeTimeLoss(Document):
 			except ValueError:
 				frappe.throw("Invalid Payroll Month")
 
-			payroll_date = getdate(f"{self.payroll_year}-{payroll_month_number:02d}-01")
+			payroll_date = getdate(f"{self.payroll_year}-{payroll_month_number:02d}-02")
 
 			base_assignment = frappe.db.sql("""
 				SELECT base FROM `tabSalary Structure Assignment`

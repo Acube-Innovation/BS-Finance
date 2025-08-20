@@ -31,6 +31,17 @@ frappe.query_reports["Payment Advice To Bank"] = {
             label: "Payroll Year",
             fieldtype: "Data",
             default: new Date().getFullYear().toString()
+        },
+        {
+            fieldname: "employment_type",
+            label: "Employment Type",
+            fieldtype: "Select",
+            options: [
+                { "label": "", "value": "" },
+                { "label": "Regular Employees", "value": "Regular Employees" },
+                { "label": "Apprentice", "value": "Apprentice" },
+                { "label": "Canteen Employee", "value": "Canteen Employee" }
+            ],
         }
     ]
 };

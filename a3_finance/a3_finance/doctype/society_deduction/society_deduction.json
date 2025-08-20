@@ -8,8 +8,10 @@
  "field_order": [
   "employee",
   "payroll_date",
-  "salary_component",
-  "amount"
+  "amount",
+  "column_break_drio",
+  "employee_name",
+  "salary_component"
  ],
  "fields": [
   {
@@ -33,12 +35,22 @@
    "fieldname": "amount",
    "fieldtype": "Currency",
    "label": "Amount"
+  },
+  {
+   "fieldname": "column_break_drio",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-01 12:43:00.105149",
+ "modified": "2025-08-20 13:49:58.160747",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Society Deduction",

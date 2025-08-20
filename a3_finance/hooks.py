@@ -188,33 +188,40 @@ doc_events = {
     "Salary Slip": {
         "validate": [
             "a3_finance.overrides.salary_slip.pull_values_from_payroll_master",
+            "a3_finance.overrides.salary_slip.set_final_exgratia",
             "a3_finance.overrides.salary_slip.set_conveyance_allowance",
             "a3_finance.overrides.salary_slip.set_overtime_wages",
             "a3_finance.overrides.salary_slip.apprentice_working_days",
             "a3_finance.overrides.salary_slip.set_weekly_present_days_from_canteen",
             # "a3_finance.overrides.salary_slip.set_lop_summary",
             # "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
+            "a3_finance.overrides.salary_slip.set_custom_payroll_days_for_suspended",
             "a3_finance.overrides.salary_slip.set_employee_reimbursement_wages",
             "a3_finance.overrides.salary_slip.set_lop_in_hours_deduction",
-            # "a3_finance.overrides.salary_slip.set_custom_medical_allowance",
             "a3_finance.overrides.salary_slip.set_basic_pay",
-            # "a3_finance.overrides.salary_slip.enforce_society_deduction_limit",
+            "a3_finance.overrides.salary_slip.set_medical_allowance_from_slabs",
             "a3_finance.overrides.salary_slip.calculate_exgratia",
+            "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.add_society_deduction",
-            "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
+            
+            "a3_finance.overrides.salary_slip.set_subsistence_allowance",
+            "a3_finance.overrides.salary_slip.festival_advance_recovery_validate",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
+            "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             
         ],
         # "before_save":["a3_finance.overrides.salary_slip.custom_skip_society"],
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
             "a3_finance.overrides.salary_slip.create_benevolent_fund_log",
+            "a3_finance.overrides.salary_slip.festival_advance_recovery_on_submit",
             "a3_finance.overrides.salary_slip.mark_paid_benevolent_logs",
-            "a3_finance.overrides.salary_slip.create_pf_detailed_summary"
+            "a3_finance.overrides.salary_slip.create_pf_detailed_summary",
+            "a3_finance.overrides.salary_slip.update_ex_gratia_in_employee",
         ],
         "on_cancel":[
             "a3_finance.overrides.salary_slip.reset_benevolent_logs_on_cancel"
@@ -236,14 +243,20 @@ doc_events = {
         "autoname": "a3_finance.overrides.employee_updates.autoname",
         "validate": [
             "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe",
-            "a3_finance.a3_finance.doc_events.employee.update_total_service"]
+            "a3_finance.a3_finance.doc_events.employee.update_total_service",
+            "a3_finance.overrides.employee_updates.create_suspension",]
     },
     "Salary Structure Assignment":{
         "on_submit":[
             "a3_finance.a3_finance.doc_events.salary_structure_assignment.create_payroll_summary",
-            "a3_finance.a3_finance.doc_events.salary_structure_assignment.update_in_employee"]
+            "a3_finance.a3_finance.doc_events.salary_structure_assignment.update_in_employee",
+            "a3_finance.a3_finance.doc_events.salary_structure_assignment.create_arrear_details_log"]
     },
     "Income Tax Slab":{
+        "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate"
+    },
+    "Employee Promotion":{
+        "on_submit":"a3_finance.a3_finance.doc_events.employee_promotion.create_sal_str_assignment",
         "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate",
     },
     "Asset Physical Verification": {
