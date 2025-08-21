@@ -37,6 +37,7 @@ class EmployeeOvertimeWages(Document):
             frappe.throw("Invalid Quarter selected.")
 
         end_date = getdate(quarter_ranges[quarter][1])
+        start_date = getdate(quarter_ranges[quarter][0])
         is_current_quarter = self.is_current_quarter(end_date)
 
         # 2. Get Base Pay
@@ -108,8 +109,8 @@ class EmployeeOvertimeWages(Document):
             },
             "service_weightage"
         )
-        if sw:
-            return flt(sw)
+        # if sw:
+        #     return flt(sw)
         return flt(frappe.db.get_value("Employee", self.employee_id, "custom_service_weightage_emp") or 0)
 
     def get_da_percentage(self, ssa_date, quarter):
