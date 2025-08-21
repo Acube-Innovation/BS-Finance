@@ -115,7 +115,7 @@ class EmployeeConveyanceDays(Document):
         # ---- Parent totals
         self.monthly_conveyance_amount = _rhu(effective_full_rate)
         self.conveyance_charges = _rhu(effective_full_rate)
-        self.pro_rata_charges = _rhu(payable)
+        self.pro_rata_charges = _rhu(effective_full_rate)
 
         # ---- Split payable back into child rows (by weight = rate * adjusted_row_days)
         # If payable == 0 simply zero amounts.
@@ -155,7 +155,7 @@ def _allocate_cap_greedy(days_by_vehicle: dict, cap: int) -> dict:
     """
     remaining = float(cap)
     # sort by days desc
-    items = sorted(days_by_vehicle.items(), key=lambda kv: kv[1], reverse=True)
+    items = sorted(days_by_vehicle.items(), key=lambda kv: kv[1], reverse=False)
     out = {v: 0.0 for v, _ in items}
     for v, d in items:
         if remaining <= 0:

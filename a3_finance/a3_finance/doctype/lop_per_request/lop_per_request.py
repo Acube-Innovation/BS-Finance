@@ -26,7 +26,7 @@ class LopPerRequest(Document):
 
         # Count days per month in LOP range
         month_counts = {}
-        for i in range(int(lop_days)):
+        for i in range(int(lop_days)+1):
             day = start + timedelta(days=i)
             key = (day.year, day.month)
             month_counts[key] = month_counts.get(key, 0) + 1
@@ -36,7 +36,7 @@ class LopPerRequest(Document):
 
         # Pick dominant month (highest overlap)
         dominant_year, dominant_month = max(month_counts.items(), key=lambda x: x[1])[0]
-        dominant_month_start = getdate(f"{dominant_year}-{dominant_month:02d}-01")
+        dominant_month_start = getdate(f"{dominant_year}-{dominant_month:01d}")
 
         # 2. Fetch Payroll Setting
         setting = get_previous_payroll_master_setting(self, dominant_year, dominant_month)
