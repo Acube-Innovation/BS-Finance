@@ -55,10 +55,10 @@ def pull_values_from_payroll_master(doc, method):
         start = getdate(doc.start_date)
         end = getdate(doc.end_date)
         doc.custom_weekly_payment_days = (end - start).days + 1
-    if doc.custom_payroll_days == 0 and doc.custom_employee_status == "Active" or doc.custom_employment_type in ["Workers", "Officers"]:
+    if (doc.custom_payroll_days == 0 and doc.custom_employee_status == "Active") or (doc.custom_employment_type in ["Workers", "Officers"] and doc.custom_employee_status == "Active"):
         print("ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",setting.payroll_days)
         doc.custom_payroll_days = setting.payroll_days if setting.payroll_days else 30
-    else:
+    elif doc.custom_employment_type == "Canteen Employee":
         doc.custom_payroll_days = 7
     """Set slip.custom_arrear from 'Arrear Breakup Log' for this employee/month/year."""
     # month name (e.g., "August") and year from slip.start_date
