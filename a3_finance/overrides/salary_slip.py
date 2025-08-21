@@ -1211,6 +1211,7 @@ def set_medical_allowance_from_slabs(doc,method):
         order_by="from_date desc"
     )
     base = flt(ssa_base) or flt(getattr(doc, "base", 0))
+    # frappe.log("Basic Pay",base)
     if not base:
         frappe.throw("Unable to determine Base Pay for employee.")
 
@@ -1229,12 +1230,16 @@ def set_medical_allowance_from_slabs(doc,method):
     # Compute prorated allowance
     uploaded_lwp = flt(getattr(doc, "custom_uploaded_leave_without_pay", 0))
     payroll_days = flt(getattr(doc, "custom_payroll_days", 30))
+    frappe.log_error(message=f"Allowance: {payroll_days}", title="Debug Log")
+
+    allowance=0
 
     if uploaded_lwp <= 10 and payroll_days == 30:
         allowance = matched_amount
     else:
         effective_days = 30 - ((30 - payroll_days) + uploaded_lwp)
         allowance = matched_amount * (effective_days / 30)
+    frappe.log_error(message=f"Allowance: {allowance}", title="Debug Log")
 
     doc.custom_medical_allowance = round_half_up(allowance)
 
