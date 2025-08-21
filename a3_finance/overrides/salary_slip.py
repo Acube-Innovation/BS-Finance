@@ -1257,6 +1257,8 @@ def set_subsistence_allowance(slip, method=None):
 
     emp = frappe.get_doc("Employee", slip.employee)
     susp_from = emp.get("custom_payroll_effected_from")
+    frappe.log_error(message=f"Allowance: {susp_from}", title="Debug Log")
+
     print(f"[SA DEBUG] suspension_from(raw): {susp_from}")
 
     if not susp_from:
@@ -1338,6 +1340,8 @@ def set_subsistence_allowance(slip, method=None):
 
     slip.custom_subsistence_allowance = round_half_up(total_allowance)
     slip.custom_subsistence_hra = round_half_up(hra_allowance)
+    frappe.log_error(message=f"Allowance: {total_allowance}", title="Debug Log")
+    frappe.log_error(message=f"Allowance: {hra_allowance}", title="Debug Log")
 
     print(f"[SA DEBUG] SET → custom_subsistence_allowance: {slip.custom_subsistence_allowance}  custom_subsistence_hra: {slip.custom_subsistence_hra}")
     print("[SA DEBUG] ---- end set_subsistence_allowance ----\n")

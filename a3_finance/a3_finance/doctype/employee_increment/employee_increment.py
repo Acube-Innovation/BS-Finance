@@ -40,5 +40,5 @@ class EmployeeIncrement(Document):
 		new_ssa.insert(ignore_permissions=True)
 		new_ssa.submit()
 
-		frappe.msgprint(f"New Salary Structure Assignment created: {new_ssa.name} with Base {new_base}")
+		# frappe.msgprint(f"New Salary Structure Assignment created: {new_ssa.name} with Base {new_base}")
 
