@@ -3,9 +3,10 @@
 
 import frappe
 from frappe.model.document import Document
-from frappe.utils import getdate
+from frappe.utils import getdate, date_diff
 from datetime import timedelta
 from a3_finance.utils.payroll_master import get_previous_payroll_master_setting
+
 
 class LopPerRequest(Document):
     def validate(self):
@@ -17,6 +18,10 @@ class LopPerRequest(Document):
         # 1. Calculate LOP date range and dominant month
         start = getdate(self.start_date)
         lop_days = float(self.no__of_days or 0)
+
+        if lop_days <= 0:
+            frappe.throw("Number of LOP days must be greater than zero.")
+
         end = start + timedelta(days=lop_days - 1)
 
         # Count days per month in LOP range
@@ -26,8 +31,12 @@ class LopPerRequest(Document):
             key = (day.year, day.month)
             month_counts[key] = month_counts.get(key, 0) + 1
 
+        if not month_counts:
+            frappe.throw("Unable to determine LOP month range.")
+
+        # Pick dominant month (highest overlap)
         dominant_year, dominant_month = max(month_counts.items(), key=lambda x: x[1])[0]
-        dominant_month_start = getdate(f"{dominant_year}-{dominant_month:02d}-02")
+        dominant_month_start = getdate(f"{dominant_year}-{dominant_month:02d}-01")
 
         # 2. Fetch Payroll Setting
         setting = get_previous_payroll_master_setting(self, dominant_year, dominant_month)
@@ -91,12 +100,10 @@ class LopPerRequest(Document):
             }
         )
         if existing:
-            # month = getdate(self.start_date).strftime("%B")
-            # year = getdate(self.start_date).year
             frappe.throw(
                 f"A LOP request already exists for employee <b>{self.employee_id}</b> "
                 f"with start date <b>{self.start_date}</b> in <b>{self.payroll_month} {self.payroll_year}</b>. "
-				f"Please check the existing records for <b>{self.payroll_month} {self.payroll_year}</b> to avoid duplication."
+                f"Please check the existing records for <b>{self.payroll_month} {self.payroll_year}</b> to avoid duplication."
             )
 
 
