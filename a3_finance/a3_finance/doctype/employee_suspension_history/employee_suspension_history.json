@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:ESH-{employee}-{",
+ "autoname": "format:ESH-{employee}-{suspension_effective_from}",
  "creation": "2025-08-19 16:06:59.940922",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -55,7 +55,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-20 16:28:23.288979",
+ "modified": "2025-08-21 12:48:17.489403",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Suspension History",
