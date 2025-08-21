@@ -1232,7 +1232,7 @@ def set_medical_allowance_from_slabs(doc,method):
 
     # Compute prorated allowance
     uploaded_lwp = flt(getattr(doc, "custom_uploaded_leave_without_pay", 0))
-    payroll_days = flt(getattr(doc, "custom_payroll_days", 30))
+    payroll_days = flt(getattr(doc, "custom_payroll_days"))
     frappe.log_error(message=f"Allowance: {payroll_days}", title="Debug Log")
 
     allowance=0
@@ -1245,6 +1245,7 @@ def set_medical_allowance_from_slabs(doc,method):
     frappe.log_error(message=f"Allowance: {allowance}", title="Debug Log")
 
     doc.custom_medical_allowance = round_half_up(allowance)
+    
 
 import frappe
 from frappe.utils import getdate, flt
