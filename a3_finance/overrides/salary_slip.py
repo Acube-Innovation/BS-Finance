@@ -60,6 +60,9 @@ def pull_values_from_payroll_master(doc, method):
         doc.custom_payroll_days = setting.payroll_days if setting.payroll_days else 30
     elif doc.custom_employment_type == "Canteen Employee":
         doc.custom_payroll_days = 7
+    # elif doc.custom_employee_status == "Suspended":
+    #     doc.custom_payroll_days = 10
+
     """Set slip.custom_arrear from 'Arrear Breakup Log' for this employee/month/year."""
     # month name (e.g., "August") and year from slip.start_date
     d = getdate(doc.start_date)

@@ -5,6 +5,7 @@
 import frappe
 from frappe.utils import today
 from frappe.model.document import Document
+import math
 
 
 class EmployeeIncrement(Document):
@@ -27,6 +28,8 @@ class EmployeeIncrement(Document):
 			new_base += doc.increment_amount
 		elif doc.increment_percentage:
 			new_base += (ssa.base * doc.increment_percentage / 100)
+			new_base = math.ceil(new_base/10)*10
+			doc.amount_to_be_incremented = new_base - ssa.base
 
 		# Create new Salary Structure Assignment
 		new_ssa = frappe.new_doc("Salary Structure Assignment")
@@ -39,6 +42,7 @@ class EmployeeIncrement(Document):
 
 		new_ssa.insert(ignore_permissions=True)
 		new_ssa.submit()
+		doc.salary_structure_assignment = new_ssa.name
 
 		# frappe.msgprint(f"New Salary Structure Assignment created: {new_ssa.name} with Base {new_base}")
 
