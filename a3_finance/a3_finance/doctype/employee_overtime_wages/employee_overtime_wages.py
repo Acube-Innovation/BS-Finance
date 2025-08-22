@@ -41,7 +41,7 @@ class EmployeeOvertimeWages(Document):
         is_current_quarter = self.is_current_quarter(end_date)
 
         # 2. Get Base Pay
-        self.basic_pay = self.get_base_salary(start_date, is_current_quarter)
+        self.basic_pay = self.get_base_salary(start_date)
 
         # 3. Get Service Weightage
         self.service_weightage = self.get_service_weightage(start_date, is_current_quarter)
@@ -69,7 +69,7 @@ class EmployeeOvertimeWages(Document):
         today = datetime.today().date()
         return start_date <= today <= getdate(start_date.replace(month=start_date.month + 2, day=calendar.monthrange(start_date.year, start_date.month + 2)[1]))
 
-    def get_base_salary(self, ssa_date, is_current):
+    def get_base_salary(self, ssa_date):
         # Use SSA as of quarter start
         base = frappe.db.get_value(
             "Salary Structure Assignment",
