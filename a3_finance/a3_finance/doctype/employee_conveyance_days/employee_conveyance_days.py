@@ -79,9 +79,11 @@ class EmployeeConveyanceDays(Document):
                 rows[0].amount = rate
             elif days < self.minimum_working_days and days >= 10:
                 rows[0].amount = rate / self.minimum_working_days * days
+                rows[0].adjusted_no_of_days = days
             else:
                 rows[0].amount = 0
-            self.pro_rata_charges = rows[0].amount
+            self.pro_rata_charges = round_half_up (rows[0].amount)
+            self.conveyance_charges = rate
 
         else:
             total_amount = 0 
@@ -109,8 +111,7 @@ class EmployeeConveyanceDays(Document):
                         min_days -= row.no_of_days
                     
                     total_amount += row.amount 
-            
-            self.pro_rata_charges = round_half_up(total_amount)
+            self.pro_rata_charges = round_half_up (total_amount)
 
     def month_name_to_number(self, month_name):
         """Convert month name to month number (1-12)"""
