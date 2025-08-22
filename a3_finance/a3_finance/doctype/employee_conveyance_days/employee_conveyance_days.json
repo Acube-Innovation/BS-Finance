@@ -54,6 +54,7 @@
   {
    "fieldname": "present_days",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Present Days",
    "precision": "2"
   },
@@ -70,7 +71,8 @@
   {
    "fieldname": "conveyance_charges",
    "fieldtype": "Data",
-   "label": "Conveyance Charges"
+   "label": "Conveyance Charges",
+   "read_only": 1
   },
   {
    "fieldname": "minimum_working_days",
@@ -150,7 +152,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-18 12:08:47.550297",
+ "modified": "2025-08-22 12:33:20.215259",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Conveyance Days",
