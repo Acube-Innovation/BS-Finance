@@ -70,26 +70,17 @@ class EmployeeOvertimeWages(Document):
         return start_date <= today <= getdate(start_date.replace(month=start_date.month + 2, day=calendar.monthrange(start_date.year, start_date.month + 2)[1]))
 
     def get_base_salary(self, ssa_date, is_current):
-        if is_current:
-            # Use latest SSA
-            base = frappe.db.get_value(
-                "Salary Structure Assignment",
-                {"employee": self.employee_id, "docstatus": 1},
-                "base",
-                order_by="from_date desc"
-            )
-        else:
-            # Use SSA as of quarter start
-            base = frappe.db.get_value(
-                "Salary Structure Assignment",
-                {
-                    "employee": self.employee_id,
-                    "from_date": ["<=", ssa_date],
-                    "docstatus": 1
-                },
-                "base",
-                order_by="from_date desc"
-            )
+        # Use SSA as of quarter start
+        base = frappe.db.get_value(
+            "Salary Structure Assignment",
+            {
+                "employee": self.employee_id,
+                "from_date": ["<=", ssa_date],
+                "docstatus": 1
+            },
+            "base",
+            order_by="from_date desc"
+        )
         return flt(base or 0)
 
     def get_service_weightage(self, s_date, is_current):
