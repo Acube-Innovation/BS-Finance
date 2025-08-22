@@ -1440,9 +1440,8 @@ def set_custom_payroll_days_for_suspended(slip, method=None):
                             excluding suspension-overlap days.
     If suspension covers the entire 30-day window => result is 0.
     """
-    if slip.custom_employee_status in [ "Suspended","Active"]:
-        emp = frappe.get_doc("Employee", slip.employee)
-        
+    emp = frappe.get_doc("Employee", slip.employee)
+    if emp.custom_payroll_effected_from:
         # Fixed payroll window (monthly)
         p_start = getdate(slip.start_date)
         p_end = get_last_day(p_start)
