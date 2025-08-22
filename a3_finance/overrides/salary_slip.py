@@ -4,7 +4,7 @@ from decimal import Decimal, InvalidOperation
 from frappe.utils import flt
 from datetime import timedelta
 from calendar import month_name
-from frappe.utils import getdate, flt, cint, nowdate, rounded
+from frappe.utils import getdate, flt, cint, nowdate, rounded,get_last_day
 from a3_finance.utils.math_utils import round_half_up
 from a3_finance.utils.payroll_master import get_previous_payroll_master_setting
 from a3_finance.utils.math_utils import _days360
@@ -1432,7 +1432,6 @@ def update_ex_gratia_in_employee(self, method):
         print(f"Updated Ex Gratia for Employee {self.employee}: {ex_gratia_amount}")
 
 
-
 def set_custom_payroll_days_for_suspended(slip, method=None):
     """
     For Suspended employees:
@@ -1441,14 +1440,12 @@ def set_custom_payroll_days_for_suspended(slip, method=None):
                             excluding suspension-overlap days.
     If suspension covers the entire 30-day window => result is 0.
     """
-    if slip.custom_payroll_days is None:
+    if slip.custom_employee_status in [ "Suspended","Active"]:
         emp = frappe.get_doc("Employee", slip.employee)
-        if (emp.status or "").lower() != "suspended":
-            return
-
-        # Fixed 30-day payroll window
+        
+        # Fixed payroll window (monthly)
         p_start = getdate(slip.start_date)
-        p_end = p_start + timedelta(days=29)
+        p_end = get_last_day(p_start)
 
         # Suspension window (may be open-ended)
         susp_from = emp.get("custom_payroll_effected_from")
@@ -1456,43 +1453,114 @@ def set_custom_payroll_days_for_suspended(slip, method=None):
         susp_from = getdate(susp_from) if susp_from else None
         susp_to = getdate(susp_to) if susp_to else None
 
-        # Holiday List: slip -> employee -> company
-        holiday_list = getattr(slip, "holiday_list", None) \
-            or frappe.db.get_value("Employee", emp.name, "holiday_list") \
-            or frappe.db.get_value("Company", slip.company, "default_holiday_list")
+        # If suspension covers entire month, return 0
+        if susp_from and susp_from <= p_start and (susp_to is None or susp_to >= p_end):
+            slip.custom_payroll_days = 0
+            return
 
-        # Holidays within 30-day window
-        holiday_dates = set()
-        if holiday_list:
-            rows = frappe.get_all(
-                "Holiday",
-                filters={"parent": holiday_list, "holiday_date": ["between", [p_start, p_end]]},
-                pluck="holiday_date",
-            )
-            holiday_dates = {getdate(d) for d in (rows or [])}
-
+        # Get all dates in the payroll period
         def _daterange(d1, d2):
             for i in range((d2 - d1).days + 1):
                 yield d1 + timedelta(days=i)
-
-        # Suspended dates intersecting the 30-day window
+        
+        window_dates = set(_daterange(p_start, p_end))
+        
+        # Get holiday dates
+        holiday_dates = get_holiday_dates_for_employee(slip.employee, p_start, p_end)
+        
+        # Calculate suspended dates within the payroll window
         suspended_dates = set()
         if susp_from:
+            # If suspension starts before payroll period, adjust start
             ov_start = max(p_start, susp_from)
+            # If suspension has no end date, it continues to payroll end
             ov_end = min(p_end, susp_to) if susp_to else p_end
-            if ov_end >= ov_start:
+            
+            if ov_start <= ov_end:
                 suspended_dates = set(_daterange(ov_start, ov_end))
+        
+        # Worked days = all window dates minus holidays minus suspended dates
+        worked_dates = window_dates - holiday_dates - suspended_dates
+        worked_days = len(worked_dates)
 
-        # Worked days = all 30 window dates minus holidays minus suspended
-        window_days = set(_daterange(p_start, p_end))
-        worked_days = len(window_days - holiday_dates - suspended_dates)
+        slip.custom_payroll_days = max(0, worked_days)
 
-        slip.custom_payroll_days = worked_days
+def get_holiday_dates_for_employee(employee, start_date, end_date):
+    """
+    Returns a set of holiday dates between start_date and end_date
+    for the employee's holiday list
+    
+    Args:
+        employee (str): Employee ID
+        start_date (date): Start date of the range
+        end_date (date): End date of the range
+    
+    Returns:
+        set: Set of holiday dates in the date range
+    """
+    start_date = getdate(start_date)
+    end_date = getdate(end_date)
+    
+    # Get employee's holiday list
+    holiday_list = frappe.db.get_value("Employee", employee, "holiday_list")
+    
+    if not holiday_list:
+        return set()
+    
+    # Get all holidays in the date range
+    holidays = frappe.get_all(
+        "Holiday",
+        filters={
+            "parent": holiday_list, 
+            "holiday_date": ["between", [start_date, end_date]]
+        },
+        pluck="holiday_date",
+    )
+    
+    # Convert to date objects
+    holiday_dates = {getdate(d) for d in (holidays or [])}
+    return holiday_dates
 
+# Alternative: Get holiday list from Company (if employee doesn't have one)
+def get_holiday_dates_for_company(company, start_date, end_date):
+    """
+    Returns a set of holiday dates between start_date and end_date
+    for the company's default holiday list
+    """
+    start_date = getdate(start_date)
+    end_date = getdate(end_date)
+    
+    # Get company's default holiday list
+    holiday_list = frappe.db.get_value("Company", company, "default_holiday_list")
+    
+    if not holiday_list:
+        return set()
+    
+    # Get all holidays in the date range
+    holidays = frappe.get_all(
+        "Holiday",
+        filters={
+            "parent": holiday_list, 
+            "holiday_date": ["between", [start_date, end_date]]
+        },
+        pluck="holiday_date",
+    )
+    
+    # Convert to date objects
+    holiday_dates = {getdate(d) for d in (holidays or [])}
+    return holiday_dates
 
-
-import frappe
-from frappe.utils import getdate, flt
+# If you need to use company's holiday list instead:
+def get_holiday_dates_any_method(start_date, end_date, employee=None, company=None):
+    """
+    Flexible function to get holiday dates using either employee or company
+    """
+    if employee:
+        return get_holiday_dates_for_employee(employee, start_date, end_date)
+    elif company:
+        return get_holiday_dates_for_company(company, start_date, end_date)
+    else:
+        return set()
 
 DEDUCTION_COMPONENT = "Festival Advance Recovery"
 MIRROR_FIELD = "custom_festival_advance_recovery"   # amount mirrored on slip
