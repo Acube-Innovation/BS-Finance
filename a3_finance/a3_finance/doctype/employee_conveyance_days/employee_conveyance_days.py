@@ -24,6 +24,7 @@ class EmployeeConveyanceDays(Document):
         if not rows[0].start_date and not rows[0].end_date:
             # Determine the anchor date - use payroll month from document
             if self.payroll_date and self.payroll_year:  # Changed payroll_date to payroll_month
+                print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
                 # Convert month name to number
                 month_number = self.month_name_to_number(self.payroll_date)  # Changed payroll_date to payroll_month
                 # Get previous month (payroll_month - 1)
@@ -43,10 +44,13 @@ class EmployeeConveyanceDays(Document):
         elif rows[0].start_date:
             # Fallback: use first row's start_date if available
             anchor = getdate(rows[0].start_date)
+            
             # Get previous month relative to this date
-            anchor = add_months(anchor, -1)
+            # anchor = add_months(anchor, -1)
+            print(f"ffffffffffffffffffffffffffffffffffffffffffffffffffffffff",anchor)
         else:
             # Fallback: use current date minus 1 month
+            print("ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
             anchor = add_months(getdate(), -1)
         
         month_start, month_end = get_first_day(anchor), get_last_day(anchor)
