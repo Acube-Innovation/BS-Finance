@@ -228,7 +228,7 @@ def set_professional_tax(doc, method):
     ) or 0
 
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
-    gross_total += basic_pay*2 + variable_da*2
+    gross_total += (basic_pay*2 )+ (variable_da*2 )+ 65000
     # gross_total += (flt(doc.custom_gross_actual_amount) * 2)
     # print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy after adding custom gross", doc.custom_gross_actual_amount)
     # Match slab based on gross total
