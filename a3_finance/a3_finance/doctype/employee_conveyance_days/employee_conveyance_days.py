@@ -64,9 +64,11 @@ class EmployeeConveyanceDays(Document):
         # Get conveyance rates from Payroll Master Settings
         conveyance_rates = self.get_conveyance_rates(anchor.year, anchor.month)
         
-        for row in self.conveyance_details:
-            if not row.vehicle_type:  # If not set in child row
-                row.vehicle_type = vehicle_type
+        # if len(rows) == 1:
+        rows[0].vehicle_type = vehicle_type
+        # for row in self.conveyance_details:
+            # if not row.vehicle_type:  # If not set in child row
+                
             
             # If no start_date is set for the row, set it to the month start
             # if not row.start_date:
@@ -94,28 +96,32 @@ class EmployeeConveyanceDays(Document):
             total = 0
             for row in self.conveyance_details:
                 total += row.no_of_days
+            print("ttttttttttttttttttttttttttttttt",total)
             
             if total >= 10:
                 min_days = self.minimum_working_days
                 for row in self.conveyance_details:
                     vehicle_type = row.vehicle_type
                     rate = conveyance_rates.get(vehicle_type, 1400)  # Added default value
-                    
-                    if rate is None:  # Additional safety check
-                        rate = 1400
-                    
-                    if row.no_of_days >= self.minimum_working_days:
-                        row.amount = rate
-                        min_days = 0
+                    if total !=0:
+                        if rate is None:  # Additional safety check
+                            rate = 1400
+                        
+                        if row.no_of_days >= self.minimum_working_days:
+                            row.amount = rate
+                            min_days = 0
+                            break
+                        elif row.no_of_days < self.minimum_working_days:
+                            days = min(row.no_of_days, min_days)
+                            print("fffffffffffff", days)
+                            row.amount = rate / self.minimum_working_days * days
+                            min_days -= row.no_of_days
+                    else:
                         break
-                    elif row.no_of_days < self.minimum_working_days:
-                        days = min(row.no_of_days, min_days)
-                        print("fffffffffffff", days)
-                        row.amount = rate / self.minimum_working_days * days
-                        min_days -= row.no_of_days
-                    
+                    total -= row.no_of_days
+                    print("tttttttttttttttttttttttttttttt",total)
                     total_amount += row.amount 
-            self.pro_rata_charges = round_half_up (total_amount)
+                self.pro_rata_charges = round_half_up (total_amount)
 
     def month_name_to_number(self, month_name):
         """Convert month name to month number (1-12)"""
