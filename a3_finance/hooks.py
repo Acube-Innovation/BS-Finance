@@ -206,7 +206,6 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.add_society_deduction",
-            
             "a3_finance.overrides.salary_slip.set_subsistence_allowance",
             "a3_finance.overrides.salary_slip.festival_advance_recovery_validate",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
