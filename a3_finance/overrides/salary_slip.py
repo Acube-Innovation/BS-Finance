@@ -167,6 +167,7 @@ def calculate_exgratia(doc, method):
 
 
 def set_professional_tax(doc, method):
+    doc.calculate_net_pay()
     salary_month = getdate(doc.start_date).month
     salary_year = getdate(doc.start_date).year
 
@@ -203,7 +204,8 @@ def set_professional_tax(doc, method):
 
     profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
-    gross_total += flt(doc.custom_gross_actual_amount) * 2
+    gross_total += doc.gross_pay
+    gross_total += (flt(doc.custom_gross_actual_amount) * 2)
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy after adding custom gross", doc.custom_gross_actual_amount)
     # Match slab based on gross total
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
