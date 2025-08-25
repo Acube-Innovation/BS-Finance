@@ -55,7 +55,7 @@ def pull_values_from_payroll_master(doc, method):
         start = getdate(doc.start_date)
         end = getdate(doc.end_date)
         doc.custom_weekly_payment_days = (end - start).days + 1
-    if (doc.custom_payroll_days == 0 and doc.custom_employee_status == "Active") or (doc.custom_employment_type in ["Workers", "Officers"] and doc.custom_employee_status == "Active"):
+    if (doc.custom_payroll_days == 0 and doc.custom_employee_status == "Active") or (doc.custom_employment_type in ["Workers", "Officers"] and doc.custom_employee_status == "Active" and not doc.custom_payroll_days):
         print("ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",setting.payroll_days)
         doc.custom_payroll_days = setting.payroll_days if setting.payroll_days else 30
     elif doc.custom_employment_type == "Canteen Employee":
@@ -443,8 +443,8 @@ def set_basic_pay(doc, method):
     doc.custom_actual_sw = float(sw_row.custom_service_weightage_emp or 0) if sw_row else 0
     # adjusted_sw = doc.custom_actual_sw - round( sw_loss)
     # doc.custom_service_weightage= round(adjusted_sw, 2)  #reused an unused field (custom_basic_pay)
-    adjusted_sw = float(sw_loss)
-    doc.custom_service_weightage = round_half_up(adjusted_sw) if adjusted_sw > 0 else 0
+    adjusted_sw = (float(sw_loss))
+    doc.custom_service_weightage = (adjusted_sw) if adjusted_sw > 0 else 0
 
 
 
