@@ -190,11 +190,15 @@ def set_professional_tax(doc, method):
 
     # Sum gross pay for eligible months
     gross_total = frappe.db.sql("""
-        SELECT SUM(gross_pay) as total
-        FROM `tabSalary Slip`
-        WHERE employee = %s
-          AND posting_date BETWEEN %s AND %s
-    """, (doc.employee, start, end), as_dict=True)[0]["total"] or 0
+    SELECT SUM(sd.amount) as total
+    FROM `tabSalary Detail` sd
+    INNER JOIN `tabSalary Slip` ss ON ss.name = sd.parent
+    WHERE ss.employee = %s
+      AND ss.posting_date BETWEEN %s AND %s
+      AND sd.parentfield = 'earnings'
+      AND sd.salary_component IN ('Basic Pay', 'Variable DA')
+""", (doc.employee, start, end), as_dict=True)[0]["total"] or 0
+
 
     # Fetch active Profession Tax
     profession_tax = frappe.get_value("Profession Tax", {"is_active": 1}, "name")
@@ -203,10 +207,30 @@ def set_professional_tax(doc, method):
         return
 
     profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
+    basic_pay = frappe.db.get_value(
+    "Salary Detail",
+    {
+        "parent": doc.name,
+        "parentfield": "earnings",
+        "salary_component": "Basic Pay"
+    },
+    "custom_actual_amount"
+) or 0
+
+    variable_da = frappe.db.get_value(
+        "Salary Detail",
+        {
+            "parent": doc.name,
+            "parentfield": "earnings",
+            "salary_component": "Variable DA"
+        },
+        "custom_actual_amount"
+    ) or 0
+
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
-    gross_total += doc.gross_pay
-    gross_total += (flt(doc.custom_gross_actual_amount) * 2)
-    print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy after adding custom gross", doc.custom_gross_actual_amount)
+    gross_total += basic_pay*2 + variable_da*2
+    # gross_total += (flt(doc.custom_gross_actual_amount) * 2)
+    # print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy after adding custom gross", doc.custom_gross_actual_amount)
     # Match slab based on gross total
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
     for slab in profession_tax_doc.profession__tax_slab:
