@@ -7,7 +7,9 @@
  "engine": "InnoDB",
  "field_order": [
   "type",
-  "policy_number"
+  "policy_number",
+  "amount",
+  "status"
  ],
  "fields": [
   {
@@ -24,13 +26,32 @@
    "in_list_view": 1,
    "label": "Policy Number",
    "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Amount"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Active\nInactive\nOn Hold"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-07-24 11:04:09.999328",
+ "modified": "2025-08-26 15:34:58.765189",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Policy Details",

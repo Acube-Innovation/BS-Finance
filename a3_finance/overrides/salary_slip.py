@@ -9,8 +9,10 @@ from a3_finance.utils.math_utils import round_half_up
 from a3_finance.utils.payroll_master import get_previous_payroll_master_setting
 from a3_finance.utils.math_utils import _days360
 
+deduction_cap = 0
 def pull_values_from_payroll_master(doc, method):
     doc.get_emp_and_working_day_details()
+    is_current = 0
 
     if not doc.start_date:
         frappe.throw("Start Date is required to pull Payroll Master Setting.")
@@ -23,9 +25,11 @@ def pull_values_from_payroll_master(doc, method):
     setting = get_previous_payroll_master_settings(year, month_number)
     if not setting:
         frappe.throw("No applicable Payroll Master Setting found for the given start date.")
+    # if setting.payroll_year == year and setting.payroll_month_number == month_number:
+    #     is_current = 1
 
     # Map values from setting to Salary Slip custom fields
-    doc.custom_dearness_allowence_percentage                    = setting.dearness_allowance_
+    doc.custom_dearness_allowence_percentage          = setting.dearness_allowance_
     doc.custom_yearly_increment                       = setting.yearly_increment
     doc.custom_canteen_subsidy                        = setting.canteen_subsidy
     doc.custom_washing_allowance                      = setting.washing_allowance
@@ -36,6 +40,10 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_ex_gratia                              = setting.ex_gratia
     doc.custom_arrear                                 = setting.arrear
     doc.custom_festival_advance                       = setting.festival_advance
+    global deduction_cap
+    print("eeeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap)
+    deduction_cap                                     = setting.deduction_cap
+    print("eeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap,setting.deduction_cap)
     # doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
     doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund if setting.payroll_month_number in [6, 12] else 0
     doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution if setting.brahmos_recreation_club_contribution else 20
@@ -95,7 +103,7 @@ def get_previous_payroll_master_settings(year, month_number):
             "book_allowance", "stitching_allowance", "shoe_allowance", "spectacle_allowance",
             "ex_gratia", "arrear", "festival_advance", "festival_advance_recovery",
             "labour_welfare_fund", "brahmos_recreation_club_contribution", "benevolent_fund",
-            "canteen_recovery", "conveyance_allowances", "overtime_wages", "hra_"
+            "canteen_recovery", "conveyance_allowances", "overtime_wages", "hra_","deduction_cap"
         ],
         order_by="payroll_year desc, payroll_month_number desc",
         limit=20
@@ -216,6 +224,15 @@ def set_professional_tax(doc, method):
     },
     "custom_actual_amount"
 ) or 0
+    actual_basic_pay = frappe.db.get_value(
+    "Salary Detail",
+    {
+        "parent": doc.name,
+        "parentfield": "earnings",
+        "salary_component": "Basic Pay"
+    },
+    "amount"
+) or 0
 
     variable_da = frappe.db.get_value(
         "Salary Detail",
@@ -226,9 +243,18 @@ def set_professional_tax(doc, method):
         },
         "custom_actual_amount"
     ) or 0
-
+    actual_variable_da = frappe.db.get_value(
+        "Salary Detail",
+        {
+            "parent": doc.name,
+            "parentfield": "earnings",
+            "salary_component": "Variable DA"
+        },
+        "amount"
+    ) or 0
+    print("Professional Tax:                  ",gross_total,basic_pay,variable_da,actual_variable_da)
     print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", gross_total)
-    gross_total += (basic_pay*2 )+ (variable_da*2 )+ 65000
+    gross_total += (basic_pay*2 )+ (variable_da*2 )+ 65000 + actual_variable_da + actual_basic_pay
     # gross_total += (flt(doc.custom_gross_actual_amount) * 2)
     # print("Grosssssssssss Payyyyyyyyyyyyyyyyyyyyyyyyyyyyyy after adding custom gross", doc.custom_gross_actual_amount)
     # Match slab based on gross total
@@ -1159,7 +1185,8 @@ def apply_society_deduction_cap(doc, method):
         return  # Nothing to adjust
     doc.calculate_net_pay()
     total_earnings = sum(e.amount for e in doc.earnings)
-    max_deductions = total_earnings * 0.75
+    print("dededededededdeedededededededededdeddedeed",deduction_cap)
+    max_deductions = total_earnings * deduction_cap /100
     total_deductions = sum(d.amount for d in doc.deductions) 
 
     print(f"Societyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy deduction cap check: Max={max_deductions}, Current={total_deductions}")

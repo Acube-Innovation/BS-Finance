@@ -8,7 +8,7 @@ from frappe.model.document import Document
 import math
 
 
-class EmployeeIncrement(Document):
+class YearlyIncrement(Document):
 	def on_submit(doc):
 		# Fetch latest Salary Structure Assignment
 		ssa = frappe.db.get_value(
@@ -23,6 +23,7 @@ class EmployeeIncrement(Document):
 			frappe.throw("No Salary Structure Assignment found for this employee.")
 
 		# Calculate new base salary
+		doc.current_base = ssa.base
 		new_base = ssa.base
 		if doc.increment_amount:
 			new_base += doc.increment_amount
@@ -42,6 +43,7 @@ class EmployeeIncrement(Document):
 
 		new_ssa.insert(ignore_permissions=True)
 		new_ssa.submit()
+		doc.updated_base = new_base
 		doc.salary_structure_assignment = new_ssa.name
 
 		# frappe.msgprint(f"New Salary Structure Assignment created: {new_ssa.name} with Base {new_base}")

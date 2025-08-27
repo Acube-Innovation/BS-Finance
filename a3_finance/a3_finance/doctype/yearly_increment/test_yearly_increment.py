@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestEmployeeIncrement(FrappeTestCase):
+class TestYearlyIncrement(FrappeTestCase):
 	pass

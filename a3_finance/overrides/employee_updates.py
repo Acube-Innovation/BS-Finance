@@ -9,8 +9,28 @@ def update_years_of_service_for_all_employees():
             frappe.db.set_value("Employee", emp.name, "custom_years_of_service", years)
 
 
+import frappe
+
 def autoname(self, method=None):
-    self.name = self.employee_number
+    if self.employee_number:
+        # If employee_number exists, use it directly
+        self.name = self.employee_number
+    else:
+        # Fetch the last employee code (assuming numeric codes)
+        last_code = frappe.db.sql("""
+            SELECT MAX(CAST(name AS UNSIGNED)) 
+            FROM `tabEmployee`
+            WHERE name REGEXP '^[0-9]+$'
+        """)[0][0]
+
+        if last_code:
+            new_code = str(int(last_code) + 1).zfill(5)  # e.g. 00001, 00002
+        else:
+            new_code = "00001"
+
+        self.name = new_code
+        self.employee_number = new_code
+
 
 def create_suspension(self, method=None):
     if self.custom_supension_effective_from:

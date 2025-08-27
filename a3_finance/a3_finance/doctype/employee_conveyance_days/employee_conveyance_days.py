@@ -65,10 +65,10 @@ class EmployeeConveyanceDays(Document):
         conveyance_rates = self.get_conveyance_rates(anchor.year, anchor.month)
         
         # if len(rows) == 1:
-        rows[0].vehicle_type = vehicle_type
-        # for row in self.conveyance_details:
-            # if not row.vehicle_type:  # If not set in child row
-                
+        # rows[0].vehicle_type = vehicle_type
+        for row in self.conveyance_details:
+            if not row.vehicle_type:  # If not set in child row
+                row.vehicle_type = vehicle_type
             
             # If no start_date is set for the row, set it to the month start
             # if not row.start_date:

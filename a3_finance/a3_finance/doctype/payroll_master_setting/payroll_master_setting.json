@@ -11,6 +11,8 @@
   "column_break_qurx",
   "payroll_year",
   "payroll_month_number",
+  "section_break_gpyq",
+  "deduction_cap",
   "section_break_xydj",
   "column_break_ueik",
   "service_weightage",
@@ -392,11 +394,22 @@
   {
    "fieldname": "column_break_asin",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_gpyq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "75",
+   "description": "Cap the deductions so that it does not exceed a percentage of Earnings. Example: 75",
+   "fieldname": "deduction_cap",
+   "fieldtype": "Float",
+   "label": "Deduction Cap"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-07 11:17:03.049907",
+ "modified": "2025-08-26 15:52:05.377613",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",

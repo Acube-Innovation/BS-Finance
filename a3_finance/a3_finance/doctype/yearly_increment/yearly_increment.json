@@ -10,11 +10,13 @@
   "salary_structure_assignment",
   "increment_percentage",
   "amount_to_be_incremented",
+  "current_base",
   "column_break_lvdj",
   "employee_name",
   "from_date",
   "increment_amount",
-  "amended_from"
+  "amended_from",
+  "updated_base"
  ],
  "fields": [
   {
@@ -75,7 +77,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Employee Increment",
+   "options": "Yearly Increment",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
@@ -84,16 +86,26 @@
    "fieldname": "amount_to_be_incremented",
    "fieldtype": "Currency",
    "label": "Amount to be Incremented"
+  },
+  {
+   "fieldname": "current_base",
+   "fieldtype": "Currency",
+   "label": "Current Base"
+  },
+  {
+   "fieldname": "updated_base",
+   "fieldtype": "Currency",
+   "label": "Updated Base"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-08-21 13:29:06.171682",
+ "modified": "2025-08-26 14:47:53.245572",
  "modified_by": "Administrator",
  "module": "A3 Finance",
- "name": "Employee Increment",
+ "name": "Yearly Increment",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [

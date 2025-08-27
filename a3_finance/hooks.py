@@ -202,7 +202,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_medical_allowance_from_slabs",
             "a3_finance.overrides.salary_slip.calculate_exgratia",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
-            "a3_finance.overrides.salary_slip.set_professional_tax",
+            # "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.add_society_deduction",
