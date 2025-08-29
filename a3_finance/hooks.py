@@ -195,7 +195,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_weekly_present_days_from_canteen",
             # "a3_finance.overrides.salary_slip.set_lop_summary",
             # "a3_finance.overrides.salary_slip.set_shoe_allowance_based_on_month",
-            "a3_finance.overrides.salary_slip.set_custom_payroll_days_for_suspended",
+            # "a3_finance.overrides.salary_slip.set_custom_payroll_days_for_suspended",
             "a3_finance.overrides.salary_slip.set_employee_reimbursement_wages",
             "a3_finance.overrides.salary_slip.set_lop_in_hours_deduction",
             "a3_finance.overrides.salary_slip.set_basic_pay",
@@ -214,7 +214,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.set_professional_tax",
             
         ],
-        # "before_save":["a3_finance.overrides.salary_slip.custom_skip_society"],
+        "before_save":["a3_finance.overrides.salary_slip.set_professional_tax"],
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
             "a3_finance.overrides.salary_slip.create_benevolent_fund_log",
@@ -257,7 +257,6 @@ doc_events = {
     },
     "Employee Promotion":{
         "on_submit":"a3_finance.a3_finance.doc_events.employee_promotion.create_sal_str_assignment",
-        "validate":"a3_finance.overrides.income_tax_slab.validate_duplicate",
     },
     "Asset Physical Verification": {
         "on_submit": "a3_finance.a3_finance.doctype.asset_physical_verification.asset_physical_verification.on_submit"

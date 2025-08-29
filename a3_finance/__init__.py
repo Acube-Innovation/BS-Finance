@@ -1,5 +1,9 @@
 __version__ = "0.0.1"
 from hrms.payroll.doctype.additional_salary.additional_salary import AdditionalSalary
 from a3_finance.overrides.additional_salary import override_validate_duplicate_additional_salary
+from hrms.payroll.doctype.gratuity.gratuity import Gratuity
+from a3_finance.overrides.gratuity import new_get_total_component_amount
+
 
 AdditionalSalary.validate_duplicate_additional_salary = override_validate_duplicate_additional_salary
+Gratuity.get_total_component_amount = new_get_total_component_amount
