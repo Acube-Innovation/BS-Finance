@@ -55,6 +55,8 @@ class ArrearBreakupLog(Document):
             actual_hra = self.get_component_value(slip, "House Rent Allowance")
             actual_pf = self.get_component_value(slip, "Employee PF")
 
+            
+
             expected_bp = self.current_base
             expected_da = round_half_up((expected_bp + actual_sw) * da_percent)
             expected_hra = round_half_up((expected_bp + actual_sw) * hra_percent)
@@ -79,9 +81,17 @@ class ArrearBreakupLog(Document):
                     new_da_loss = new_da_loss + (flt(current_da) * (flt(lop.no__of_days)))
 
             # Arrear differences after LOP adjustments
-            bp_diff = (expected_bp - new_bp_loss) - (actual_bp - actual_bp_loss)
-            da_diff = (expected_da - actual_da_loss) - (actual_da - new_da_loss)
-            hra_diff = expected_hra - actual_hra
+            real_bp = round_half_up(actual_bp - actual_bp_loss)
+            real_sw = round_half_up(actual_sw - actual_sw_loss)
+            real_da = round_half_up(actual_da - actual_da_loss)
+            arrear_actual_bp = round_half_up(expected_bp - new_bp_loss)
+            arrear_actual_sw = round_half_up(actual_sw - actual_sw_loss)
+            arrear_actual_da=  round_half_up(expected_da - new_da_loss )
+            bp_diff = round_half_up(expected_bp - new_bp_loss) - round_half_up(actual_bp - actual_bp_loss)
+            da_diff = round_half_up(expected_da - new_da_loss ) - round_half_up(actual_da - actual_da_loss)
+            hra_diff = round_half_up(expected_hra - actual_hra)
+
+            print("dadsdasasdasdasdadadadadadadadadadad",actual_da_loss,expected_da,da_diff)
 
             total_bp_diff += bp_diff
             total_da_diff += da_diff
@@ -121,25 +131,37 @@ class ArrearBreakupLog(Document):
                     "reimbursement_year": slip_year,
                     "reimbursement_date": ["between", [self.effective_from, self.from_date]]
                 },
-                fields=["name", "no_of_days", "lop_refund_amount"]
+                fields=["name", "no_of_days", "lop_refund_amount","reimbursement_service_weightage"]
             )
-
+            refund_sw =0
+            refund_bp=0
+            refund_da=0
+            days=0
             for reimb in day_reimbursements:
                 actual_paid += flt(reimb.lop_refund_amount)
+                refund_sw += flt(reimb.reimbursement_service_weightage)
                 days = flt(reimb.no_of_days)
 
-                pms = frappe.get_all("Payroll Master Setting",
-                    filters={"payroll_month": slip_month, "payroll_year": slip_year},
-                    fields=["hra_", "dearness_allowance_"]
-                )
-                hra_pct = flt(pms[0].hra_) if pms else hra_percent
-                da_pct = flt(pms[0].dearness_allowance_) if pms else da_percent
+                # pms = frappe.get_all("Payroll Master Setting",
+                #     filters={"payroll_month": slip_month, "payroll_year": slip_year},
+                #     fields=["hra_", "dearness_allowance_"]
+                # )
+                # hra_pct = flt(pms[0].hra_) if pms else hra_percent
+                # da_pct = flt(pms[0].dearness_allowance_) if pms else da_percent
 
-                expected_da_days = round_half_up((expected_bp + actual_sw) * da_pct)
-                expected_hra_days = round_half_up((expected_bp + actual_sw) * hra_pct)
-                expected_total = (expected_bp + actual_sw + expected_da_days + expected_hra_days) * (days / 30.0)
-                reimbursement_total += round_half_up(expected_total)
-                reimbursement_hra_total += round_half_up(expected_hra_days * (days / 30.0))
+                # expected_da_days = round_half_up((expected_bp + actual_sw) * da_pct)
+                # expected_hra_days = round_half_up((expected_bp + actual_sw) * hra_pct)
+                # expected_total = (expected_bp + actual_sw + expected_da_days + expected_hra_days) * (days / 30.0)
+                # reimbursement_total += round_half_up(expected_total)
+                # reimbursement_hra_total += round_half_up(expected_hra_days * (days / 30.0))
+                refund_bp += ((expected_bp /30 * days))
+                # refund_sw += (refund_sw)
+                refund_da += ((expected_da/30 * days))
+                reimbursement_hra_total += ((expected_hra/30 * days))
+            reimbursement_total = round_half_up(refund_bp+refund_sw+refund_da+reimbursement_hra_total)
+
+            print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",refund_bp,refund_sw,refund_da,reimbursement_hra_total,reimbursement_total)
+
 
             # Hour-based reimbursement (no HRA in hours calc)
             hour_reimbursements = frappe.get_all("Employee Reimbursement Wages",
@@ -184,7 +206,8 @@ class ArrearBreakupLog(Document):
                 filters={
                     "employee_id": self.employee,
                     "payroll_month": slip_month,
-                    "payroll_year": slip_year
+                    "payroll_year": slip_year,
+                    "time_loss_month": getdate(self.effective_from).strftime("%B")
                 },
                 fields=["time_loss_hours"]
             )
@@ -206,8 +229,9 @@ class ArrearBreakupLog(Document):
                 total_deductions += round_half_up(total_lop_hrs_deduction)
 
             # Overtime calculation
-            from_quarter = f"Q{((getdate(self.from_date).month - 1) // 3)}"
-            from_year = getdate(self.from_date).year
+            from_quarter = f"Q{((getdate(self.effective_from).month - 1) // 3)}"
+            print("from_quarterrrrrrrrrrrrrrrrrrrrrrrrrrr",from_quarter)
+            from_year = getdate(self.effective_from).year
 
             overtime_entries = frappe.get_all("Employee Overtime Wages",
                 filters={
@@ -217,12 +241,12 @@ class ArrearBreakupLog(Document):
                     "quarter_year": from_year,
                     "quarter_details": from_quarter
                 },
-                fields=["overtime_hours", "basic_pay", "service_weightage", "variable_da"]
+                fields=["overtime_hours", "basic_pay", "service_weightage", "variable_da","total_amount"]
             )
             for ot in overtime_entries:
                 ot_hours = flt(ot.overtime_hours)
-                ot_actual_amount = (flt(ot.basic_pay) + flt(ot.service_weightage) + flt(ot.variable_da)) * (ot_hours / 240.0)
-                ot_expected_amount = (flt(self.current_base) + flt(ot.service_weightage) + flt(ot.variable_da)) * (ot_hours / 240.0)
+                ot_actual_amount = flt(ot.total_amount)
+                ot_expected_amount = (flt(self.current_base) + flt(ot.service_weightage) + flt(expected_da)) * (ot_hours / 240.0)
                 ot_diff = round_half_up(ot_expected_amount - ot_actual_amount)
                 self.append("earnings", {
                     "salary_component": "Overtime Wages",
@@ -235,15 +259,19 @@ class ArrearBreakupLog(Document):
             # PF Wages = (BP + SW + VDA  - round(Time Loss Hrs Deduction)
             #              + round(Employee Reimbursement Wages) - round(Reimbursement HRA))
             pf_wages_expected = (
-                expected_bp
-                + actual_sw
-                + expected_da
+                arrear_actual_bp
+                + arrear_actual_sw
+                + arrear_actual_da
                 - round_half_up(time_loss_expected_total)
                 + round_half_up(reimbursement_total)
                 - round_half_up(reimbursement_hra_total)
             )
             expected_pf = round_half_up(pf_wages_expected * 0.12)
-            actual_pf = self.get_component_value(slip, "Employee PF")
+            print("ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",arrear_actual_bp,real_bp,arrear_actual_sw,real_sw,arrear_actual_da,real_da,time_loss_expected_total,reimbursement_total,reimbursement_hra_total)
+            # actual_pf = self.get_component_value(slip, "Employee PF")
+            actual_pf = round_half_up((real_bp+real_sw+real_da - round_half_up(time_loss_expected_total)
+                + round_half_up(reimbursement_total)
+                - round_half_up(reimbursement_hra_total))*0.12)
             print(f"Expected PF: {expected_pf}, Actual PF: {actual_pf}")
             pf_diff = expected_pf - actual_pf
 

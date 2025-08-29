@@ -17,18 +17,17 @@
   "da",
   "da_percentage",
   "lop_refund",
+  "er",
+  "epf_wages",
   "salary_slip",
   "column_break_xpkn",
   "service_weightage",
   "lop_in_hours",
   "reimbursement_hra",
-  "pf",
-  "lop_days",
-  "column_break_lezl",
-  "er",
   "eps",
   "edli_wages",
-  "epf_wages",
+  "pf",
+  "lop_days",
   "return_days"
  ],
  "fields": [
@@ -46,16 +45,28 @@
    "fetch_from": "employee.employee_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Employee Name"
   },
   {
    "fieldname": "payroll_month",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Month"
   },
   {
    "fieldname": "payroll_year",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Year"
   },
   {
@@ -133,6 +144,10 @@
    "fetch_from": "employee.custom_employee_pension_scheme",
    "fieldname": "employee_pension_scheme",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Employee Pension Scheme",
    "options": "\nEPS-9.49  ER-2.51\nEPS-0  ER-12\nEPS-1250  ER-550\nEPS-0  ER-1800\nEPS-1250  ER-12%-1250\nEPS-8.33  ER-3.67"
   },
@@ -150,16 +165,12 @@
    "fieldname": "return_days",
    "fieldtype": "Float",
    "label": "Return Days"
-  },
-  {
-   "fieldname": "column_break_lezl",
-   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-20 16:57:25.888424",
+ "modified": "2025-08-26 11:31:27.391604",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PF Detailed Log",
