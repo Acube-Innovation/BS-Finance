@@ -207,6 +207,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.final_calculation",
             "a3_finance.overrides.salary_slip.add_society_deduction",
             "a3_finance.overrides.salary_slip.set_subsistence_allowance",
+            "a3_finance.overrides.salary_slip.validate_additional_salaries",
             "a3_finance.overrides.salary_slip.festival_advance_recovery_validate",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
@@ -222,6 +223,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.mark_paid_benevolent_logs",
             "a3_finance.overrides.salary_slip.create_pf_detailed_summary",
             "a3_finance.overrides.salary_slip.update_ex_gratia_in_employee",
+            "a3_finance.overrides.salary_slip.reactivate_add_sal"
         ],
         "on_cancel":[
             "a3_finance.overrides.salary_slip.reset_benevolent_logs_on_cancel"

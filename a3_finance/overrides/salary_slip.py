@@ -17,8 +17,10 @@ actual_base =0
 actual_da=0
 lop_diff=0
 da_diff=0
+lop_days =0 
 def pull_values_from_payroll_master(doc, method):
     doc.get_emp_and_working_day_details()
+    doc.calculate_component_amounts("deductions")
     is_current = 0
 
     if not doc.start_date:
@@ -49,8 +51,8 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_festival_advance                       = setting.festival_advance
     global deduction_cap
     print("eeeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap)
-    deduction_cap                                     = setting.deduction_cap
-    print("eeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap,setting.deduction_cap)
+    deduction_cap                                     = 75
+    # print("eeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap,setting.deduction_cap)
     # doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
     doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund if setting.payroll_month_number in [6, 12] else 0
     doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution if setting.brahmos_recreation_club_contribution else 20
@@ -110,7 +112,7 @@ def get_previous_payroll_master_settings(year, month_number):
             "book_allowance", "stitching_allowance", "shoe_allowance", "spectacle_allowance",
             "ex_gratia", "arrear", "festival_advance", "festival_advance_recovery",
             "labour_welfare_fund", "brahmos_recreation_club_contribution", "benevolent_fund",
-            "canteen_recovery", "conveyance_allowances", "overtime_wages", "hra_","deduction_cap"
+            "canteen_recovery", "conveyance_allowances", "overtime_wages", "hra_"
         ],
         order_by="payroll_year desc, payroll_month_number desc",
         limit=20
@@ -122,6 +124,8 @@ def get_previous_payroll_master_settings(year, month_number):
             return frappe._dict(record)
 
     return None
+
+
 
 
     # # --- 🧮 Service Weightage Allowance Calculation ---
@@ -478,6 +482,8 @@ def set_basic_pay(doc, method):
         },
         fieldname="SUM(no__of_days)"
     ) or 0
+    global lop_days
+    lop_days = no__of_days
     doc.custom_uploaded_leave_without_pay = no__of_days
 
     sw_loss = frappe.db.get_value(
@@ -529,6 +535,8 @@ from calendar import month_name
 
 @frappe.whitelist()
 def update_tax_on_salary_slip(slip, method):
+    slip.calculate_net_pay()
+    
     if isinstance(slip, str):
         slip = frappe.get_doc("Salary Slip", slip)
 
@@ -561,6 +569,20 @@ def update_tax_on_salary_slip(slip, method):
     vehicle_type = frappe.db.get_value("Employee", employee, "custom_vehicle_type")
     extra_taxable= flt(frappe.db.get_value("Employee", employee, "custom_additional_salary_for_tax") or 0)
     actual_exgratia_amount = flt(frappe.db.get_value("Employee", employee, "custom_actual_earnings") or 0)
+    ex_gratia_frm_ss = None
+    if frappe.db.exists("Additional Salary",
+        {
+            "employee":slip.employee,
+            "salary_component":"Exgratia",
+            "payroll_date": slip.end_date,
+        }):
+        ex_gratia_frm_ss = frappe.get_doc("Additional Salary",
+        {
+            "employee":slip.employee,
+            "salary_component":"Exgratia",
+            "payroll_date": slip.end_date,
+        })
+    # print("exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",ex_gratia_frm_ss.amount)
 
     pms_name = frappe.get_value("Payroll Master Setting", {"payroll_month": month, "payroll_year": str(year)}, "name")
     if not pms_name:
@@ -619,7 +641,7 @@ def update_tax_on_salary_slip(slip, method):
 
     current_gross = flt(slip.gross_pay)
     current_lop = round(flt(slip.custom_time_loss_in_hours_deduction))
-    current_taxable = current_gross - current_lop
+    current_taxable = current_gross - current_lop - ex_gratia_frm_ss.amount if ex_gratia_frm_ss else 0
     
 
     months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
@@ -636,8 +658,12 @@ def update_tax_on_salary_slip(slip, method):
         slab_doc = frappe.get_doc("Income Tax Slab", latest_slab_doc.name)
     else:
         frappe.msgprint("Plaese Set Up the income tax Slabs")
-    if slip.custom_ex_gratia:
-        ex_gratia= 0
+    slip.calculate_component_amounts("deductions")
+    # slip.calculate_component_amounts("Exgratia")
+    
+    slip.calculate_component_amounts("deductions")
+    if ex_gratia_frm_ss:
+        ex_gratia= ex_gratia_frm_ss.amount
     elif actual_exgratia_amount !=0 :
         ex_gratia = actual_exgratia_amount
     elif slab_doc.custom_ex_gratia:
@@ -1796,8 +1822,49 @@ def festival_advance_recovery_on_submit(slip, method=None):
             # frappe.db.set_value("Festival Advance Recovery", rid, "deducted_in", slip.name)
 
 
+disabled_list = []
+import frappe
+from frappe.utils import flt
+
+def validate_additional_salaries(doc, method):
+    total_amount = 0
+
+    # get recurring Additional Salaries for this employee
+    add_sals = frappe.get_all(
+        "Additional Salary",
+        filters={"employee": doc.employee, "is_recurring": 1, "disabled": 0},
+        fields=["name", "salary_component", "amount"]
+    )
+
+    if add_sals:
+        for d in add_sals:
+            total_amount += flt(d.amount)
+
+    # lop_days = getattr(doc, "lop_days", 0)
+
+    if lop_days == 30:
+        # zero out those components in Salary Slip (instead of disabling)
+        for row in doc.earnings + doc.deductions:
+            if any(d.salary_component == row.salary_component for d in add_sals):
+                frappe.db.set_value("Additional Salary",d.name,"disabled",1)
+                row.amount = 0
+
+    elif total_amount >= (doc.custom_actual_base - doc.custom_lop_diff):
+        for row in doc.earnings + doc.deductions:
+            if any(d.salary_component == row.salary_component for d in add_sals):
+                frappe.db.set_value("Additional Salary",d.name,"disabled",1)
+                row.amount = 0
+
+    # refresh salary totals
+    doc.set_totals()
 
 
+def reactivate_add_sal(doc,method):
+    print("hhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkkkkkkkkkllllllllllllllllllllllllll")
+    global disabled_list
+    for dl in disabled_list:
+        print("lllllllllllllllllllllllllllllllllll",dl)
+        frappe.db.set_value("Additional Salary",dl,"disabled",0)
 
 
 
