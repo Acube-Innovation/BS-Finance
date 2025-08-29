@@ -1849,7 +1849,7 @@ def validate_additional_salaries(doc, method):
                 frappe.db.set_value("Additional Salary",d.name,"disabled",1)
                 row.amount = 0
 
-    elif total_amount >= (doc.custom_actual_base - doc.custom_lop_diff):
+    elif total_amount >= (actual_base - lop_diff):
         for row in doc.earnings + doc.deductions:
             if any(d.salary_component == row.salary_component for d in add_sals):
                 frappe.db.set_value("Additional Salary",d.name,"disabled",1)
