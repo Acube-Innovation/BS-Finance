@@ -641,7 +641,8 @@ def update_tax_on_salary_slip(slip, method):
 
     current_gross = flt(slip.gross_pay)
     current_lop = round(flt(slip.custom_time_loss_in_hours_deduction))
-    current_taxable = current_gross - current_lop - ex_gratia_frm_ss.amount if ex_gratia_frm_ss else 0
+    ex = ex_gratia_frm_ss.amount if ex_gratia_frm_ss else 0
+    current_taxable = current_gross - current_lop - ex 
     
 
     months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
@@ -1233,14 +1234,17 @@ def apply_society_deduction_cap(doc, method):
     """
     # Find Society row
     society_row = next((row for row in doc.deductions if row.salary_component == "Society"), None)
-
+    exgratia=0
+    for row in doc.earnings:
+        if row.salary_component == "Exgratia":
+            ex_gratia = row.amount
     if not society_row:
         return  # Nothing to adjust
     doc.calculate_net_pay()
-    total_earnings = sum(e.amount for e in doc.earnings)
-    print("dededededededdeedededededededededdeddedeed",deduction_cap)
+    total_earnings = sum(e.amount for e in doc.earnings) - exgratia
+    print("dededededededdeedededededededededdeddedeed",deduction_cap,exgratia)
     max_deductions = total_earnings * deduction_cap /100
-    total_deductions = sum(d.amount for d in doc.deductions) 
+    total_deductions = sum(d.amount for d in doc.deductions) - exgratia
 
     print(f"Societyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy deduction cap check: Max={max_deductions}, Current={total_deductions}")
 

@@ -17,12 +17,20 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Employee",
    "options": "Employee"
   },
   {
    "fieldname": "payroll_date",
    "fieldtype": "Date",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Date"
   },
   {
@@ -34,6 +42,10 @@
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Amount"
   },
   {
@@ -50,7 +62,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-20 13:49:58.160747",
+ "modified": "2025-08-31 19:49:19.848072",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Society Deduction",
@@ -73,5 +85,8 @@
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
 }

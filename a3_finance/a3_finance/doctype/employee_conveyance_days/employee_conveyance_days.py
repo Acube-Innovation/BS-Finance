@@ -83,11 +83,14 @@ class EmployeeConveyanceDays(Document):
             
             if days >= self.minimum_working_days:
                 rows[0].amount = rate
+                self.present_days = self.minimum_working_days
             elif days < self.minimum_working_days and days >= 10:
                 rows[0].amount = rate / self.minimum_working_days * days
                 rows[0].adjusted_no_of_days = days
+                self.present_days = days
             else:
                 rows[0].amount = 0
+                self.present_days = days
             self.pro_rata_charges = round_half_up (rows[0].amount)
             self.conveyance_charges = rate
 
