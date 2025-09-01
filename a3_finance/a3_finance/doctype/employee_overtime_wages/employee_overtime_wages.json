@@ -105,18 +105,18 @@
   {
    "fieldname": "quarter_details",
    "fieldtype": "Select",
-   "label": "Quarter Details",
+   "label": "Overtime Quarter Details",
    "options": "\nQ1\nQ2\nQ3\nQ4"
   },
   {
    "fieldname": "quarter_year",
    "fieldtype": "Data",
-   "label": "Quarter Year"
+   "label": "Overtime Quarter Year"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-27 15:01:56.947046",
+ "modified": "2025-08-31 20:41:04.626156",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Overtime Wages",

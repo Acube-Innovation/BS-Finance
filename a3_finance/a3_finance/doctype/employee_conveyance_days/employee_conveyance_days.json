@@ -54,7 +54,6 @@
   {
    "fieldname": "present_days",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Present Days",
    "precision": "2"
   },
@@ -152,7 +151,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-22 12:33:20.215259",
+ "modified": "2025-09-01 13:53:51.212283",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Conveyance Days",
