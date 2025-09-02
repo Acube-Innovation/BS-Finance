@@ -235,7 +235,7 @@ doc_events = {
             "a3_finance.overrides.additional_salary.custom_validate",
             "a3_finance.overrides.additional_salary.process_lop_hour_refund",
             "a3_finance.overrides.additional_salary.process_overtime_amount",
-            "a3_finance.overrides.additional_salary.society_deduction_processing"
+            # "a3_finance.overrides.additional_salary.society_deduction_processing"
         ],
         "on_submit": [
             "a3_finance.overrides.additional_salary.create_festival_advance"

@@ -96,6 +96,7 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
         AND s.start_date >= %(start_date)s AND s.end_date <= %(end_date)s
         AND sd.parentfield = 'earnings'
         AND e.custom_employment_sub_type IS NOT NULL
+        AND s.custom_employment_type IN ('Officers', 'Workers')
     """
 
     if subtype_filter:
