@@ -100,6 +100,10 @@ class EmployeeConveyanceDays(Document):
             for row in self.conveyance_details:
                 total += row.no_of_days
             print("ttttttttttttttttttttttttttttttt",total)
+            if total >= self.minimum_working_days:
+                self.present_days = self.minimum_working_days
+            else:
+                self.present_days = total
             
             if total >= 10:
                 min_days = self.minimum_working_days

@@ -1,14 +1,18 @@
+# Copyright (c) 2025, Acube and contributors
+# For license information, please see license.txt
+
+# import frappe
+
 import frappe
 from frappe.utils import getdate
 
-# Full list of components to check
-ALL_COMPONENTS = [
-    "Basic Pay", "Service Weightage", "Variable DA", "House Rent Allowance",
-    "Conv. Allowance", "Canteen Subsidy", "Children Education Allowance", "Medical Allowance",
-    "Overtime Wages", "Washing Allowance", "Book Allowance", "LOP Refund", "Deputation Allowance",
-    "Night Shift Allowance", "Stitching Allowance", "Shoe Allowance", "Spectacle Allowance",
-    "EL Encashment", "Arrear", "Festival Advance", "Others Earnings",
-    "LOP (In Hours) Refund", "Exgratia", "Annual Bonus (For Tax)","Subsistence Allowance"
+# Full list of Deduction components
+ALL_DEDUCTION_COMPONENTS = [
+    "Subsistence PF", "ESI", "PF Deduction", "Other Recovery", "TL Deduction", "Employee PF",
+    "Professional Tax", "Society", "BENEVOLENT FUND", "Brahmos Recreation Club Contribution",
+    "Voluntary PF", "LWP Deduction", "Labour Welfare Fund", "Income Tax",
+    "Advance Recovery(TA)", "PLI Recovery", "Canteen Coupon Deduction", "LIC Recovery",
+    "LOP (Days) Deduction", "Canteen Recovery","Housing Loan","Festival Advance Recovery","Other Recovery","LOP (in Hours) Deduction"
 ]
 
 
@@ -44,31 +48,29 @@ def execute(filters=None):
 
 def get_columns(totals):
     label_map = {
-        "basic_pay": "Basic Pay",
-        "service_weightage": "Service Weightage",
-        "variable_da": "Variable DA",
-        "house_rent_allowance": "House Rent Allowance",
-        "conv_allowance": "Conv. Allowance",
-        "canteen_subsidy": "Canteen Subsidy",
-        "children_education_allowance": "Children Education Allowance",
-        "medical_allowance": "Medical Allowance",
-        "overtime_wages": "Overtime Wages",
-        "washing_allowance": "Washing Allowance",
-        "book_allowance": "Book Allowance",
-        "lop_refund": "LOP Refund",
-        "deputation_allowance": "Deputation Allowance",
-        "night_shift_allowance": "Night Shift Allowance",
-        "stitching_allowance": "Stitching Allowance",
-        "shoe_allowance": "Shoe Allowance",
-        "spectacle_allowance": "Spectacle Allowance",
-        "el_encashment": "EL Encashment",
-        "arrear": "Arrear",
-        "festival_advance": "Festival Advance",
-        "others_earnings": "Others Earnings",
-        "lop_in_hours_refund": "LOP (In Hours) Refund",
-        "exgratia": "Exgratia",
-        "annual_bonus_for_tax": "Annual Bonus (For Tax)",
-        "subsistence_allowance":" Subsistence Allowance"
+        "subsistence_pf": "Subsistence PF",
+        "esi": "ESI",
+        "pf_deduction": "PF Deduction",
+        "other_recovery": "Other Recovery",
+        "tl_deduction": "TL Deduction",
+        "employee_pf": "Employee PF",
+        "professional_tax": "Professional Tax",
+        "society": "Society",
+        "benevolent_fund": "BENEVOLENT FUND",
+        "brahmos_recreation_club_con": "Brahmos Recreation Club Con",
+        "voluntary_pf": "Voluntary PF",
+        "lwp_deduction": "LWP Deduction",
+        "labour_welfare_fund": "Labour Welfare Fund",
+        "income_taxbatl": "Income Tax(BATL)",
+        "advance_recoveryta": "Advance Recovery(TA)",
+        "pli_recovery": "PLI Recovery",
+        "canteen_coupon_deduction": "Canteen Coupon Deduction",
+        "lic_recovery": "LIC Recovery",
+        "lop_hours_deduction": "LOP (in Hours) Deduction",
+        "canteen_recovery": "Canteen Recovery",
+		"housing_loan":"Housing Loan",
+		"festival_advance_recovery":"Festival Advance Recovery",
+		"other_recovery":"Other Recovery"
     }
 
     columns = [
@@ -84,17 +86,16 @@ def get_columns(totals):
             })
 
     columns.append({
-        "label": "Total Earnings", "fieldname": "total", "fieldtype": "Currency", "width": 130
+        "label": "Total Deductions", "fieldname": "total", "fieldtype": "Currency", "width": 130
     })
     return columns
-
 
 
 def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
     conditions = """
         s.docstatus IN (0,1)
         AND s.start_date >= %(start_date)s AND s.end_date <= %(end_date)s
-        AND sd.parentfield = 'earnings'
+        AND sd.parentfield = 'deductions'
         AND e.custom_employment_sub_type IS NOT NULL
     """
 
@@ -105,7 +106,7 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
 
     # Build select clause dynamically
     component_sums = []
-    for comp in ALL_COMPONENTS:
+    for comp in ALL_DEDUCTION_COMPONENTS:
         field = comp.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("-", "").replace(".", "")
         component_sums.append(
             f"SUM(CASE WHEN sd.salary_component = '{comp}' THEN sd.amount END) AS `{field}`"
@@ -147,3 +148,4 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
         results.append(grand_total)
 
     return results, used_components
+

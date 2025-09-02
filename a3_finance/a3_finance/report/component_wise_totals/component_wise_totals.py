@@ -10,10 +10,8 @@ def execute(filters=None):
         filters = {}
 
     columns = [
-        {"label": "Salary Slip", "fieldname": "salary_slip", "fieldtype": "Link", "options": "Salary Slip", "width": 180},
         {"label": "Employee", "fieldname": "employee", "fieldtype": "Link", "options": "Employee", "width": 150},
         {"label": "Employee Name", "fieldname": "employee_name", "fieldtype": "Data", "width": 200},
-        {"label": "Posting Date", "fieldname": "posting_date", "fieldtype": "Date", "width": 120},
         {"label": "Amount", "fieldname": "amount", "fieldtype": "Currency", "width": 150},
     ]
 
@@ -37,24 +35,20 @@ def execute(filters=None):
             ss.name AS salary_slip,
             ss.employee,
             ss.employee_name,
-            ss.posting_date,
             sse.amount
         FROM `tabSalary Slip` ss
         INNER JOIN `tabSalary Detail` sse ON ss.name = sse.parent
         WHERE {conditions}
           AND sse.amount != 0
           AND ss.docstatus = 1
-        ORDER BY ss.posting_date ASC
+        ORDER BY ss.employee ASC
     """, values, as_dict=True)
 
     # Add Total row
     total_amount = sum(d.amount for d in data)
     if total_amount:
         data.append({
-            "salary_slip": "TOTAL",
-            "employee": "",
-            "employee_name": "",
-            "posting_date": "",
+            "employee_name": "TOTAL",
             "amount": total_amount
         })
 
