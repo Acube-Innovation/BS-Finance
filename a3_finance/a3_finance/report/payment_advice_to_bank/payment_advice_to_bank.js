@@ -35,13 +35,8 @@ frappe.query_reports["Payment Advice To Bank"] = {
         {
             fieldname: "employment_type",
             label: "Employment Type",
-            fieldtype: "Select",
-            options: [
-                { "label": "", "value": "" },
-                { "label": "Regular Employees", "value": "Regular Employees" },
-                { "label": "Apprentice", "value": "Apprentice" },
-                { "label": "Canteen Employee", "value": "Canteen Employee" }
-            ],
+            fieldtype: "Link",
+            options: "Employment Type",
         }
     ]
 };
