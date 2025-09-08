@@ -367,12 +367,12 @@ def create_festival_advance(doc, method=None):
     frappe.db.commit()  # Ensure the document is saved before showing message
     frappe.msgprint(_("Festival Advance created successfully."))
 
-def society_deduction_processing(doc,method):
-    if doc.salary_component != "Society":
-        return
+# def society_deduction_processing(doc,method):
+#     if doc.salary_component != "Society":
+#         return
 
-    else:
-        doc.overwrite_salary_structure_amount = 0
+#     else:
+#         doc.overwrite_salary_structure_amount = 0
 
 
 def override_validate_duplicate_additional_salary (self):

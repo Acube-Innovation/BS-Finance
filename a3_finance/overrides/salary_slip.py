@@ -4,8 +4,6 @@ from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-from frappe.utils import flt
-from datetime import timedelta
 from calendar import month_name
 from frappe.utils import getdate, flt, cint, nowdate, rounded,get_last_day
 from a3_finance.utils.math_utils import round_half_up
@@ -529,9 +527,7 @@ def set_basic_pay(doc, method):
 
 
 
-import frappe
-from frappe.utils import getdate, nowdate, cint, flt
-from calendar import month_name
+
 
 @frappe.whitelist()
 def update_tax_on_salary_slip(slip, method):
@@ -720,6 +716,7 @@ def update_tax_on_salary_slip(slip, method):
                 remaining = 0
                 break
         print(f"Tax Before Marginal Relief: {round_half_up(tax)}")
+        slip.custom_tax = round_half_up(tax)
 
         if (
             net_taxable_income > relief_threshold and
@@ -728,10 +725,12 @@ def update_tax_on_salary_slip(slip, method):
         ):
             marginal_relief = tax - (net_taxable_income - relief_threshold)
             print(f"Marginal Relief Applied: {marginal_relief}")
+            slip.custom_marginal_relief = round_half_up(marginal_relief) if marginal_relief > 0 else 0
             tax = round_half_up(net_taxable_income - relief_threshold)
 
         print(f"Tax After Marginal Relief (Before Cess): {round_half_up(tax)}")
         cess_rate = slab_doc.custom_cess_rate if slab_doc.custom_cess_rate else 4
+        slip.custom_cess = round_half_up(tax * (cess_rate / 100))
         cess = 1+ (cess_rate/100)
         tax_with_cess = round_half_up(round_half_up(tax) * cess)
         print(f"Tax After Cess: {tax_with_cess}")
