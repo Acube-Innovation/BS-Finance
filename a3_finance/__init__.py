@@ -1,4 +1,4 @@
-__version__ = "0.0.2"
+__version__ = "0.1.2"
 from hrms.payroll.doctype.additional_salary.additional_salary import AdditionalSalary
 from a3_finance.overrides.additional_salary import override_validate_duplicate_additional_salary
 from hrms.payroll.doctype.gratuity.gratuity import Gratuity
