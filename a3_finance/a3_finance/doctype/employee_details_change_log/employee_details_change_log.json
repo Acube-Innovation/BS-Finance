@@ -1,34 +1,25 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{loan_type}",
- "creation": "2025-09-03 10:21:31.925242",
+ "creation": "2025-09-16 17:10:06.938195",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "loan_type"
+  "section_break_pp1c"
  ],
  "fields": [
   {
-   "fieldname": "loan_type",
-   "fieldtype": "Data",
-   "in_filter": 1,
-   "in_global_search": 1,
-   "in_list_view": 1,
-   "in_preview": 1,
-   "in_standard_filter": 1,
-   "label": "Loan Type",
-   "reqd": 1
+   "fieldname": "section_break_pp1c",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-11 16:41:07.185057",
+ "modified": "2025-09-16 17:10:06.938195",
  "modified_by": "Administrator",
  "module": "A3 Finance",
- "name": "Employee Loan Types",
- "naming_rule": "Expression",
+ "name": "Employee Details Change Log",
  "owner": "Administrator",
  "permissions": [
   {

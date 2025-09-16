@@ -247,7 +247,8 @@ doc_events = {
         "validate": [
             "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe",
             "a3_finance.a3_finance.doc_events.employee.update_total_service",
-            "a3_finance.overrides.employee_updates.create_suspension",]
+            "a3_finance.overrides.employee_updates.create_suspension",
+            "a3_finance.a3_finance.doc_events.employee.validate"]
     },
     "Salary Structure Assignment":{
         "on_submit":[

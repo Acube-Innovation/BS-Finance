@@ -34,3 +34,9 @@ def update_total_service(self,method):
         f"{years} Year{'s' if years != 1 else ''} and "
         f"{months} Month{'s' if months != 1 else ''}"
     )
+
+
+def validate(doc, method):
+    if doc.custom_supension_effective_from and doc.custom_supension_effective_to:
+        doc.custom_payroll_effected_from = doc.custom_supension_effective_from
+        doc.custom_payroll_effected_to = doc.custom_supension_effective_to
