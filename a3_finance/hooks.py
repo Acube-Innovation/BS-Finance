@@ -66,7 +66,8 @@ fixtures = [
             
             ]]
         ]
-    }
+    },
+    {"dt": "Property Setter", "filters": [["doc_type", "in", ["Asset Category"]]]}
 ]
 doctype_js = {
     "Asset Category" : "public/js/asset_category.js",
@@ -369,7 +370,3 @@ override_doctype_dashboards = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
-fixtures = [
-    {"dt": "Property Setter", "filters": [["doc_type", "in", ["Asset Category"]]]}
-]
