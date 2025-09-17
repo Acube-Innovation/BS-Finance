@@ -379,3 +379,36 @@ def override_validate_duplicate_additional_salary (self):
     frappe.log_error(f"Bypassing validate_duplicates for Job Requisition {self.name}", "Custom Validation Bypass")
     # Add any custom logic here if needed
     pass  # Do nothing to bypass the validation
+
+
+
+
+def reactivate_disabled_add_salaries():
+    """
+    Reactivate Additional Salaries with specific salary components (PLI, LIC) 
+    if they are disabled. This should be run by cron job (1st/15th).
+    """
+
+    salary_components = ["PLI Recovery", "LIC Recovery"]
+
+    add_sals = frappe.get_all(
+        "Additional Salary",
+        filters={
+            # "employee": "13142",  # For testing specific employee
+            "is_recurring": 1,
+            "disabled": 1,
+            "salary_component": ["in", salary_components],
+        },
+        fields=["name"]
+    )
+
+    for sal in add_sals:
+        doc = frappe.get_doc("Additional Salary", sal.name)
+
+        # Reactivate only if it's submitted
+        if doc.docstatus == 1:
+            doc.disabled = 0
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+    frappe.logger().info(f"Reactivated {len(add_sals)} Additional Salaries (PLI/LIC)")
