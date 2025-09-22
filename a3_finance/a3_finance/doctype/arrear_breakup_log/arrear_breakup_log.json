@@ -34,9 +34,9 @@
   "section_break_sukq",
   "gross_pay",
   "column_break_upvq",
-  "net_pay",
+  "pf_wages",
   "column_break_ifjg",
-  "pf_wages"
+  "net_pay"
  ],
  "fields": [
   {
@@ -173,7 +173,7 @@
   {
    "fieldname": "gross_pay",
    "fieldtype": "Currency",
-   "label": "Gross Pay"
+   "label": "Arrears"
   },
   {
    "fieldname": "column_break_upvq",
@@ -191,13 +191,13 @@
   {
    "fieldname": "pf_wages",
    "fieldtype": "Currency",
-   "label": "PF Wages"
+   "label": "PF on Arrears"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-08 12:51:43.864246",
+ "modified": "2025-09-20 16:21:01.762927",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Arrear Breakup Log",

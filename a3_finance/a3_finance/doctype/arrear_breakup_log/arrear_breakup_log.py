@@ -58,8 +58,9 @@ class ArrearBreakupLog(Document):
             
 
             expected_bp = self.current_base
-            expected_da = round_half_up((expected_bp + actual_sw) * da_percent)
-            expected_hra = round_half_up((expected_bp + actual_sw) * hra_percent)
+            expected_da = round_half_up((float(expected_bp) + float(actual_sw)) * float(da_percent))
+            expected_hra = round_half_up((float(expected_bp) + float(actual_sw)) * float(hra_percent))
+
             
             # --- LOP within range (affects actual components paid in that month) ---
             lops = frappe.get_all("Lop Per Request",
@@ -74,21 +75,21 @@ class ArrearBreakupLog(Document):
             if lops:
                 for lop in lops:
                     actual_bp_loss += flt(lop.lop_amount)
-                    new_bp_loss = new_bp_loss + (expected_bp * (flt(lop.no__of_days) / 30.0))
+                    new_bp_loss = new_bp_loss + (float(expected_bp) * (flt(lop.no__of_days) / 30.0))
                     actual_sw_loss += flt(lop.employee_service_weightage_loss)
                     actual_da_loss += flt(lop.employee_da_loss_for_payroll_period)
-                    current_da = ((expected_bp + actual_sw) * lop.employee_da_for_payroll_period)/30
+                    current_da = ((flt(expected_bp) + flt(actual_sw)) * flt(lop.employee_da_for_payroll_period)) / 30
                     new_da_loss = new_da_loss + (flt(current_da) * (flt(lop.no__of_days)))
 
             # Arrear differences after LOP adjustments
             real_bp = round_half_up(actual_bp - actual_bp_loss)
             real_sw = round_half_up(actual_sw - actual_sw_loss)
             real_da = round_half_up(actual_da - actual_da_loss)
-            arrear_actual_bp = round_half_up(expected_bp - new_bp_loss)
-            arrear_actual_sw = round_half_up(actual_sw - actual_sw_loss)
-            arrear_actual_da=  round_half_up(expected_da - new_da_loss )
-            bp_diff = round_half_up(expected_bp - new_bp_loss) - round_half_up(actual_bp - actual_bp_loss)
-            da_diff = round_half_up(expected_da - new_da_loss ) - round_half_up(actual_da - actual_da_loss)
+            arrear_actual_bp = round_half_up(flt(expected_bp) - flt(new_bp_loss))
+            arrear_actual_sw = round_half_up(flt(actual_sw) - flt(actual_sw_loss))
+            arrear_actual_da = round_half_up(flt(expected_da) - flt(new_da_loss))
+            bp_diff = round_half_up(flt(expected_bp) - flt(new_bp_loss)) - round_half_up(flt(actual_bp) - flt(actual_bp_loss))
+            da_diff = round_half_up(flt(expected_da) - flt(new_da_loss)) - round_half_up(flt(actual_da) - flt(actual_da_loss))
             hra_diff = round_half_up(expected_hra - actual_hra)
 
             print("dadsdasasdasdasdadadadadadadadadadad",actual_da_loss,expected_da,da_diff)
@@ -213,8 +214,8 @@ class ArrearBreakupLog(Document):
             )
             for tl in time_losses:
                 tl_hours = flt(tl.time_loss_hours)
-                tl_da = round_half_up((expected_bp + actual_sw) * da_percent)
-                deduction_amount = (expected_bp + actual_sw + tl_da) * (tl_hours / 240.0)
+                tl_da = round_half_up((flt(expected_bp) + flt(actual_sw)) * flt(da_percent))
+                deduction_amount = (flt(expected_bp) + flt(actual_sw) + flt(tl_da)) * (flt(tl_hours) / 240.0)
                 actual_amount = self.get_component_value(slip, "LOP (in Hours) Deduction")
                 total_lop_hrs_deduction = flt(deduction_amount - actual_amount)
                 
@@ -285,10 +286,22 @@ class ArrearBreakupLog(Document):
                 total_deductions += pf_diff
                 total_pf_diff += pf_diff
 
+            otherthan_pf = 0.0
+
+            for row in self.get("deductions") or []:
+                if row.salary_component != "Employee PF":
+                    otherthan_pf += flt(row.amount)
+
+            pf = 0.0
+            for row in self.get("deductions") or []:
+                if row.salary_component == "Employee PF":
+                    pf += flt(row.amount)
+
         self.total_earnings = round_half_up(flt(total_earnings))
         self.total_deductions = round_half_up(flt(total_deductions))
-        self.gross_pay = flt(total_earnings)
-        self.net_pay = round_half_up(flt(total_earnings - total_deductions))
+        self.gross_pay = flt(total_earnings) - flt(otherthan_pf)
+        self.pf_wages = flt(pf)
+        self.net_pay = round_half_up(flt(total_earnings - self.pf_wages))
 
     def get_component_value(self, slip, component_name):
         for comp in slip.earnings:
