@@ -75,7 +75,8 @@ doctype_js = {
     "Supplier" : "public/js/supplier.js",
     "Salary Slip" : "public/js/salary_slip.js",
     "Payroll Entry" : "public/js/payroll_entry.js",
-    "Asset Physical Verification": "public/js/asset_physical_verification.js"
+    "Asset Physical Verification": "public/js/asset_physical_verification.js",
+    "Employee": "public/js/employee.js"
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -221,6 +222,8 @@ doc_events = {
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
             "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             "a3_finance.overrides.salary_slip.set_professional_tax",
+            # "a3_finance.overrides.salary_slip.calculate_cea"
+            
             
         ],
         "before_save":["a3_finance.overrides.salary_slip.set_professional_tax"],
@@ -231,7 +234,8 @@ doc_events = {
             "a3_finance.overrides.salary_slip.mark_paid_benevolent_logs",
             "a3_finance.overrides.salary_slip.create_pf_detailed_summary",
             "a3_finance.overrides.salary_slip.update_ex_gratia_in_employee",
-            "a3_finance.overrides.salary_slip.reactivate_add_sal"
+            "a3_finance.overrides.salary_slip.reactivate_add_sal",
+            
         ],
         "on_cancel":[
             "a3_finance.overrides.salary_slip.reset_benevolent_logs_on_cancel"

@@ -1,3 +1,4 @@
+import frappe
 from frappe.utils import getdate, add_years, add_days
 
 def set_apprentice_doe(self,method):
@@ -40,3 +41,40 @@ def validate(doc, method):
     if doc.custom_supension_effective_from and doc.custom_supension_effective_to:
         doc.custom_payroll_effected_from = doc.custom_supension_effective_from
         doc.custom_payroll_effected_to = doc.custom_supension_effective_to
+
+
+
+
+@frappe.whitelist()
+def employee_details_change_log(employee, employee_name, component_type, value, effective_from):
+    effective_from_date = getdate(effective_from)
+
+    # Fetch previous record, if any
+    prev_name = frappe.db.get_value(
+        "Employee Details Change Log",
+        {
+            "employee_id": employee,
+            "component_type": component_type,
+            "effective_to": None
+        },
+        "name"
+    )
+
+    # Update previous record's effective_to
+    if prev_name:
+        prev = frappe.get_doc("Employee Details Change Log", prev_name)
+        prev.effective_to = add_days(effective_from_date, -1)
+        prev.save()
+
+    # Insert new record
+    doc = frappe.get_doc({
+        "doctype": "Employee Details Change Log",
+        "employee_id": employee,
+        "employee_name": employee_name,
+        "component_type": component_type,
+        "value": value,
+        "effective_from": effective_from_date,
+        "effective_to": None
+    })
+    doc.insert(ignore_permissions=True)
+    frappe.db.commit()

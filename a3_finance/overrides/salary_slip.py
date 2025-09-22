@@ -634,11 +634,27 @@ def update_tax_on_salary_slip(slip, method):
     total_tax_paid = sum(flt(row.tax_paid) for row in past_details)
     slip.custom_current_total_tax_paid = total_tax_paid
     total_past_taxable = sum(flt(row.gross_pay) - flt(row.lop_hrs) for row in past_details)
-
+    # for row in slip.earnings:
+    #     if row.salary_component == "Other Earnings(Non- Taxable)":
+    #         non_tax = flt(row.amount)
+    #         print("Non-Taxable Earnings: ....................................", non_tax)
+    #         break
+    addl_sal = frappe.get_all(
+        "Additional Salary",
+        filters={
+            "employee": slip.employee,
+            "payroll_date": slip.end_date,
+            "salary_component": "Other Earnings(Non- Taxable)"
+        },
+        fields=["amount"]
+    )
+    non_tax = addl_sal[0].amount if addl_sal else 0
+    print(f"Non-Taxable Earnings: {non_tax}")
     current_gross = flt(slip.gross_pay)
     current_lop = round(flt(slip.custom_time_loss_in_hours_deduction))
     ex = ex_gratia_frm_ss.amount if ex_gratia_frm_ss else 0
-    current_taxable = current_gross - current_lop - ex 
+    current_taxable = current_gross - current_lop - ex - non_tax
+    print(f"Current Taxable Income: {current_taxable}")
     
 
     months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
@@ -670,9 +686,13 @@ def update_tax_on_salary_slip(slip, method):
 
     print(f"Ex-Gratia: {ex_gratia}")
     std_exemption = slab_doc.marginal_relief_limit - slab_doc.tax_relief_limit if slab_doc.marginal_relief_limit and slab_doc.tax_relief_limit else 75000
+ 
+
+            
     estimated_total_taxable_income = (
-        (monthly_earning * months_left) + total_past_taxable + current_taxable + ex_gratia - std_exemption + extra_taxable
+        (monthly_earning * months_left) + total_past_taxable + current_taxable - non_tax + ex_gratia - std_exemption + extra_taxable
     )
+
     slip.custom_current_net_total_earnings = estimated_total_taxable_income + std_exemption
     
     if estimated_total_taxable_income >= slab_doc.tax_relief_limit:
@@ -763,7 +783,7 @@ def update_tax_on_salary_slip(slip, method):
 
         slip.calculate_net_pay()
         print(f"--- Completed Tax Update for {slip.name} ---\n")
-    # slip.calculate_net_pay()
+    slip.calculate_net_pay()
 
 def update_employee_payroll_details(slip, method):
     from frappe.utils import getdate, flt
@@ -1877,6 +1897,85 @@ def reactivate_add_sal(doc,method):
 
 
 
+import frappe
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
+
+def calculate_cea(employee, start_date, end_date=None):
+    print("\n[CEA DEBUG] ---- calculate_cea ----")
+    """
+    Calculate Children Education Allowance dynamically for an employee,
+    based on the previous month's Employee Details Change Log 
+    and Payroll Master Setting (filtered by month/year).
+    """
+
+    # ----------------- Step 1: Parse Salary Slip period -----------------
+    slip_start = datetime.strptime(start_date, "%Y-%m-%d")
+    slip_end = datetime.strptime(end_date, "%Y-%m-%d")
+
+    # Previous month period
+    period_start = (slip_start - relativedelta(months=1)).replace(day=1)
+    period_end = (slip_start - relativedelta(days=1))  # last day of previous month
+
+    # ----------------- Step 2: Fetch Employee Details Change Log -----------------
+    change_logs = frappe.db.get_list(
+        "Employee Details Change Log",
+        filters={
+            "employee_id": employee,
+            "component_type": "No. of Children for Eligible CEA",
+            "effective_from": ("<=", period_end.strftime("%Y-%m-%d"))
+        },
+        fields=["value", "effective_from", "effective_to"],
+        order_by="effective_from asc"
+    )
+
+    # Filter records that overlap previous month
+    applicable_values = []
+    for log in change_logs:
+        eff_from = datetime.strptime(log["effective_from"], "%Y-%m-%d")
+        eff_to = datetime.strptime(log["effective_to"], "%Y-%m-%d") if log["effective_to"] else period_end
+
+        if eff_to >= period_start and eff_from <= period_end:
+            applicable_values.append(int(log["value"] or 0))
+
+    # ----------------- Step 3: Fallback to Employee Master -----------------
+    if not applicable_values:
+        emp = frappe.get_doc("Employee", employee)
+        applicable_values = [int(emp.get("custom_no_of_children_eligible_for_cea") or 0)]
+
+    # ----------------- Step 4: Fetch CEA rates from Payroll Master -----------------
+    # Identify correct Payroll Master Setting for the *salary slip month*
+    month_number = slip_end.month   # e.g. June → 6
+    year_number = slip_end.year     # e.g. 2025
+
+    payroll_master_name = frappe.db.get_value(
+        "Payroll Master Setting",
+        {
+            "payroll_month_number": month_number,
+            "payroll_year": year_number
+        },
+        "name"
+    )
+
+    if not payroll_master_name:
+        frappe.throw(f"No Payroll Master Setting found for {month_number}-{year_number}")
+
+    payroll_master = frappe.get_doc("Payroll Master Setting", payroll_master_name)
+    rates = payroll_master.children_education_allowance or []
+    rates_sorted = sorted(rates, key=lambda x: int(x.child_details))
+
+    # ----------------- Step 5: Calculate CEA -----------------
+    custom_children_education_allowance = 0
+    for children_count in applicable_values:
+        temp_amount = 0
+        for rate in rates_sorted:
+            if children_count >= int(rate.child_details):
+                temp_amount = float(rate.amount)
+        custom_children_education_allowance = max(custom_children_education_allowance, temp_amount)
+
+    print("Custom CEA:", custom_children_education_allowance)
+    return custom_children_education_allowance
 
 
 
