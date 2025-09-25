@@ -92,12 +92,18 @@ class ArrearBreakupLog(Document):
             da_diff = round_half_up(flt(expected_da) - flt(new_da_loss)) - round_half_up(flt(actual_da) - flt(actual_da_loss))
             hra_diff = round_half_up(expected_hra - actual_hra)
 
-            crct_hra = hra_diff - flt(hra_diff) / 30 * flt(lop.no__of_days)
-            # Check if Salary Slip month = Effective From month
-            if slip.start_date.month == getdate(self.effective_from).month and slip.start_date.year == getdate(self.effective_from).year:
-                hra_amount = hra_diff   # Use without LOP adjustment
+            crct_hra = hra_diff  
+
+            if lops:
+                total_lop_days = sum(flt(lop.no__of_days) for lop in lops)
+                crct_hra = hra_diff - (flt(hra_diff) / 30 * total_lop_days)
+
+            # Check if Salary Slip month == Effective From month
+            if (slip.start_date.month == getdate(self.effective_from).month 
+                and slip.start_date.year == getdate(self.effective_from).year):
+                hra_amount = hra_diff   # no LOP adjustment
             else:
-                hra_amount = crct_hra   # Use with LOP adjustment
+                hra_amount = crct_hra   # with LOP adjustment (if any)
 
             print("dadsdasasdasdasdadadadadadadadadadad",actual_da_loss,expected_da,da_diff)
 
