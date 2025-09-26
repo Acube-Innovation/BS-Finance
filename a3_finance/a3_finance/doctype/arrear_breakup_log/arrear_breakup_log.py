@@ -22,6 +22,7 @@ class ArrearBreakupLog(Document):
         total_earnings = 0.0
         total_deductions = 0.0
         reimbursement_diff = 0.0
+        actual_ma_total = 0.0   # track MA from slips
         
 
         salary_slips = frappe.get_all("Salary Slip",
@@ -48,18 +49,25 @@ class ArrearBreakupLog(Document):
 
             da_percent = flt(slip.get("custom_dearness_allowence_percentage") or 0)
             hra_percent = flt(slip.get("custom_hra") or 0.16)
+            print("da_percent@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",da_percent)
 
             actual_bp = self.get_component_value(slip, "Basic Pay")
             actual_sw = self.get_component_value(slip, "Service Weightage")
             actual_da = self.get_component_value(slip, "Variable DA")
             actual_hra = self.get_component_value(slip, "House Rent Allowance")
             actual_pf = self.get_component_value(slip, "Employee PF")
-
+            print("actual_da@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_da)
             
+            actual_ma = self.get_component_value(slip, "Medical Allowance")
+            # Collect MA totals for arrear calculation (done later)
+            actual_ma_total += flt(actual_ma)
+
+            print("actual_sw@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_sw)
 
             expected_bp = self.current_base
             expected_da = round_half_up((float(expected_bp) + float(actual_sw)) * float(da_percent))
             expected_hra = round_half_up((float(expected_bp) + float(actual_sw)) * float(hra_percent))
+            print("expected_daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",expected_da)
 
             
             # --- LOP within range (affects actual components paid in that month) ---
@@ -298,6 +306,35 @@ class ArrearBreakupLog(Document):
                 })
                 total_deductions += pf_diff
                 total_pf_diff += pf_diff
+
+
+                    # --- Medical Allowance arrear AFTER all slips ---
+            expected_ma_per_month = 0.0
+            pms = frappe.get_all(
+                "Payroll Master Setting",
+                filters={"payroll_year": getdate(self.effective_from).year},
+                fields=["name"]
+            )
+            if pms:
+                pms_doc = frappe.get_doc("Payroll Master Setting", pms[0].name)
+                for row in pms_doc.medical_allowance:
+                    if flt(row.from_base_pay) <= flt(self.current_base) <= flt(row.to_base_pay):
+                        expected_ma_per_month = flt(row.amount)
+                        break
+
+            # expected_ma_total = expected_ma_per_month * len(salary_slips)
+            # ma_diff = round_half_up(expected_ma_total - actual_ma_total)
+            expected_ma = expected_ma_per_month   # based on slab
+            actual_ma   = self.get_component_value(slip, "Medical Allowance")
+            ma_diff     = expected_ma - actual_ma
+            if ma_diff:
+                self.append("earnings", {
+                    "salary_component": "Medical Allowance",
+                    "salary_slip_start_date": slip_data.start_date,
+                    "amount": ma_diff
+                })
+                total_earnings += ma_diff
+
 
             otherthan_pf = 0.0
             otherthan_pf_12 = 0.0   # store 12% value
