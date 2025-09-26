@@ -3,6 +3,9 @@ from frappe.utils import getdate, flt
 import frappe
 from a3_finance.utils.math_utils import round_half_up
 import calendar
+import json
+# from hrms.payroll.doctype.salary_structure.salary_structure import AdditionalSalary
+
 
 class ArrearBreakupLog(Document):
     def validate(self):
@@ -31,11 +34,27 @@ class ArrearBreakupLog(Document):
                 "start_date": [">=", self.effective_from],
                 "end_date": ["<=", self.from_date]
             },
-            fields=["name", "start_date"]
+            fields=["name", "start_date"],
+            order_by="start_date asc"
+            
         )
 
+        print("salary_slips@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",salary_slips)
+
+        i = 0
         for slip_data in salary_slips:
+
+           
+
+            slip = None
             slip = frappe.get_doc("Salary Slip", slip_data.name)
+            
+            # Convert to dict including child tables
+            # slip_dict = slip.as_dict()
+
+            # # Pretty print the entire document
+            # print("===== Salary Slip Full Details =====")
+            # print(json.dumps(slip_dict, indent=4, default=str))
 
             actual_bp_loss = 0.0
             actual_sw_loss = 0.0
@@ -43,6 +62,7 @@ class ArrearBreakupLog(Document):
             new_bp_loss = 0.0
             new_da_loss = 0.0
             current_da = 0.0
+            actual_da = 0.0
 
             slip_month = slip.start_date.strftime("%B")
             slip_year = getdate(slip.start_date).year
@@ -50,15 +70,17 @@ class ArrearBreakupLog(Document):
             da_percent = flt(slip.get("custom_dearness_allowence_percentage") or 0)
             hra_percent = flt(slip.get("custom_hra") or 0.16)
             print("da_percent@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",da_percent)
+            print("slip_month@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",slip_month)
 
-            actual_bp = self.get_component_value(slip, "Basic Pay")
-            actual_sw = self.get_component_value(slip, "Service Weightage")
-            actual_da = self.get_component_value(slip, "Variable DA")
-            actual_hra = self.get_component_value(slip, "House Rent Allowance")
-            actual_pf = self.get_component_value(slip, "Employee PF")
-            print("actual_da@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_da)
+            actual_bp = self.get_component_value(slip, "Basic Pay",i)
+            actual_sw = self.get_component_value(slip, "Service Weightage", i)
+            actual_da = self.get_component_value(slip, "Variable DA", i)
+            actual_hra = self.get_component_value(slip, "House Rent Allowance", i)
+            actual_pf1 = self.get_component_value(slip, "Employee PF", i)
+            print("actual_bp@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_bp)
+            # print("##############actual_pf@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_pf)
             
-            actual_ma = self.get_component_value(slip, "Medical Allowance")
+            actual_ma = self.get_component_value(slip, "Medical Allowance", i)
             # Collect MA totals for arrear calculation (done later)
             actual_ma_total += flt(actual_ma)
 
@@ -89,6 +111,7 @@ class ArrearBreakupLog(Document):
                     current_da = ((flt(expected_bp) + flt(actual_sw)) * flt(lop.employee_da_for_payroll_period)) / 30
                     new_da_loss = new_da_loss + (flt(current_da) * (flt(lop.no__of_days)))
 
+
             # Arrear differences after LOP adjustments
             real_bp = round_half_up(actual_bp - actual_bp_loss)
             real_sw = round_half_up(actual_sw - actual_sw_loss)
@@ -112,31 +135,43 @@ class ArrearBreakupLog(Document):
                 hra_amount = hra_diff   # no LOP adjustment
             else:
                 hra_amount = crct_hra   # with LOP adjustment (if any)
+                total_lop_days = 0
 
             print("dadsdasasdasdasdadadadadadadadadadad",actual_da_loss,expected_da,da_diff)
 
             total_bp_diff += bp_diff
             total_da_diff += da_diff
             total_hra_diff += hra_amount
+            crct_bp = round_half_up(expected_bp - new_bp_loss) - round_half_up(actual_bp)
+            crct_da = round_half_up(expected_da - new_da_loss) - round_half_up(actual_da)
+
 
             self.append("earnings", {
                 "salary_component": "Basic Pay",
                 "salary_slip_start_date": slip_data.start_date,
-                "amount": round_half_up(flt(bp_diff))
+                "paid": round_half_up(actual_bp),     # from salary slip after LOP
+                "payable": round_half_up(expected_bp - new_bp_loss),  
+                "amount": round_half_up(flt(crct_bp))
             })
-            total_earnings += flt(bp_diff)
+            total_earnings += flt(crct_bp)
 
             self.append("earnings", {
                 "salary_component": "Variable DA",
                 "salary_slip_start_date": slip_data.start_date,
-                "amount": round_half_up(flt(da_diff))
+                "paid": round_half_up(actual_da),
+                "payable": round_half_up(expected_da - new_da_loss),
+                "amount": round_half_up(flt(crct_da))
             })
-            total_earnings += flt(da_diff)
+            total_earnings += flt(crct_da)
 
             self.append("earnings", {
                 "salary_component": "House Rent Allowance",
                 "salary_slip_start_date": slip_data.start_date,
-                "amount": round_half_up(flt(hra_amount))
+                "paid": round_half_up(actual_hra),
+                "payable": round_half_up(expected_hra) if (slip.start_date.month == getdate(self.effective_from).month 
+                                                        and slip.start_date.year == getdate(self.effective_from).year)
+                        else round_half_up(expected_hra - (expected_hra / 30 * total_lop_days)),
+                "amount": round_half_up(hra_amount)
             })
             total_earnings += flt(hra_amount)
 
@@ -213,14 +248,17 @@ class ArrearBreakupLog(Document):
                         pass
 
             reimbursement_diff = round_half_up(reimbursement_total - actual_paid)
+            crct_reimb = round_half_up(reimbursement_total) - round_half_up(actual_paid)
 
             if reimbursement_diff > 0:
                 self.append("earnings", {
                     "salary_component": "LOP Refund",
                     "salary_slip_start_date": slip_data.start_date,
-                    "amount": flt(reimbursement_diff)
+                    "paid": round_half_up(actual_paid),
+                    "payable": round_half_up(reimbursement_total),
+                    "amount": flt(crct_reimb)
                 })
-                total_earnings += flt(reimbursement_diff)
+                total_earnings += flt(crct_reimb)
 
             # Time Loss deduction (used also for PF formula)
             time_loss_expected_total = 0.0
@@ -237,8 +275,9 @@ class ArrearBreakupLog(Document):
                 tl_hours = flt(tl.time_loss_hours)
                 tl_da = round_half_up((flt(expected_bp) + flt(actual_sw)) * flt(da_percent))
                 deduction_amount = (flt(expected_bp) + flt(actual_sw) + flt(tl_da)) * (flt(tl_hours) / 240.0)
-                actual_amount = self.get_component_value(slip, "LOP (in Hours) Deduction")
+                actual_amount = self.get_component_value(slip, "LOP (in Hours) Deduction", i)
                 total_lop_hrs_deduction = flt(deduction_amount - actual_amount)
+                crct_tl = round_half_up(deduction_amount) - round_half_up(actual_amount)
                 
                 # For PF formula (use expected deduction, rounded)
                 time_loss_expected_total += round_half_up(deduction_amount)
@@ -246,14 +285,20 @@ class ArrearBreakupLog(Document):
                 self.append("deductions", {
                     "salary_component": "LOP (in Hours) Deduction",
                     "salary_slip_start_date": slip_data.start_date,
-                    "amount": round_half_up(total_lop_hrs_deduction)
+                    "paid": round_half_up(actual_amount),           # actual from slip
+                    "payable": round_half_up(deduction_amount),     # expected based on hours
+                    "amount": round_half_up(crct_tl)
                 })
-                total_deductions += round_half_up(total_lop_hrs_deduction)
+                total_deductions += round_half_up(crct_tl)
 
             # Overtime calculation
             from_quarter = f"Q{((getdate(self.effective_from).month - 1) // 3)}"
             print("from_quarterrrrrrrrrrrrrrrrrrrrrrrrrrr",from_quarter)
             from_year = getdate(self.effective_from).year
+
+
+            
+
 
             overtime_entries = frappe.get_all("Employee Overtime Wages",
                 filters={
@@ -270,12 +315,15 @@ class ArrearBreakupLog(Document):
                 ot_actual_amount = flt(ot.total_amount)
                 ot_expected_amount = (flt(self.current_base) + flt(ot.service_weightage) + flt(expected_da)) * (ot_hours / 240.0)
                 ot_diff = round_half_up(ot_expected_amount - ot_actual_amount)
+                crct_ot = round_half_up(ot_expected_amount) - round_half_up(ot_actual_amount)
                 self.append("earnings", {
                     "salary_component": "Overtime Wages",
                     "salary_slip_start_date": slip_data.start_date,
-                    "amount": ot_diff
+                    "paid": round_half_up(ot_actual_amount),
+                    "payable": round_half_up(ot_expected_amount),
+                    "amount": crct_ot
                 })
-                total_earnings += ot_diff
+                total_earnings += crct_ot
             
             # ---------------- PF arrear using formula ----------------
             # PF Wages = (BP + SW + VDA  - round(Time Loss Hrs Deduction)
@@ -296,16 +344,19 @@ class ArrearBreakupLog(Document):
                 - round_half_up(reimbursement_hra_total))*0.12)
             print(f"Expected PF: {expected_pf}, Actual PF: {actual_pf}")
             pf_diff = expected_pf - actual_pf
+            crct_pf = round_half_up(expected_pf) - round_half_up(actual_pf1)
 
             # Append PF arrear (difference only)
             if pf_diff:
                 self.append("deductions", {
                     "salary_component": "Employee PF",
                     "salary_slip_start_date": slip_data.start_date,
-                    "amount": pf_diff
+                    "paid": round_half_up(actual_pf1),
+                    "payable": round_half_up(expected_pf),
+                    "amount": crct_pf
                 })
-                total_deductions += pf_diff
-                total_pf_diff += pf_diff
+                total_deductions += crct_pf
+                total_pf_diff += crct_pf
 
 
                     # --- Medical Allowance arrear AFTER all slips ---
@@ -325,12 +376,14 @@ class ArrearBreakupLog(Document):
             # expected_ma_total = expected_ma_per_month * len(salary_slips)
             # ma_diff = round_half_up(expected_ma_total - actual_ma_total)
             expected_ma = expected_ma_per_month   # based on slab
-            actual_ma   = self.get_component_value(slip, "Medical Allowance")
+            actual_ma   = self.get_component_value(slip, "Medical Allowance", i)
             ma_diff     = expected_ma - actual_ma
             if ma_diff:
                 self.append("earnings", {
                     "salary_component": "Medical Allowance",
                     "salary_slip_start_date": slip_data.start_date,
+                    "paid": round_half_up(actual_ma),
+                    "payable": round_half_up(expected_ma),
                     "amount": ma_diff
                 })
                 total_earnings += ma_diff
@@ -352,18 +405,27 @@ class ArrearBreakupLog(Document):
                 if row.salary_component == "Employee PF":
                     pf += flt(row.amount)
 
+            i = i + 1
+
         self.total_earnings = round_half_up(flt(total_earnings))
         self.total_deductions = round_half_up(flt(total_deductions))
         self.gross_pay = flt(total_earnings) - flt(otherthan_pf)
         self.pf_wages = flt(pf)- flt(otherthan_pf_12)
         self.net_pay = round_half_up(flt(self.gross_pay - self.pf_wages))
 
-    def get_component_value(self, slip, component_name):
+    def get_component_value (self, slip, component_name, i):
+        # print("slip==================",slip)
+        # print("component_name==================",component_name)
         for comp in slip.earnings:
             if comp.salary_component == component_name:
-                return flt(comp.custom_actual_amount)
+                if i == 0:
+                    return comp.custom_actual_amount
+                # print("comp.custom_actual_amount==================",comp.amount)
+                return flt(comp.amount)
         for comp in slip.deductions:
             if comp.salary_component == component_name:
                 return flt(comp.amount)
         return 0.0
-                
+    
+    
+    
