@@ -9,7 +9,7 @@ import json
 
 class ArrearBreakupLog(Document):
     """
-    ArrearBreakupLog
+    ArrearBreakupLog.
     ----------------
     Builds a month-wise arrear breakup (earnings & deductions) across a range of
     salary slips by comparing:
