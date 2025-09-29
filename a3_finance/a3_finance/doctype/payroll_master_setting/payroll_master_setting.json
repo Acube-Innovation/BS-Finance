@@ -48,6 +48,10 @@
   "brahmos_recreation_club_contribution",
   "column_break_asin",
   "canteen_recovery",
+  "arrear_details_section",
+  "default_increment_",
+  "column_break_tton",
+  "default_round_value_for_base",
   "conveyance_allowance_details_section",
   "conveyance_allowance",
   "children_education_allowance_details_section",
@@ -405,11 +409,32 @@
    "fieldname": "deduction_cap",
    "fieldtype": "Float",
    "label": "Deduction Cap"
+  },
+  {
+   "fieldname": "arrear_details_section",
+   "fieldtype": "Section Break",
+   "label": "Arrear Details"
+  },
+  {
+   "fieldname": "default_increment_",
+   "fieldtype": "Float",
+   "label": "Default Increment %",
+   "precision": "2"
+  },
+  {
+   "fieldname": "default_round_value_for_base",
+   "fieldtype": "Float",
+   "label": "Default Round Value for Base",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_tton",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-26 15:52:05.377613",
+ "modified": "2025-09-29 10:30:41.004280",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",

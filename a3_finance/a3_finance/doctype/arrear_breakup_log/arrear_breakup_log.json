@@ -9,14 +9,23 @@
   "payroll_month",
   "column_break_tmfr",
   "payroll_year",
+  "arrear__details_section",
+  "arrear_month",
   "section_break_xrxo",
   "employee",
   "employee_name",
   "salary_structure_assignment",
+  "salary_structure",
+  "salary_slip",
+  "increment_",
   "column_break_kblw",
   "from_date",
   "effective_from",
   "current_base",
+  "lop_in_hours",
+  "leave_without_pay",
+  "overtime_hours",
+  "is_processed",
   "section_break_bjsr",
   "earnings",
   "section_break_vzlj",
@@ -192,12 +201,66 @@
    "fieldname": "pf_wages",
    "fieldtype": "Currency",
    "label": "PF on Arrears"
+  },
+  {
+   "fieldname": "salary_slip",
+   "fieldtype": "Link",
+   "label": "Salary Slip",
+   "link_filters": "[]",
+   "options": "Salary Slip"
+  },
+  {
+   "fetch_from": "salary_structure_assignment.salary_structure",
+   "fieldname": "salary_structure",
+   "fieldtype": "Link",
+   "label": "Salary Structure",
+   "options": "Salary Structure"
+  },
+  {
+   "fieldname": "increment_",
+   "fieldtype": "Data",
+   "label": "Increment %"
+  },
+  {
+   "fetch_from": "salary_slip.custom_lop_hrs",
+   "fieldname": "lop_in_hours",
+   "fieldtype": "Data",
+   "label": "LOP in Hours"
+  },
+  {
+   "fetch_from": "salary_slip.custom_uploaded_leave_without_pay",
+   "fieldname": "leave_without_pay",
+   "fieldtype": "Data",
+   "label": "Leave Without Pay"
+  },
+  {
+   "fetch_from": "salary_slip.custom_ot_hrs",
+   "fieldname": "overtime_hours",
+   "fieldtype": "Data",
+   "label": "Overtime Hours"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_processed",
+   "fieldtype": "Check",
+   "label": "Is Processed"
+  },
+  {
+   "fieldname": "arrear__details_section",
+   "fieldtype": "Section Break",
+   "label": "Arrear  Details"
+  },
+  {
+   "fieldname": "arrear_month",
+   "fieldtype": "Select",
+   "label": "Arrear Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-20 16:21:01.762927",
+ "modified": "2025-09-29 19:22:45.131872",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Arrear Breakup Log",
