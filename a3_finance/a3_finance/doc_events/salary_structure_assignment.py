@@ -138,6 +138,32 @@ def create_arrear_details_log(doc, method):
     # Create Arrear Breakup Log for each month
     for y, m in arrear_months:
         month_name = VALID_MONTHS[m - 1]     
+
+        # Find Salary Slip for this arrear month
+        start_of_month = datetime(y, m, 1).date()
+        if m == 12:
+            end_of_month = datetime(y, m, 31).date()
+        else:
+            end_of_month = (datetime(y, m + 1, 1) - timedelta(days=1)).date()
+
+        salary_slip = frappe.get_all(
+            "Salary Slip",
+            filters={
+                "employee": doc.employee,
+                "start_date": ["<=", start_of_month],
+                "end_date": [">=", end_of_month],
+            },
+            limit_page_length=1,
+            fields=["name"]
+        )
+        salary_slip_name = salary_slip[0].name if salary_slip else None
+        print("salary slip name",salary_slip_name)
+        print("start_of_month",start_of_month)
+        print("end_of_month",end_of_month)
+
+
+
+
         abl = frappe.get_doc({
             "doctype": "Arrear Breakup Log",
             "employee": doc.employee,
@@ -146,10 +172,11 @@ def create_arrear_details_log(doc, method):
             "effective_from": doc.custom_effective_from,  # 1st day of arrear month
             "arrear_month": month_name,
             "payroll_month": doc.custom_process_arrear_on,
-            "payroll_year": getdate(doc.custom_process_arrear_on).year
+            "payroll_year": getdate(doc.custom_process_arrear_on).year,
+            "salary_slip": salary_slip_name
         })
         abl.insert(ignore_permissions=True)
-
+    frappe.db.commit()
 
 def _month_to_int(value: str) -> int:
     """Parse month from 'September' / 'Sep' / '9' into 1..12."""

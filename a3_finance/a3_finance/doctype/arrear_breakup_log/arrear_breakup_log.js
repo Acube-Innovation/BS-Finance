@@ -187,7 +187,7 @@ frappe.ui.form.on('Arrear Breakup Log', {
         // Reset dependent fields first
         frm.set_value('salary_structure_assignment', '');
         frm.set_value('salary_structure', '');
-        frm.set_value('salary_slip', '');
+        // frm.set_value('salary_slip', '');
 
         // Call server-side method
         frappe.call({
@@ -209,7 +209,7 @@ frappe.ui.form.on('Arrear Breakup Log', {
 
                     // Set Salary Slip if found
                     if (data.salary_slip) {
-                        frm.set_value('salary_slip', data.salary_slip.name);
+                        // frm.set_value('salary_slip', data.salary_slip.name);
                     }
                 }
             }
