@@ -45,12 +45,49 @@ class ArrearBreakupLog(Document):
 		arrear_month= MONTHS.index(self.arrear_month.strip()) + 1
 		is_first_month = effective_month_num == arrear_month
 
+
+		# 🔹 Fetch Employee Overtime Wages (if exists) for arrear month/year
+		employee_overtime = frappe.get_all(
+			"Employee Overtime Wages",
+			filters={
+				"employee_id": self.employee,
+				"payroll_month": self.arrear_month,
+				"payroll_year": self.payroll_year
+			},
+			fields=["overtime_hours", "total_amount"],
+			limit=1
+		)
+		overtime_hours_val = flt(employee_overtime[0].overtime_hours) if employee_overtime else 0
+		overtime_amount_val = flt(employee_overtime[0].total_amount) if employee_overtime else 0
+		overtime_amount_val = round_half_up(overtime_amount_val, 0)
+
+
+
+
+
 		if is_first_month:
 			self.lop_in_hours = 0
 			self.leave_without_pay = 0
-			# self.overtime_hours = 0
+			self.overtime_hours = overtime_hours_val
 			print("First month detected. Zeroed LOP, Leave Without Pay, and OT.")
 
+		# # Fetch overtime hours if matching Employee Overtime Wages entry exists
+		# employee_overtime = frappe.get_all(
+		# 	"Employee Overtime Wages",
+		# 	filters={
+		# 		"employee_id": self.employee,
+		# 		"payroll_month": self.arrear_month,
+		# 		"payroll_year": self.payroll_year
+		# 	},
+		# 	fields=["overtime_hours"],
+		# 	limit=1
+		# )
+		# if employee_overtime:
+		# 	self.overtime_hours = flt(employee_overtime[0].overtime_hours)
+		# 	print(f"Overtime fetched from Employee Overtime Wages: {self.overtime_hours}")
+		# else:
+		# 	self.overtime_hours = 0
+		# 	print("No overtime record found for employee in Employee Overtime Wages.")
 
 
 
@@ -209,7 +246,7 @@ class ArrearBreakupLog(Document):
 			if row.salary_component in earnings_components:
 				amount = row.amount
 				if row.salary_component == "Overtime Wages":
-					paid_value = amount
+					paid_value = overtime_amount_val if overtime_amount_val else 0
 				else:
 					paid_value = row.custom_actual_amount if is_first_month else amount
 
