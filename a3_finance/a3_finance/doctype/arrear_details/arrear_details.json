@@ -8,6 +8,9 @@
  "field_order": [
   "salary_component",
   "salary_slip_start_date",
+  "column_break_rjvl",
+  "paid",
+  "payable",
   "amount"
  ],
  "fields": [
@@ -38,13 +41,35 @@
    "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Amount"
+  },
+  {
+   "fieldname": "paid",
+   "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Paid"
+  },
+  {
+   "fieldname": "payable",
+   "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Payable"
+  },
+  {
+   "fieldname": "column_break_rjvl",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-08-08 12:36:42.388823",
+ "modified": "2025-09-30 13:41:34.525905",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Arrear Details",

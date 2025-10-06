@@ -84,7 +84,7 @@ def pull_values_from_payroll_master(doc, method):
     month_name = d.strftime("%B")
     year = d.year
 
-    row = frappe.get_all(
+    rows = frappe.get_all(
         "Arrear Breakup Log",
         filters={
             "employee": doc.employee,
@@ -92,11 +92,11 @@ def pull_values_from_payroll_master(doc, method):
             "payroll_year": year
         },
         fields=["net_pay"],
-        order_by="modified desc",
-        limit=1,
+ 
     )
 
-    doc.custom_arrear = flt(row[0].net_pay) if row else 0.0
+    # doc.custom_arrear = flt(row[0].net_pay) if row else 0.0
+    doc.custom_arrear = sum(flt(r.net_pay) for r in rows) if rows else 0.0
 
 
 def get_previous_payroll_master_settings(year, month_number):

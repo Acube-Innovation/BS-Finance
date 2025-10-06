@@ -9,14 +9,25 @@
   "payroll_month",
   "column_break_tmfr",
   "payroll_year",
+  "arrear__details_section",
+  "arrear_month",
   "section_break_xrxo",
   "employee",
   "employee_name",
   "salary_structure_assignment",
+  "salary_structure",
+  "salary_slip",
+  "dearness_allowance_",
+  "hra_",
   "column_break_kblw",
   "from_date",
   "effective_from",
   "current_base",
+  "lop_in_hours",
+  "leave_without_pay",
+  "overtime_hours",
+  "is_processed",
+  "payroll_days",
   "section_break_bjsr",
   "earnings",
   "section_break_vzlj",
@@ -42,7 +53,10 @@
   {
    "fieldname": "payroll_month",
    "fieldtype": "Select",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Payroll Month",
    "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
    "reqd": 1
@@ -65,7 +79,10 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Employee",
    "options": "Employee",
    "reqd": 1
@@ -78,6 +95,9 @@
    "fetch_from": "employee.employee_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Employee Name"
   },
   {
@@ -192,12 +212,87 @@
    "fieldname": "pf_wages",
    "fieldtype": "Currency",
    "label": "PF on Arrears"
+  },
+  {
+   "fieldname": "salary_slip",
+   "fieldtype": "Link",
+   "label": "Salary Slip",
+   "link_filters": "[]",
+   "options": "Salary Slip"
+  },
+  {
+   "fetch_from": "salary_structure_assignment.salary_structure",
+   "fieldname": "salary_structure",
+   "fieldtype": "Link",
+   "label": "Salary Structure",
+   "options": "Salary Structure"
+  },
+  {
+   "fetch_from": "salary_slip.custom_lop_hrs",
+   "fetch_if_empty": 1,
+   "fieldname": "lop_in_hours",
+   "fieldtype": "Data",
+   "label": "LOP in Hours"
+  },
+  {
+   "fetch_from": "salary_slip.custom_uploaded_leave_without_pay",
+   "fetch_if_empty": 1,
+   "fieldname": "leave_without_pay",
+   "fieldtype": "Data",
+   "label": "Leave Without Pay"
+  },
+  {
+   "fetch_from": "salary_slip.custom_ot_hrs",
+   "fetch_if_empty": 1,
+   "fieldname": "overtime_hours",
+   "fieldtype": "Data",
+   "label": "Overtime Hours"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_processed",
+   "fieldtype": "Check",
+   "label": "Is Processed"
+  },
+  {
+   "fieldname": "arrear__details_section",
+   "fieldtype": "Section Break",
+   "label": "Arrear  Details"
+  },
+  {
+   "fieldname": "arrear_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Arrear Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+  },
+  {
+   "fetch_from": "salary_slip.custom_dearness_allowence_percentage",
+   "fieldname": "dearness_allowance_",
+   "fieldtype": "Data",
+   "label": "Dearness Allowance %"
+  },
+  {
+   "fetch_from": "salary_slip.custom_hra",
+   "fieldname": "hra_",
+   "fieldtype": "Data",
+   "label": "HRA %"
+  },
+  {
+   "fetch_from": "salary_slip.custom_payroll_days",
+   "fetch_if_empty": 1,
+   "fieldname": "payroll_days",
+   "fieldtype": "Data",
+   "label": "Payroll Days",
+   "precision": "2"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-20 16:21:01.762927",
+ "modified": "2025-10-01 16:15:20.439157",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Arrear Breakup Log",

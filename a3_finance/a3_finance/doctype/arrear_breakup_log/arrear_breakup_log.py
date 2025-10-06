@@ -4,428 +4,343 @@ import frappe
 from a3_finance.utils.math_utils import round_half_up
 import calendar
 import json
+from datetime import datetime, timedelta
+from frappe.utils import getdate, nowdate
+import math
+
 # from hrms.payroll.doctype.salary_structure.salary_structure import AdditionalSalary
 
 
+
 class ArrearBreakupLog(Document):
-    def validate(self):
-        self.calculate_arrears()
-
-    def calculate_arrears(self):
-        if not self.effective_from or not self.from_date or not self.current_base:
-            frappe.throw("Effective From, From Date, and Current Base are required.")
-
-        self.set("earnings", [])
-        self.set("deductions", [])
-
-        total_da_diff = 0.0
-        total_hra_diff = 0.0
-        total_pf_diff = 0.0
-        total_bp_diff = 0.0
-        total_earnings = 0.0
-        total_deductions = 0.0
-        reimbursement_diff = 0.0
-        actual_ma_total = 0.0   # track MA from slips
-        
-
-        salary_slips = frappe.get_all("Salary Slip",
-            filters={
-                "employee": self.employee,
-                "start_date": [">=", self.effective_from],
-                "end_date": ["<=", self.from_date]
-            },
-            fields=["name", "start_date"],
-            order_by="start_date asc"
-            
-        )
-
-        print("salary_slips@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",salary_slips)
-
-        i = 0
-        for slip_data in salary_slips:
-
-           
-
-            slip = None
-            slip = frappe.get_doc("Salary Slip", slip_data.name)
-            
-            # Convert to dict including child tables
-            # slip_dict = slip.as_dict()
-
-            # # Pretty print the entire document
-            # print("===== Salary Slip Full Details =====")
-            # print(json.dumps(slip_dict, indent=4, default=str))
-
-            actual_bp_loss = 0.0
-            actual_sw_loss = 0.0
-            actual_da_loss = 0.0
-            new_bp_loss = 0.0
-            new_da_loss = 0.0
-            current_da = 0.0
-            actual_da = 0.0
-
-            slip_month = slip.start_date.strftime("%B")
-            slip_year = getdate(slip.start_date).year
-
-            da_percent = flt(slip.get("custom_dearness_allowence_percentage") or 0)
-            hra_percent = flt(slip.get("custom_hra") or 0.16)
-            print("da_percent@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",da_percent)
-            print("slip_month@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",slip_month)
-
-            actual_bp = self.get_component_value(slip, "Basic Pay",i)
-            actual_sw = self.get_component_value(slip, "Service Weightage", i)
-            actual_da = self.get_component_value(slip, "Variable DA", i)
-            actual_hra = self.get_component_value(slip, "House Rent Allowance", i)
-            actual_pf1 = self.get_component_value(slip, "Employee PF", i)
-            print("actual_bp@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_bp)
-            # print("##############actual_pf@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_pf)
-            
-            actual_ma = self.get_component_value(slip, "Medical Allowance", i)
-            # Collect MA totals for arrear calculation (done later)
-            actual_ma_total += flt(actual_ma)
-
-            print("actual_sw@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",actual_sw)
-
-            expected_bp = self.current_base
-            expected_da = round_half_up((float(expected_bp) + float(actual_sw)) * float(da_percent))
-            expected_hra = round_half_up((float(expected_bp) + float(actual_sw)) * float(hra_percent))
-            print("expected_daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",expected_da)
-
-            
-            # --- LOP within range (affects actual components paid in that month) ---
-            lops = frappe.get_all("Lop Per Request",
-                filters={
-                    "employee_id": self.employee,
-                    "payroll_month": slip_month,
-                    "payroll_year": slip_year,
-                    "start_date": [">", self.effective_from]
-                },
-                fields=["lop_amount", "employee_service_weightage_loss", "employee_da_for_payroll_period" ,"employee_da_loss_for_payroll_period","no__of_days"]
-            )
-            if lops:
-                for lop in lops:
-                    actual_bp_loss += flt(lop.lop_amount)
-                    new_bp_loss = new_bp_loss + (float(expected_bp) * (flt(lop.no__of_days) / 30.0))
-                    actual_sw_loss += flt(lop.employee_service_weightage_loss)
-                    actual_da_loss += flt(lop.employee_da_loss_for_payroll_period)
-                    current_da = ((flt(expected_bp) + flt(actual_sw)) * flt(lop.employee_da_for_payroll_period)) / 30
-                    new_da_loss = new_da_loss + (flt(current_da) * (flt(lop.no__of_days)))
 
 
-            # Arrear differences after LOP adjustments
-            real_bp = round_half_up(actual_bp - actual_bp_loss)
-            real_sw = round_half_up(actual_sw - actual_sw_loss)
-            real_da = round_half_up(actual_da - actual_da_loss)
-            arrear_actual_bp = round_half_up(flt(expected_bp) - flt(new_bp_loss))
-            arrear_actual_sw = round_half_up(flt(actual_sw) - flt(actual_sw_loss))
-            arrear_actual_da = round_half_up(flt(expected_da) - flt(new_da_loss))
-            bp_diff = round_half_up(flt(expected_bp) - flt(new_bp_loss)) - round_half_up(flt(actual_bp) - flt(actual_bp_loss))
-            da_diff = round_half_up(flt(expected_da) - flt(new_da_loss)) - round_half_up(flt(actual_da) - flt(actual_da_loss))
-            hra_diff = round_half_up(expected_hra - actual_hra)
-
-            crct_hra = hra_diff  
-
-            if lops:
-                total_lop_days = sum(flt(lop.no__of_days) for lop in lops)
-                crct_hra = hra_diff - (flt(hra_diff) / 30 * total_lop_days)
-
-            # Check if Salary Slip month == Effective From month
-            if (slip.start_date.month == getdate(self.effective_from).month 
-                and slip.start_date.year == getdate(self.effective_from).year):
-                hra_amount = hra_diff   # no LOP adjustment
-            else:
-                hra_amount = crct_hra   # with LOP adjustment (if any)
-                total_lop_days = 0
-
-            print("dadsdasasdasdasdadadadadadadadadadad",actual_da_loss,expected_da,da_diff)
-
-            total_bp_diff += bp_diff
-            total_da_diff += da_diff
-            total_hra_diff += hra_amount
-            crct_bp = round_half_up(expected_bp - new_bp_loss) - round_half_up(actual_bp)
-            crct_da = round_half_up(expected_da - new_da_loss) - round_half_up(actual_da)
 
 
-            self.append("earnings", {
-                "salary_component": "Basic Pay",
-                "salary_slip_start_date": slip_data.start_date,
-                "paid": round_half_up(actual_bp),     # from salary slip after LOP
-                "payable": round_half_up(expected_bp - new_bp_loss),  
-                "amount": round_half_up(flt(crct_bp))
-            })
-            total_earnings += flt(crct_bp)
-
-            self.append("earnings", {
-                "salary_component": "Variable DA",
-                "salary_slip_start_date": slip_data.start_date,
-                "paid": round_half_up(actual_da),
-                "payable": round_half_up(expected_da - new_da_loss),
-                "amount": round_half_up(flt(crct_da))
-            })
-            total_earnings += flt(crct_da)
-
-            self.append("earnings", {
-                "salary_component": "House Rent Allowance",
-                "salary_slip_start_date": slip_data.start_date,
-                "paid": round_half_up(actual_hra),
-                "payable": round_half_up(expected_hra) if (slip.start_date.month == getdate(self.effective_from).month 
-                                                        and slip.start_date.year == getdate(self.effective_from).year)
-                        else round_half_up(expected_hra - (expected_hra / 30 * total_lop_days)),
-                "amount": round_half_up(hra_amount)
-            })
-            total_earnings += flt(hra_amount)
-
-            # --- Reimbursement Calculation ---
-            reimbursement_total = 0.0
-            reimbursement_hra_total = 0.0  # needed for PF formula
-            actual_paid = 0.0
-
-            # Day-based reimbursement
-            day_reimbursements = frappe.get_all("Employee Reimbursement Wages",
-                filters={
-                    "employee_id": self.employee,
-                    "reimbursement_month": slip_month,
-                    "reimbursement_year": slip_year,
-                    "reimbursement_date": ["between", [self.effective_from, self.from_date]]
-                },
-                fields=["name", "no_of_days", "lop_refund_amount","reimbursement_service_weightage"]
-            )
-            refund_sw =0
-            refund_bp=0
-            refund_da=0
-            days=0
-            for reimb in day_reimbursements:
-                actual_paid += flt(reimb.lop_refund_amount)
-                refund_sw += flt(reimb.reimbursement_service_weightage)
-                days = flt(reimb.no_of_days)
-
-                # pms = frappe.get_all("Payroll Master Setting",
-                #     filters={"payroll_month": slip_month, "payroll_year": slip_year},
-                #     fields=["hra_", "dearness_allowance_"]
-                # )
-                # hra_pct = flt(pms[0].hra_) if pms else hra_percent
-                # da_pct = flt(pms[0].dearness_allowance_) if pms else da_percent
-
-                # expected_da_days = round_half_up((expected_bp + actual_sw) * da_pct)
-                # expected_hra_days = round_half_up((expected_bp + actual_sw) * hra_pct)
-                # expected_total = (expected_bp + actual_sw + expected_da_days + expected_hra_days) * (days / 30.0)
-                # reimbursement_total += round_half_up(expected_total)
-                # reimbursement_hra_total += round_half_up(expected_hra_days * (days / 30.0))
-                refund_bp += ((expected_bp /30 * days))
-                # refund_sw += (refund_sw)
-                refund_da += ((expected_da/30 * days))
-                reimbursement_hra_total += ((expected_hra/30 * days))
-            reimbursement_total = round_half_up(refund_bp+refund_sw+refund_da+reimbursement_hra_total)
-
-            print("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",refund_bp,refund_sw,refund_da,reimbursement_hra_total,reimbursement_total)
+	def validate(self):
+		# If salary_slip is selected, fetch components
+		if self.salary_slip:
+			# self.first_month_zero()
+			self.fetch_salary_slip_components()
 
 
-            # Hour-based reimbursement (no HRA in hours calc)
-            hour_reimbursements = frappe.get_all("Employee Reimbursement Wages",
-                filters={
-                    "employee_id": self.employee,
-                    "reimbursement_month": slip_month,
-                    "reimbursement_year": slip_year,
-                    "tl_month": ["!=", ""]
-                },
-                fields=["name", "tl_month", "tl_hours", "lop_refund_amount"]
-            )
-
-            for reimb in hour_reimbursements:
-                tl_month = reimb.tl_month
-                tl_hours = flt(reimb.tl_hours)
-                if tl_month:
-                    try:
-                        tl_month_index = list(calendar.month_name).index(tl_month)
-                        effective_month_index = getdate(self.effective_from).month
-                        from_month_index = getdate(self.from_date).month
-
-                        if effective_month_index <= tl_month_index <= from_month_index:
-                            actual_paid += flt(reimb.lop_refund_amount)
-                            hourly_total = (expected_bp + actual_sw + expected_da) * (tl_hours / 240.0)
-                            reimbursement_total += round_half_up(hourly_total)
-                    except ValueError:
-                        pass
-
-            reimbursement_diff = round_half_up(reimbursement_total - actual_paid)
-            crct_reimb = round_half_up(reimbursement_total) - round_half_up(actual_paid)
-
-            if reimbursement_diff > 0:
-                self.append("earnings", {
-                    "salary_component": "LOP Refund",
-                    "salary_slip_start_date": slip_data.start_date,
-                    "paid": round_half_up(actual_paid),
-                    "payable": round_half_up(reimbursement_total),
-                    "amount": flt(crct_reimb)
-                })
-                total_earnings += flt(crct_reimb)
-
-            # Time Loss deduction (used also for PF formula)
-            time_loss_expected_total = 0.0
-            time_losses = frappe.get_all("Employee Time Loss",
-                filters={
-                    "employee_id": self.employee,
-                    "payroll_month": slip_month,
-                    "payroll_year": slip_year,
-                    "time_loss_month": getdate(self.effective_from).strftime("%B")
-                },
-                fields=["time_loss_hours"]
-            )
-            for tl in time_losses:
-                tl_hours = flt(tl.time_loss_hours)
-                tl_da = round_half_up((flt(expected_bp) + flt(actual_sw)) * flt(da_percent))
-                deduction_amount = (flt(expected_bp) + flt(actual_sw) + flt(tl_da)) * (flt(tl_hours) / 240.0)
-                actual_amount = self.get_component_value(slip, "LOP (in Hours) Deduction", i)
-                total_lop_hrs_deduction = flt(deduction_amount - actual_amount)
-                crct_tl = round_half_up(deduction_amount) - round_half_up(actual_amount)
-                
-                # For PF formula (use expected deduction, rounded)
-                time_loss_expected_total += round_half_up(deduction_amount)
-
-                self.append("deductions", {
-                    "salary_component": "LOP (in Hours) Deduction",
-                    "salary_slip_start_date": slip_data.start_date,
-                    "paid": round_half_up(actual_amount),           # actual from slip
-                    "payable": round_half_up(deduction_amount),     # expected based on hours
-                    "amount": round_half_up(crct_tl)
-                })
-                total_deductions += round_half_up(crct_tl)
-
-            # Overtime calculation
-            from_quarter = f"Q{((getdate(self.effective_from).month - 1) // 3)}"
-            print("from_quarterrrrrrrrrrrrrrrrrrrrrrrrrrr",from_quarter)
-            from_year = getdate(self.effective_from).year
+	def fetch_salary_slip_components(self):
+		if not self.salary_slip:
+			return
 
 
-            
+
+		MONTHS = [
+					"January", "February", "March", "April", "May", "June",
+					"July", "August", "September", "October", "November", "December"
+				]
+
+		if not self.effective_from or not self.arrear_month:
+					return
 
 
-            overtime_entries = frappe.get_all("Employee Overtime Wages",
-                filters={
-                    "employee_id": self.employee,
-                    "payroll_month": slip_month,
-                    "payroll_year": slip_year,
-                    "quarter_year": from_year,
-                    "quarter_details": from_quarter
-                },
-                fields=["overtime_hours", "basic_pay", "service_weightage", "variable_da","total_amount"]
-            )
-            for ot in overtime_entries:
-                ot_hours = flt(ot.overtime_hours)
-                ot_actual_amount = flt(ot.total_amount)
-                ot_expected_amount = (flt(self.current_base) + flt(ot.service_weightage) + flt(expected_da)) * (ot_hours / 240.0)
-                ot_diff = round_half_up(ot_expected_amount - ot_actual_amount)
-                crct_ot = round_half_up(ot_expected_amount) - round_half_up(ot_actual_amount)
-                self.append("earnings", {
-                    "salary_component": "Overtime Wages",
-                    "salary_slip_start_date": slip_data.start_date,
-                    "paid": round_half_up(ot_actual_amount),
-                    "payable": round_half_up(ot_expected_amount),
-                    "amount": crct_ot
-                })
-                total_earnings += crct_ot
-            
-            # ---------------- PF arrear using formula ----------------
-            # PF Wages = (BP + SW + VDA  - round(Time Loss Hrs Deduction)
-            #              + round(Employee Reimbursement Wages) - round(Reimbursement HRA))
-            pf_wages_expected = (
-                arrear_actual_bp
-                + arrear_actual_sw
-                + arrear_actual_da
-                - round_half_up(time_loss_expected_total)
-                + round_half_up(reimbursement_total)
-                - round_half_up(reimbursement_hra_total)
-            )
-            expected_pf = round_half_up(pf_wages_expected * 0.12)
-            print("ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",arrear_actual_bp,real_bp,arrear_actual_sw,real_sw,arrear_actual_da,real_da,time_loss_expected_total,reimbursement_total,reimbursement_hra_total)
-            # actual_pf = self.get_component_value(slip, "Employee PF")
-            actual_pf = round_half_up((real_bp+real_sw+real_da - round_half_up(time_loss_expected_total)
-                + round_half_up(reimbursement_total)
-                - round_half_up(reimbursement_hra_total))*0.12)
-            print(f"Expected PF: {expected_pf}, Actual PF: {actual_pf}")
-            pf_diff = expected_pf - actual_pf
-            crct_pf = round_half_up(expected_pf) - round_half_up(actual_pf1)
 
-            # Append PF arrear (difference only)
-            if pf_diff:
-                self.append("deductions", {
-                    "salary_component": "Employee PF",
-                    "salary_slip_start_date": slip_data.start_date,
-                    "paid": round_half_up(actual_pf1),
-                    "payable": round_half_up(expected_pf),
-                    "amount": crct_pf
-                })
-                total_deductions += crct_pf
-                total_pf_diff += crct_pf
+		effective_date = getdate(self.effective_from)
+		effective_month_num = effective_date.month
+		arrear_month= MONTHS.index(self.arrear_month.strip()) + 1
+		is_first_month = effective_month_num == arrear_month
 
 
-                    # --- Medical Allowance arrear AFTER all slips ---
-            expected_ma_per_month = 0.0
-            pms = frappe.get_all(
-                "Payroll Master Setting",
-                filters={"payroll_year": getdate(self.effective_from).year},
-                fields=["name"]
-            )
-            if pms:
-                pms_doc = frappe.get_doc("Payroll Master Setting", pms[0].name)
-                for row in pms_doc.medical_allowance:
-                    if flt(row.from_base_pay) <= flt(self.current_base) <= flt(row.to_base_pay):
-                        expected_ma_per_month = flt(row.amount)
-                        break
-
-            # expected_ma_total = expected_ma_per_month * len(salary_slips)
-            # ma_diff = round_half_up(expected_ma_total - actual_ma_total)
-            expected_ma = expected_ma_per_month   # based on slab
-            actual_ma   = self.get_component_value(slip, "Medical Allowance", i)
-            ma_diff     = expected_ma - actual_ma
-            if ma_diff:
-                self.append("earnings", {
-                    "salary_component": "Medical Allowance",
-                    "salary_slip_start_date": slip_data.start_date,
-                    "paid": round_half_up(actual_ma),
-                    "payable": round_half_up(expected_ma),
-                    "amount": ma_diff
-                })
-                total_earnings += ma_diff
+		# 🔹 Fetch Employee Overtime Wages (if exists) for arrear month/year
+		employee_overtime = frappe.get_all(
+			"Employee Overtime Wages",
+			filters={
+				"employee_id": self.employee,
+				"payroll_month": self.arrear_month,
+				"payroll_year": self.payroll_year
+			},
+			fields=["overtime_hours", "total_amount"],
+			limit=1
+		)
+		overtime_hours_val = flt(employee_overtime[0].overtime_hours) if employee_overtime else 0
+		overtime_amount_val = flt(employee_overtime[0].total_amount) if employee_overtime else 0
+		overtime_amount_val = round_half_up(overtime_amount_val, 0)
 
 
-            otherthan_pf = 0.0
-            otherthan_pf_12 = 0.0   # store 12% value
-
-            for row in self.get("deductions") or []:
-                if row.salary_component != "Employee PF":
-                    otherthan_pf += flt(row.amount)
-
-            # calculate 12% of total
-            otherthan_pf_12 = otherthan_pf * 0.12
 
 
-            pf = 0.0
-            for row in self.get("deductions") or []:
-                if row.salary_component == "Employee PF":
-                    pf += flt(row.amount)
 
-            i = i + 1
+		if is_first_month:
+			self.lop_in_hours = 0
+			self.leave_without_pay = 0
+			self.overtime_hours = overtime_hours_val
+			print("First month detected. Zeroed LOP, Leave Without Pay, and OT.")
 
-        self.total_earnings = round_half_up(flt(total_earnings))
-        self.total_deductions = round_half_up(flt(total_deductions))
-        self.gross_pay = flt(total_earnings) - flt(otherthan_pf)
-        self.pf_wages = flt(pf)- flt(otherthan_pf_12)
-        self.net_pay = round_half_up(flt(self.gross_pay - self.pf_wages))
+		# # Fetch overtime hours if matching Employee Overtime Wages entry exists
+		# employee_overtime = frappe.get_all(
+		# 	"Employee Overtime Wages",
+		# 	filters={
+		# 		"employee_id": self.employee,
+		# 		"payroll_month": self.arrear_month,
+		# 		"payroll_year": self.payroll_year
+		# 	},
+		# 	fields=["overtime_hours"],
+		# 	limit=1
+		# )
+		# if employee_overtime:
+		# 	self.overtime_hours = flt(employee_overtime[0].overtime_hours)
+		# 	print(f"Overtime fetched from Employee Overtime Wages: {self.overtime_hours}")
+		# else:
+		# 	self.overtime_hours = 0
+		# 	print("No overtime record found for employee in Employee Overtime Wages.")
 
-    def get_component_value (self, slip, component_name, i):
-        # print("slip==================",slip)
-        # print("component_name==================",component_name)
-        for comp in slip.earnings:
-            if comp.salary_component == component_name:
-                if i == 0:
-                    return comp.custom_actual_amount
-                # print("comp.custom_actual_amount==================",comp.amount)
-                return flt(comp.amount)
-        for comp in slip.deductions:
-            if comp.salary_component == component_name:
-                return flt(comp.amount)
-        return 0.0
-    
-    
-    
+
+
+
+
+		# effective_month_num = getdate(self.effective_from).month
+		# arrear_month_num = MONTHS.index(self.arrear_month) + 1  # Convert month name to number
+
+		# if effective_month_num == arrear_month_num:
+		# 	self.lop_in_hours = 0
+		# 	self.leave_without_pay = 0
+		# 	self.overtime_hours = 0
+		slip = frappe.get_doc("Salary Slip", self.salary_slip)
+
+		self.set("earnings", [])
+		self.set("deductions", [])
+
+		effective_date = getdate(self.effective_from)
+		print ("Effective Date:", effective_date)
+		effective_month = effective_date.month
+		print ("Effective Month:", effective_month)
+		
+		# try:
+		# 	arrear_month_num = datetime.strptime(self.arrear_month, "%B").month
+		# except ValueError:
+		# 	frappe.throw(f"Invalid arrear month: {self.arrear_month}")
+		# is_first_month = True if effective_month == effective_date.month else False
+		# is_first_month = False
+		# arrear_year = self.payroll_year or effective_date.year
+		# if effective_date.month == arrear_month_num and effective_date.year == arrear_year:
+		# 	is_first_month = True
+
+		earnings_components = [
+			"Basic Pay",
+			"Service Weightage",
+			"Variable DA",
+			"House Rent Allowance",
+			"LOP Refund / Reimbursement",
+			"Overtime Wages",
+			"Medical Allowance"
+		]
+
+		deductions_components = [
+			"LOP (in Hours) Deduction",
+			"Employee PF",
+			"Other deductions"
+		]
+
+		# -------------------------
+		# 🔹 Payable Calculations
+		# -------------------------
+		leave_without_pay = flt(self.leave_without_pay or 0)
+		overtime_hours = flt(self.overtime_hours or 0)
+		current_base = flt(self.current_base or 0)
+		hra_percent = flt(self.hra_ or 0)
+		payroll_days = flt(self.payroll_days or 30)
+		lop_in_hours = flt(self.lop_in_hours or 0)  # LOP in hours from doc
+		da_percent = self.dearness_allowance_ or 0  # DA percentage in decimal (e.g., 10% = 0.1)
+		pf_rate = 0.12
+		
+
+		# 1. Payable Basic Pay
+		payable_bp = (current_base / 30) * (30 - leave_without_pay)
+		payable_bp = math.ceil(payable_bp)
+
+		# Fetch Service Weightage (from earnings child after loop, but here we assume 0 for now)
+		service_weightage = 0
+		for row in slip.earnings:
+			if row.salary_component == "Service Weightage":
+				service_weightage = flt(row.amount or 0)
+				actual_service_weightage = flt(row.custom_actual_amount or 0)
+				break
+		print("Service Weightage:", service_weightage)
+
+		# 2. Payable DA
+		payable_da = (((current_base + actual_service_weightage) / 30) * (30 - leave_without_pay) * da_percent)
+		payable_da = round_half_up(payable_da, 0)
+
+		# 3. Payable HRA
+		if is_first_month:
+			payable_hra = ((payable_bp + actual_service_weightage) * hra_percent)
+		else:
+			payable_hra = ((payable_bp + service_weightage) * hra_percent)
+		payable_hra = round_half_up(payable_hra, 0)
+
+		# 4. Payable OT
+		payable_ot = ((payable_bp + service_weightage + payable_da) * (overtime_hours / 240))
+		payable_ot = round_half_up(payable_ot)
+
+		# 5. Medical Allowance
+		medical_allowance = 0
+		settings = frappe.get_all(
+			"Payroll Master Setting",
+			filters={"payroll_month": self.payroll_month, "payroll_year": self.payroll_year},
+			limit=1
+		)
+		if settings:
+			settings_doc = frappe.get_doc("Payroll Master Setting", settings[0].name)
+
+			if leave_without_pay < 10:
+				# Compare with slab
+				for row in settings_doc.medical_allowance:
+					if current_base >= row.from_base_pay and current_base <= row.to_base_pay:
+						medical_allowance = flt(row.amount)
+						break
+			else:
+				worked_days = payroll_days - leave_without_pay
+				medical_allowance = current_base * (worked_days / 30)
+		medical_allowance = round_half_up(medical_allowance)
+		# 6. LOP Deduction (in hours)
+		payable_lop = ((current_base + ((current_base + actual_service_weightage) * da_percent) + actual_service_weightage) / 240) * lop_in_hours
+		payable_lop = round_half_up(payable_lop, 0)
+
+		# 7. Payable PF
+		if is_first_month:
+			payable_pf = ((current_base + payable_da + actual_service_weightage ) - payable_lop + 0 + 0) * pf_rate
+			print("First month PF calculation used current_base:", current_base)
+		else:
+			payable_pf = ((payable_bp + payable_da + service_weightage )- payable_lop + 0 + 0) * pf_rate
+			print("Normal month PF calculation used payable_bp:", payable_bp)
+		payable_pf = round_half_up(payable_pf, 0)
+
+		print("Leave Without Pay (in days):", leave_without_pay)
+		print("Payable Basic Pay:", payable_bp)
+		print("Payable DA:", payable_da)
+		print("Payable HRA:", payable_hra)
+		print("Payable OT:", payable_ot)
+		print("Medical Allowance:", medical_allowance)
+		print("Payable LOP Deduction (in hours):", payable_lop)
+
+		print("current_base:", current_base)
+		print("actual_service_weightage:", actual_service_weightage)
+		print("da_percent:", da_percent)
+		print("lop_in_hours:", lop_in_hours)
+		print("Payable PF:", payable_pf)
+
+		# -------------------------
+		# Keep your existing loop (earnings/deductions append) below
+		# -------------------------
+
+
+		payable_map = {
+            "Basic Pay": payable_bp,
+            "Service Weightage": actual_service_weightage if is_first_month else service_weightage,
+            "Variable DA": payable_da,
+            "House Rent Allowance": payable_hra,
+            "LOP Refund / Reimbursement": 0,
+            "Overtime Wages": payable_ot,
+            "Medical Allowance": medical_allowance,
+			"LOP (in Hours) Deduction": payable_lop,
+			"Employee PF": payable_pf,
+        }
+
+
+		for row in slip.earnings:
+			if row.salary_component in earnings_components:
+				amount = row.amount
+				if row.salary_component == "Overtime Wages":
+					paid_value = overtime_amount_val if overtime_amount_val else 0
+				else:
+					paid_value = row.custom_actual_amount if is_first_month else amount
+
+				print("paid_value:", paid_value)
+
+				self.append("earnings", {
+					"salary_component": row.salary_component,
+					"salary_slip_start_date": slip.start_date,
+					"payable": payable_map.get(row.salary_component),
+					"amount": payable_map.get(row.salary_component) - paid_value,
+					"paid": paid_value
+				})
+
+
+		for row in slip.deductions:
+			if row.salary_component in deductions_components:
+				paid_value = row.amount
+
+				self.append("deductions", {
+					"salary_component": row.salary_component,
+					"salary_slip_start_date": slip.start_date,
+					"payable": payable_map.get(row.salary_component),
+					"paid": paid_value,
+					"amount": 0 if not payable_map.get(row.salary_component) else (payable_map.get(row.salary_component) - paid_value)
+				})
+
+
+		# -------------------------
+		# Totals + New Condition
+		# -------------------------
+		total_earnings = sum(flt(row.amount or 0) for row in self.earnings)
+		total_deductions = sum(flt(row.amount or 0) for row in self.deductions)
+
+		# store totals
+		self.total_earnings = round_half_up(total_earnings)
+		self.total_deductions = round_half_up(total_deductions)
+
+		# gross pay = total earnings - (all deductions except PF)
+		otherthan_pf = sum(flt(row.amount or 0) for row in self.deductions if row.salary_component != "Employee PF")
+		otherthan_pf_12 = otherthan_pf * 0.12
+
+		pf = sum(flt(row.amount or 0) for row in self.deductions if row.salary_component == "Employee PF")
+
+		self.gross_pay = flt(self.total_earnings) - flt(otherthan_pf)
+		self.pf_wages = round_half_up(flt(pf) - flt(otherthan_pf_12))
+		self.net_pay = round_half_up(flt(self.gross_pay - self.pf_wages))
+
+
+
+
+
+
+	
+	def first_month_zero(self):
+		MONTHS = [
+			"January", "February", "March", "April", "May", "June",
+			"July", "August", "September", "October", "November", "December"
+		]
+
+		if not self.effective_from or not self.arrear_month:
+					return
+
+		effective_month_num = getdate(self.effective_from).month
+		arrear_month_num = MONTHS.index(self.arrear_month) + 1  # Convert month name to number
+
+		if effective_month_num == arrear_month_num:
+			self.lop_in_hours = 0
+			self.leave_without_pay = 0
+			self.overtime_hours = 0
+
+@frappe.whitelist()
+def get_employee_arrear_details(employee, effective_from):
+	from frappe.utils import getdate
+
+	effective_from_date = getdate(effective_from)
+
+	# 1️⃣ Get latest active Salary Structure Assignment
+	ssa = frappe.get_all('Salary Structure Assignment',
+						 filters={
+							 'employee': employee,
+							 'custom_inactive': 0,
+							 'from_date': ['>=', effective_from_date]
+						 },
+						 order_by='from_date desc',
+						 limit_page_length=1,
+						 fields=['name', 'salary_structure'])
+	ssa = ssa[0] if ssa else None
+
+	return {
+		'salary_structure_assignment': ssa,
+	}
+
+
+
+
+
+
