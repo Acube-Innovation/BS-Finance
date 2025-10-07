@@ -570,13 +570,13 @@ def update_tax_on_salary_slip(slip, method):
         {
             "employee":slip.employee,
             "salary_component":"Exgratia",
-            "payroll_date": slip.end_date,
+            # "payroll_date": slip.end_date,
         }):
         ex_gratia_frm_ss = frappe.get_doc("Additional Salary",
         {
             "employee":slip.employee,
             "salary_component":"Exgratia",
-            "payroll_date": slip.end_date,
+            # "payroll_date": slip.end_date,
         })
     # print("exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",ex_gratia_frm_ss.amount)
 
