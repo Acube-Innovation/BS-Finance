@@ -8,14 +8,9 @@ from datetime import datetime, timedelta
 from frappe.utils import getdate, nowdate
 import math
 
-# from hrms.payroll.doctype.salary_structure.salary_structure import AdditionalSalary
-
 
 
 class ArrearBreakupLog(Document):
-
-
-
 
 	def validate(self):
 		# If salary_slip is selected, fetch components
@@ -63,43 +58,13 @@ class ArrearBreakupLog(Document):
 
 
 
-
-
 		if is_first_month:
 			self.lop_in_hours = 0
 			self.leave_without_pay = 0
 			self.overtime_hours = overtime_hours_val
 			print("First month detected. Zeroed LOP, Leave Without Pay, and OT.")
 
-		# # Fetch overtime hours if matching Employee Overtime Wages entry exists
-		# employee_overtime = frappe.get_all(
-		# 	"Employee Overtime Wages",
-		# 	filters={
-		# 		"employee_id": self.employee,
-		# 		"payroll_month": self.arrear_month,
-		# 		"payroll_year": self.payroll_year
-		# 	},
-		# 	fields=["overtime_hours"],
-		# 	limit=1
-		# )
-		# if employee_overtime:
-		# 	self.overtime_hours = flt(employee_overtime[0].overtime_hours)
-		# 	print(f"Overtime fetched from Employee Overtime Wages: {self.overtime_hours}")
-		# else:
-		# 	self.overtime_hours = 0
-		# 	print("No overtime record found for employee in Employee Overtime Wages.")
-
-
-
-
-
-		# effective_month_num = getdate(self.effective_from).month
-		# arrear_month_num = MONTHS.index(self.arrear_month) + 1  # Convert month name to number
-
-		# if effective_month_num == arrear_month_num:
-		# 	self.lop_in_hours = 0
-		# 	self.leave_without_pay = 0
-		# 	self.overtime_hours = 0
+		# 🔹 Fetch Salary Slip
 		slip = frappe.get_doc("Salary Slip", self.salary_slip)
 
 		self.set("earnings", [])
@@ -110,15 +75,7 @@ class ArrearBreakupLog(Document):
 		effective_month = effective_date.month
 		print ("Effective Month:", effective_month)
 		
-		# try:
-		# 	arrear_month_num = datetime.strptime(self.arrear_month, "%B").month
-		# except ValueError:
-		# 	frappe.throw(f"Invalid arrear month: {self.arrear_month}")
-		# is_first_month = True if effective_month == effective_date.month else False
-		# is_first_month = False
-		# arrear_year = self.payroll_year or effective_date.year
-		# if effective_date.month == arrear_month_num and effective_date.year == arrear_year:
-		# 	is_first_month = True
+
 
 		earnings_components = [
 			"Basic Pay",
@@ -147,11 +104,16 @@ class ArrearBreakupLog(Document):
 		lop_in_hours = flt(self.lop_in_hours or 0)  # LOP in hours from doc
 		da_percent = self.dearness_allowance_ or 0  # DA percentage in decimal (e.g., 10% = 0.1)
 		pf_rate = 0.12
+		old_base = flt(self.old_base or 0)
+		previous_base = flt(self.previous_base or 0)
+		
 		
 
 		# 1. Payable Basic Pay
 		payable_bp = (current_base / 30) * (30 - leave_without_pay)
 		payable_bp = math.ceil(payable_bp)
+		# 1.1 Paid Basic Pay
+		
 
 		# Fetch Service Weightage (from earnings child after loop, but here we assume 0 for now)
 		service_weightage = 0
@@ -161,6 +123,32 @@ class ArrearBreakupLog(Document):
 				actual_service_weightage = flt(row.custom_actual_amount or 0)
 				break
 		print("Service Weightage:", service_weightage)
+
+
+		paid_value_bp = (previous_base / 30) * (30 - leave_without_pay)
+		paid_da	=	(previous_base + actual_service_weightage)/30 * (30 - leave_without_pay) * da_percent
+		paid_da = round_half_up(paid_da, 0)
+		paid_hra = (paid_value_bp + actual_service_weightage) * hra_percent
+		paid_hra = round_half_up(paid_hra, 0)
+		paid_ot = (previous_base + actual_service_weightage + paid_da) * (overtime_hours / 240)
+		paid_ot = round_half_up(paid_ot, 0)
+		paid_lop = (previous_base + ((previous_base + actual_service_weightage) * da_percent) + actual_service_weightage) / 240 * lop_in_hours
+		paid_lop = round_half_up(paid_lop, 0)
+		if is_first_month:
+			paid_pf = ((previous_base + paid_da + actual_service_weightage) - paid_lop + 0 + 0) * pf_rate
+			print("paid First month PF calculation used previous_base:", previous_base)
+		else:
+			paid_pf = ((paid_value_bp + paid_da + service_weightage) - paid_lop + 0 + 0) * pf_rate
+			print("paid Normal month PF calculation used payable_bp:", payable_bp)
+		paid_pf = round_half_up(paid_pf, 0)
+		print("Paid Basic Pay:", paid_value_bp)
+		print("service_weightage:", service_weightage)
+		print("Paid DA:", paid_da)
+		print("Paid HRA:", paid_hra)
+		print("Paid OT:", paid_ot)
+		print("Paid LOP:", paid_lop)
+		print("Paid PF:", paid_pf)
+
 
 		# 2. Payable DA
 		payable_da = (((current_base + actual_service_weightage) / 30) * (30 - leave_without_pay) * da_percent)
@@ -210,6 +198,37 @@ class ArrearBreakupLog(Document):
 			print("Normal month PF calculation used payable_bp:", payable_bp)
 		payable_pf = round_half_up(payable_pf, 0)
 
+		# # 7. Paid PF
+		# if is_first_month:
+		# 	paid_pf = ((previous_base + payable_da + actual_service_weightage) - payable_lop + 0 + 0) * pf_rate
+		# 	print("First month PF calculation used previous_base:", previous_base)
+		# else:
+		# 	paid_pf = ((payable_bp + payable_da + service_weightage) - payable_lop + 0 + 0) * pf_rate
+		# 	print("Normal month PF calculation used payable_bp:", payable_bp)
+
+		# paid_pf = round_half_up(paid_pf, 0)
+
+
+
+
+		# basic_pay_paid_value = previous_base - (old_base / 30 * leave_without_pay) - (previous_base / 30 * leave_without_pay)
+		basic_pay_paid_value = (previous_base/30) * (30 - leave_without_pay)
+		basic_pay_paid_value = round_half_up(basic_pay_paid_value, 0)
+
+		# 🔹 Build a paid_value map for easy access in the loop
+		paid_value_map = {
+			"Basic Pay": basic_pay_paid_value,
+			"Overtime Wages": overtime_amount_val if overtime_amount_val else 0
+		}
+
+
+		 
+		print("Basic Pay Paid Value:1111", basic_pay_paid_value)
+		print("Overtime Wages Paid Value:1111", overtime_amount_val if overtime_amount_val else 0)
+
+
+
+
 		print("Leave Without Pay (in days):", leave_without_pay)
 		print("Payable Basic Pay:", payable_bp)
 		print("Payable DA:", payable_da)
@@ -244,13 +263,8 @@ class ArrearBreakupLog(Document):
 
 		for row in slip.earnings:
 			if row.salary_component in earnings_components:
-				amount = row.amount
-				if row.salary_component == "Overtime Wages":
-					paid_value = overtime_amount_val if overtime_amount_val else 0
-				else:
-					paid_value = row.custom_actual_amount if is_first_month else amount
-
-				print("paid_value:", paid_value)
+				# Fetch the pre-calculated paid_value from the map or fallback
+				paid_value = paid_value_map.get(row.salary_component, row.custom_actual_amount if is_first_month else row.amount)
 
 				self.append("earnings", {
 					"salary_component": row.salary_component,
@@ -261,9 +275,33 @@ class ArrearBreakupLog(Document):
 				})
 
 
+
+
+		# for row in slip.earnings:
+		# 	if row.salary_component in earnings_components:
+		# 		amount = row.amount
+		# 		if row.salary_component == "Overtime Wages":
+		# 			paid_value = overtime_amount_val if overtime_amount_val else 0
+		# 		else:
+		# 			paid_value = row.custom_actual_amount if is_first_month else amount
+
+		# 		print("paid_value:", paid_value)
+
+		# 		self.append("earnings", {
+		# 			"salary_component": row.salary_component,
+		# 			"salary_slip_start_date": slip.start_date,
+		# 			"payable": payable_map.get(row.salary_component),
+		# 			"amount": payable_map.get(row.salary_component) - paid_value,
+		# 			"paid": paid_value
+		# 		})
+
+
 		for row in slip.deductions:
 			if row.salary_component in deductions_components:
-				paid_value = row.amount
+				if row.salary_component == "Employee PF":
+					paid_value = paid_pf  # Use the calculated paid_pf
+				else:
+					paid_value = row.amount  # Use actual deduction amount for others
 
 				self.append("deductions", {
 					"salary_component": row.salary_component,
@@ -272,6 +310,7 @@ class ArrearBreakupLog(Document):
 					"paid": paid_value,
 					"amount": 0 if not payable_map.get(row.salary_component) else (payable_map.get(row.salary_component) - paid_value)
 				})
+				print("Deduction - Component:", row.salary_component, "Paid Value:", paid_value)
 
 
 		# -------------------------

@@ -2,6 +2,7 @@ import frappe
 from frappe.utils import flt
 from frappe.utils import getdate,nowdate
 from datetime import date, timedelta
+from frappe.utils import flt, getdate
 
 def create_payroll_summary(doc, method):
 
@@ -101,6 +102,88 @@ def create_arrear_details_log(doc, method):
     if not (doc.custom_effective_from and doc.custom_process_arrear_on):
         return
 
+
+
+
+    previous_base = 0.0
+
+    # Find matching Employee Promotion
+    prev_ep = frappe.get_all(
+        "Employee Promotion",
+        filters={
+            "employee": doc.employee,
+            "docstatus": 1,
+            "promotion_date": getdate(doc.custom_effective_from)  # match effective_from
+        },
+        fields=["name", "custom_existing_basic_pay", "promotion_date"],
+        limit=1
+    )
+
+    print("prev_ep", prev_ep)
+
+    if prev_ep:
+        previous_base = flt(prev_ep[0].custom_existing_basic_pay)
+
+    old_base = 0.0
+
+    # --- Step 1: Fetch the latest active SSA ---
+    current_ssa = frappe.get_all(
+        "Salary Structure Assignment",
+        filters={
+            "employee": doc.employee,
+            "custom_inactive": 0
+        },
+        fields=["name", "from_date"],
+        order_by="from_date desc",
+        limit=1
+    )
+
+    if current_ssa:
+        current_from_date = current_ssa[0].from_date
+        print("Current SSA from_date:", current_from_date)
+
+        # --- Step 2: Get the previous month ---
+        current_date = getdate(current_from_date)
+        if current_date.month == 1:
+            prev_month = 12
+            prev_year = current_date.year - 1
+        else:
+            prev_month = current_date.month - 1
+            prev_year = current_date.year
+
+        # Start and end of previous month
+        start_prev_month = datetime(prev_year, prev_month, 1).date()
+        if prev_month == 12:
+            end_prev_month = datetime(prev_year, prev_month, 31).date()
+        else:
+            end_prev_month = (datetime(prev_year, prev_month + 1, 1) - timedelta(days=1)).date()
+
+        # --- Step 3: Fetch previous month Salary Slip ---
+        prev_slip = frappe.get_all(
+            "Salary Slip",
+            filters={
+                "employee": doc.employee,
+                "start_date": ["<=", start_prev_month],
+                "end_date": [">=", end_prev_month],
+                "docstatus": 1
+            },
+            fields=["name"],
+            limit=1
+        )
+
+        if prev_slip:
+            slip_doc = frappe.get_doc("Salary Slip", prev_slip[0].name)
+
+            # --- Step 4: Find "Basic Pay" in earnings table ---
+            for earning in slip_doc.earnings:
+                if earning.salary_component == "Basic Pay":
+                    old_base = flt(earning.amount)
+                    break
+
+    print("old_base:", old_base)
+
+
+
     # Convert promotion date
     effective_from = getdate(doc.custom_effective_from)
 
@@ -169,6 +252,8 @@ def create_arrear_details_log(doc, method):
             "employee": doc.employee,
             "from_date": getdate(nowdate()),        # Today’s date
             "current_base": doc.base,
+            "previous_base": previous_base,
+            "old_base": old_base,
             "effective_from": doc.custom_effective_from,  # 1st day of arrear month
             "arrear_month": month_name,
             "payroll_month": doc.custom_process_arrear_on,
