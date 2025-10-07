@@ -23,6 +23,8 @@
   "from_date",
   "effective_from",
   "current_base",
+  "previous_base",
+  "old_base",
   "lop_in_hours",
   "leave_without_pay",
   "overtime_hours",
@@ -287,12 +289,22 @@
    "fieldtype": "Data",
    "label": "Payroll Days",
    "precision": "2"
+  },
+  {
+   "fieldname": "previous_base",
+   "fieldtype": "Currency",
+   "label": "Previous Base"
+  },
+  {
+   "fieldname": "old_base",
+   "fieldtype": "Currency",
+   "label": "Old Base"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-01 16:15:20.439157",
+ "modified": "2025-10-07 10:31:09.827442",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Arrear Breakup Log",
