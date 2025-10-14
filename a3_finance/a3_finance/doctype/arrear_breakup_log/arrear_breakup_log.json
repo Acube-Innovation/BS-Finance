@@ -11,6 +11,8 @@
   "payroll_year",
   "arrear__details_section",
   "arrear_month",
+  "column_break_cpij",
+  "arrear_quarter_applicable",
   "section_break_xrxo",
   "employee",
   "employee_name",
@@ -195,7 +197,7 @@
   {
    "fieldname": "gross_pay",
    "fieldtype": "Currency",
-   "label": "Arrears"
+   "label": "Gross Arrears"
   },
   {
    "fieldname": "column_break_upvq",
@@ -204,7 +206,7 @@
   {
    "fieldname": "net_pay",
    "fieldtype": "Currency",
-   "label": "Net Pay"
+   "label": "Arrears Net Payable"
   },
   {
    "fieldname": "column_break_ifjg",
@@ -299,12 +301,22 @@
    "fieldname": "old_base",
    "fieldtype": "Currency",
    "label": "Old Base"
+  },
+  {
+   "fieldname": "column_break_cpij",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "arrear_quarter_applicable",
+   "fieldtype": "Select",
+   "label": "Arrear Quarter Applicable",
+   "options": "\nQ1\nQ2\nQ3\nQ4"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-07 10:31:09.827442",
+ "modified": "2025-10-14 15:16:56.608049",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Arrear Breakup Log",
