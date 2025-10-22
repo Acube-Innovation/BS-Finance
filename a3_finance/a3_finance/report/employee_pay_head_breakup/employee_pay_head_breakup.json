@@ -1,0 +1,36 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2025-10-16 17:55:33.454719",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"filters\":[],\"fields\":[[\"name\",\"Salary Slip\"],[\"docstatus\",\"Salary Slip\"],[\"employee\",\"Salary Slip\"],[\"employee_name\",\"Salary Slip\"],[\"salary_component\",\"Salary Detail\"],[\"amount\",\"Salary Detail\"],[\"gross_pay\",\"Salary Slip\"],[\"total_deduction\",\"Salary Slip\"],[\"net_pay\",\"Salary Slip\"]],\"order_by\":\"`tabSalary Slip`.`modified` desc\",\"add_totals_row\":0,\"page_length\":100,\"column_widths\":{\"name\":120,\"employee\":132,\"employee_name\":160,\"Salary Detail:salary_component\":120,\"Salary Detail:amount\":120,\"gross_pay\":120,\"total_deduction\":120,\"net_pay\":120},\"group_by\":null}",
+ "letter_head": "BATL letter head",
+ "letterhead": null,
+ "modified": "2025-10-22 11:05:00.181654",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Employee Pay Head Breakup",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Salary Slip",
+ "report_name": "Employee Pay Head Breakup",
+ "report_type": "Report Builder",
+ "roles": [
+  {
+   "role": "HR User"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "Employee"
+  }
+ ],
+ "timeout": 0
+}

@@ -1,0 +1,36 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2025-10-22 11:14:14.386136",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"filters\":[[\"Salary Slip\",\"docstatus\",\"=\",\"1\",false]],\"fields\":[[\"name\",\"Salary Slip\"],[\"docstatus\",\"Salary Slip\"],[\"employee_name\",\"Salary Slip\"],[\"employee\",\"Salary Slip\"],[\"department\",\"Salary Slip\"],[\"branch\",\"Salary Slip\"],[\"start_date\",\"Salary Slip\"],[\"end_date\",\"Salary Slip\"],[\"net_pay\",\"Salary Slip\"],[\"gross_pay\",\"Salary Slip\"],[\"custom_income_tax\",\"Salary Slip\"]],\"order_by\":\"`tabSalary Slip`.`modified` desc\",\"add_totals_row\":0,\"page_length\":20,\"column_widths\":{\"name\":120,\"employee_name\":120,\"employee\":120,\"department\":120,\"branch\":120,\"start_date\":120,\"end_date\":120,\"net_pay\":120,\"gross_pay\":120,\"custom_income_tax\":120},\"group_by\":null}",
+ "letter_head": "BATL letter head",
+ "letterhead": null,
+ "modified": "2025-10-22 11:14:34.025783",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Salary certificate Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Salary Slip",
+ "report_name": "Salary certificate Report",
+ "report_type": "Report Builder",
+ "roles": [
+  {
+   "role": "HR User"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "Employee"
+  }
+ ],
+ "timeout": 0
+}

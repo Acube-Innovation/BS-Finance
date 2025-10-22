@@ -35,7 +35,8 @@ frappe.query_reports["Pay Sheet"] = {
         {
             fieldname: "employment_subtype",
             label: "Employment Subtype",
-            fieldtype: "Data"
+            fieldtype: "Link",
+            options: "Employment Sub Type"
         }
     ]
 };
