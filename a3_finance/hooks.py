@@ -178,6 +178,9 @@ scheduler_events = {
         ]
     }
 }
+fixtures = [
+    {"doctype": "Workspace", "filters": [["name", "in", ["PAYROLL ENTRIES"]]]}
+]
 
 
 
