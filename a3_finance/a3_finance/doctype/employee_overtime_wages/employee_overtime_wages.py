@@ -75,7 +75,7 @@ class EmployeeOvertimeWages(Document):
             "Salary Structure Assignment",
             {
                 "employee": self.employee_id,
-                "from_date": [">=", ssa_date],
+                "from_date": ["<=", ssa_date],
                 "docstatus": 1
             },
             "base",
