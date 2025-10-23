@@ -75,12 +75,14 @@ class EmployeeOvertimeWages(Document):
             "Salary Structure Assignment",
             {
                 "employee": self.employee_id,
-                "from_date": ["<=", ssa_date],
+                "from_date": [">=", ssa_date],
                 "docstatus": 1
             },
             "base",
             order_by="from_date desc"
         )
+        print("base", base)
+        print("ssssssssssssss",ssa_date)
         return flt(base or 0)
 
     def get_service_weightage(self, s_date, is_current):
