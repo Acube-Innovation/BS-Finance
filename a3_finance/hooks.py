@@ -49,7 +49,7 @@ fixtures = [
         "filters": [["document_type", "in", ["Supplier"]]]
     },
     {
-        "dt": "Print Format",
+        "doctype": "Print Format",
         "filters": [
             ["name", "in", [
                 "Petty Cash Receipt",
@@ -62,13 +62,20 @@ fixtures = [
                 "Purchase Service Voucher",
                 "Bank Receipt Voucher",
                 "Bank Receipt",
-                "Goods Receipt Note",
-            
+                "Goods Receipt Note"
             ]]
         ]
     },
-    {"dt": "Property Setter", "filters": [["doc_type", "in", ["Asset Category"]]]}
+    {
+        "doctype": "Property Setter",
+        "filters": [["doc_type", "in", ["Asset Category"]]]
+    },
+    {
+        "doctype": "Workspace",
+        "filters": [["name", "in", ["PAYROLL ENTRIES"]]]
+    }
 ]
+
 doctype_js = {
     "Asset Category" : "public/js/asset_category.js",
     "Item" : "public/js/item.js",
@@ -178,9 +185,7 @@ scheduler_events = {
         ]
     }
 }
-fixtures = [
-    {"doctype": "Workspace", "filters": [["name", "in", ["PAYROLL ENTRIES"]]]}
-]
+
 
 
 
