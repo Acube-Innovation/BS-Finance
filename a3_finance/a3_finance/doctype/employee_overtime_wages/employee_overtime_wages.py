@@ -69,21 +69,74 @@ class EmployeeOvertimeWages(Document):
         today = datetime.today().date()
         return start_date <= today <= getdate(start_date.replace(month=start_date.month + 2, day=calendar.monthrange(start_date.year, start_date.month + 2)[1]))
 
+    # def get_base_salary(self, ssa_date):
+    #     # Use SSA as of quarter start
+    #     base = frappe.db.get_value(
+    #         "Salary Structure Assignment",
+    #         {
+    #             "employee": self.employee_id,
+    #             "from_date": [">=", ssa_date],
+    #             "docstatus": 1,
+    #             "custom_inactive": 0
+    #         },
+    #         "base",
+    #         order_by="from_date asc"
+    #     )
+    #     print("base", base)
+    #     print("ssssssssssssss",ssa_date)
+    #     return flt(base or 0)
+
+
     def get_base_salary(self, ssa_date):
-        # Use SSA as of quarter start
-        base = frappe.db.get_value(
-            "Salary Structure Assignment",
-            {
-                "employee": self.employee_id,
-                "from_date": ["<=", ssa_date],
-                "docstatus": 1
-            },
-            "base",
-            order_by="from_date desc"
+        """
+        Fetch base salary for an employee based on SSA date and quarter logic.
+
+        Logic:
+        1. Determine which quarter ssa_date falls into.
+        2. Get the last date of that quarter.
+        3. If ssa_date is in the current quarter, pick latest SSA <= quarter last date.
+        4. If ssa_date is in a past quarter, pick latest SSA <= quarter last date.
+        """
+
+        ssa_date = getdate(ssa_date)
+        year = ssa_date.year
+        month = ssa_date.month
+
+        # Determine quarter
+        if month in [4, 5, 6]:
+            quarter_last_date = getdate(f"{year}-06-30")
+        elif month in [7, 8, 9]:
+            quarter_last_date = getdate(f"{year}-09-30")
+        elif month in [10, 11, 12]:
+            quarter_last_date = getdate(f"{year}-12-31")
+        else:  # Jan-Mar → Q4 of previous FY year
+            quarter_last_date = getdate(f"{year}-03-31")
+
+        # Check if current quarter
+        today = datetime.today().date()
+        is_current_quarter = ssa_date <= today <= quarter_last_date
+
+        # Fetch latest SSA whose from_date <= quarter_last_date
+        base = frappe.db.sql(
+            """
+            SELECT base
+            FROM `tabSalary Structure Assignment`
+            WHERE employee=%s
+            AND docstatus=1
+            AND custom_inactive=0
+            AND from_date <= %s
+            ORDER BY from_date DESC
+            LIMIT 1
+            """,
+            (self.employee_id, quarter_last_date),
+            as_dict=True,
         )
-        print("base", base)
-        print("ssssssssssssss",ssa_date)
-        return flt(base or 0)
+
+        base_value = flt(base[0].base) if base else 0
+
+        print(f"SSA Date: {ssa_date}, Quarter Last Date: {quarter_last_date}, Base: {base_value}")
+        return base_value
+
 
     def get_service_weightage(self, s_date, is_current):
         if is_current:
