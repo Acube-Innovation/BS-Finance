@@ -91,12 +91,14 @@ def pull_values_from_payroll_master(doc, method):
             "payroll_month": month_name,   # month stored as words
             "payroll_year": year
         },
-        fields=["gross_pay"],
+        fields=["gross_pay","pf_wages"],
  
     )
 
     # doc.custom_arrear = flt(row[0].net_pay) if row else 0.0
     doc.custom_arrear = sum(flt(r.gross_pay) for r in rows) if rows else 0.0
+    doc.custom_pf_on_arrears = sum(flt(r.pf_wages) for r in rows) if rows else 0.0
+
 
 
 def get_previous_payroll_master_settings(year, month_number):

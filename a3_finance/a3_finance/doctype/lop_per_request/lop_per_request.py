@@ -83,7 +83,9 @@ class LopPerRequest(Document):
 
         # 6. LOP Calculations
         self.lop_amount = (base_salary / payroll_days) * lop_days
+        # Lop on Service Weightage
         self.employee_service_weightage_loss = round((service_weightage / payroll_days) * lop_days, 2)
+        # Lop on DA 
         da_loss = ((base_salary + service_weightage) * da_percent / payroll_days) * lop_days
         self.employee_da_loss_for_payroll_period = round(da_loss, 2)
 
