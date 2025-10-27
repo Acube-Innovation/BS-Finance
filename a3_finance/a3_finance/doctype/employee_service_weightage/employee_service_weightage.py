@@ -5,7 +5,7 @@ from frappe.model.document import Document
 import calendar
 
 # MONTH_NAME_MAP = {month: idx for idx, month in enumerate(calendar.month_name) if month}
-
+# Fetch current SW to employee master
 class EmployeeServiceWeightage(Document):
     def validate(self):
         if self.employee_id and self.service_weightage is not None:
