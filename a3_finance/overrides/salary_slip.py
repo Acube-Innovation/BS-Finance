@@ -1279,8 +1279,8 @@ def apply_society_deduction_cap(doc, method):
     adjusted_amount = max(society_row.amount - excess, 0)
 
     # Round down to nearest 1000
-    # adjusted_amount = (adjusted_amount // 1000) * 1000
-    adjusted_amount = round_to_client_logic(adjusted_amount)
+    adjusted_amount = (adjusted_amount // 1000) * 1000
+    # adjusted_amount = round_to_client_logic(adjusted_amount)
 
     society_row.amount = adjusted_amount if adjusted_amount > 1000 else 0
     doc.custom_society_deduction = adjusted_amount if adjusted_amount > 1000 else 0
@@ -1295,22 +1295,22 @@ def apply_society_deduction_cap(doc, method):
     # doc.calculate_net_pay()
 
 
-def round_to_client_logic(amount):
-    """
-    Round amount to match client payroll logic:
-    - If amount ends in 1–249 → round down to nearest 500
-    - If amount ends in 250–749 → round to nearest 500
-    - If amount ends in 750–999 → round up to next 1000
-    This matches the two examples given by the client.
-    """
-    remainder = amount % 1000
+# def round_to_client_logic(amount):
+#     """
+#     Round amount to match client payroll logic:
+#     - If amount ends in 1–249 → round down to nearest 500
+#     - If amount ends in 250–749 → round to nearest 500
+#     - If amount ends in 750–999 → round up to next 1000
+#     This matches the two examples given by the client.
+#     """
+#     remainder = amount % 1000
     
-    if remainder <= 250:
-        return amount - remainder  # round down
-    elif remainder <= 750:
-        return amount - remainder + 500  # round to nearest 500
-    else:
-        return amount - remainder + 1000  # round up to next 1000
+#     if remainder <= 250:
+#         return amount - remainder  # round down
+#     elif remainder <= 750:
+#         return amount - remainder + 500  # round to nearest 500
+#     else:
+#         return amount - remainder + 1000  # round up to next 1000
 
 
 
