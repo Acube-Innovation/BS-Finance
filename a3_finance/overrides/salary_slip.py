@@ -1255,6 +1255,21 @@ def apply_society_deduction_cap(doc, method):
     """
     # Find Society row
     society_row = next((row for row in doc.deductions if row.salary_component == "Society"), None)
+    additional_salary_exists = frappe.db.exists(
+        "Additional Salary",
+        {
+            "employee": doc.employee,
+            "salary_component": "Society",
+            "docstatus": 1,
+            "payroll_date": ["between", [doc.start_date, doc.end_date]]
+        },
+    )
+
+    if additional_salary_exists:
+        frappe.logger().info(
+            f"[{doc.name}] Skipping Society deduction capping (Additional Salary present)"
+        )
+        return  # Let Additional Salary amo
     exgratia=0
     for row in doc.earnings:
         if row.salary_component == "Exgratia":

@@ -48,3 +48,6 @@ class YearlyIncrement(Document):
 
 		# frappe.msgprint(f"New Salary Structure Assignment created: {new_ssa.name} with Base {new_base}")
 
+
+		# Round to next 10
+
