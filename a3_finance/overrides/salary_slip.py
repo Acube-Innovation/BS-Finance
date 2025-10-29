@@ -1309,7 +1309,7 @@ def apply_society_deduction_cap(doc, method):
     doc.compute_month_to_date()
     # doc.calculate_net_pay()
 
-
+# Rounding logic as per client requirement
 def round_to_client_logic(amount):
     """
     Round amount to match client payroll logic:
