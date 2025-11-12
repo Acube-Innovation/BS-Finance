@@ -23,6 +23,10 @@
   {
    "fieldname": "year",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Year"
   },
   {
@@ -43,13 +47,17 @@
    "default": "1",
    "fieldname": "is_active",
    "fieldtype": "Check",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Is Active"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-16 19:30:40.426782",
+ "modified": "2025-11-05 15:15:49.352172",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Profession Tax",
