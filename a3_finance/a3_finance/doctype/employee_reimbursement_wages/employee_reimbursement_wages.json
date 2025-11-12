@@ -51,12 +51,17 @@
    "fieldname": "reimbursement_date",
    "fieldtype": "Date",
    "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Reimbursement Date"
   },
   {
    "fieldname": "no_of_days",
    "fieldtype": "Float",
+   "in_filter": 1,
    "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "No of Days"
   },
   {
@@ -164,7 +169,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-17 12:26:31.439071",
+ "modified": "2025-11-05 16:22:29.426018",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Reimbursement Wages",

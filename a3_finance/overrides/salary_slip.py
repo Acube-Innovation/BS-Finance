@@ -988,7 +988,7 @@ def create_pf_detailed_summary(doc, method):
             lop_in_hours = comp.amount
         elif comp.salary_component == "LOP Refund":
             lop_refund = comp.amount
-        elif comp.salary_component == "Employee PF":
+        elif comp.salary_component in ["Employee PF", "PF Deduction"]:
             pf = comp.amount
 
     # Check if record exists
