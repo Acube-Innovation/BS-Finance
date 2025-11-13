@@ -383,7 +383,7 @@ def set_employee_reimbursement_wages(slip, method):
 
 
 def set_lop_in_hours_deduction(slip, method):
-    if slip.custom_employment_type in ["Workers", "Officers"]:
+    if slip.custom_employment_type in ["Workers", "Officers", "Apprentice"]:
         start_date = getdate(slip.start_date)
 
         # Extract month name and year from start date
@@ -1353,6 +1353,16 @@ def set_medical_allowance_from_slabs(doc,method):
 
     if not (doc.employee and doc.start_date):
         return
+
+
+
+    # Skip if Apprentice (no Medical Allowance applicable)
+    emp_type = frappe.db.get_value("Employee", doc.employee, "employment_type")
+    if emp_type and emp_type.lower().strip() == "apprentice":
+        doc.custom_medical_allowance = 0
+        frappe.log_error(f"Skipped Medical Allowance for Apprentice {doc.employee}", "Medical Allowance")
+        return
+    
 
     # Extract month/year from start_date
     payroll_month = getdate(doc.start_date).month
