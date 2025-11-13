@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:{upload_id}-{MM}-{YY}",
  "creation": "2025-06-05 17:16:50.438540",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -96,10 +97,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-31 19:41:10.759070",
+ "modified": "2025-11-13 13:23:18.297044",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "LOP Upload",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
