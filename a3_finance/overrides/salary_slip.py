@@ -972,6 +972,10 @@ def reset_benevolent_logs_on_cancel(doc, method):
 def create_pf_detailed_summary(doc, method):
     from frappe.utils import getdate
 
+    # If employment type is Apprentice, do nothing
+    if doc.custom_employment_type == "Apprentice":
+        return
+
     if not doc.start_date or not doc.employee:
         return
 
