@@ -1,123 +1,304 @@
 # Copyright (c) 2025, Acube and contributors
 # For license information, please see license.txt
 
+
+
+
+
+
+
+
+
+# Copyright (c) 2025, Acube and contributors
+# For license information, please see license.txt
+
 import frappe
 from frappe.model.document import Document
 from frappe.utils import getdate
 import calendar
 from a3_finance.utils.math_utils import round_half_up
+
 class EmployeeTimeLoss(Document):
 
-	def validate(self):
-		import calendar
-		from frappe.utils import getdate, flt
+    def validate(self):
+        import calendar
+        from frappe.utils import getdate, flt
 
-		if not self.employee_id:
-			frappe.throw("Employee ID is required.")
+        if not self.employee_id:
+            frappe.throw("Employee ID is required.")
 
-		if self.time_loss_hours is None:
-			frappe.throw("Time Loss Hours must not be empty.")
+        if self.time_loss_hours is None:
+            frappe.throw("Time Loss Hours must not be empty.")
 
-		if not self.time_loss_month or not self.time_loss_year:
-			frappe.throw("Please select both Time Loss Month and Year.")
+        if not self.time_loss_month or not self.time_loss_year:
+            frappe.throw("Please select both Time Loss Month and Year.")
 
-		# Convert month name to number
-		try:
-			tl_month_number = list(calendar.month_name).index(self.time_loss_month)
-		except ValueError:
-			frappe.throw("Invalid Time Loss Month")
+        # Convert month name to number
+        try:
+            tl_month_number = list(calendar.month_name).index(self.time_loss_month)
+        except ValueError:
+            frappe.throw("Invalid Time Loss Month")
 
-		tl_date = getdate(f"{self.time_loss_year}-{tl_month_number:02d}-01")
+        tl_date = getdate(f"{self.time_loss_year}-{tl_month_number:02d}-01")
 
-		# 1️⃣ Get base from SSA valid for Time Loss Month
-		base_assignment = frappe.db.sql("""
-			SELECT base FROM `tabSalary Structure Assignment`
-			WHERE employee = %s AND from_date <= %s AND docstatus = 1
-			ORDER BY from_date DESC LIMIT 1
-		""", (self.employee_id, tl_date), as_dict=True)
+        # 1️⃣ Get base from SSA valid for Time Loss Month
+        base_assignment = frappe.db.sql("""
+            SELECT base FROM `tabSalary Structure Assignment`
+            WHERE employee = %s AND from_date <= %s AND docstatus = 1
+            ORDER BY from_date DESC LIMIT 1
+        """, (self.employee_id, tl_date), as_dict=True)
 
-		# 2️⃣ If not found, fallback to Payroll Month
-		if not base_assignment or not base_assignment[0].get("base"):
-			if not self.payroll_month or not self.payroll_year:
-				frappe.throw("Fallback failed: Provide Payroll Month and Year for base calculation.")
+        # 2️⃣ If not found, fallback to Payroll Month
+        if not base_assignment or not base_assignment[0].get("base"):
+            if not self.payroll_month or not self.payroll_year:
+                frappe.throw("Fallback failed: Provide Payroll Month and Year for base calculation.")
+            
+            try:
+                payroll_month_number = list(calendar.month_name).index(self.payroll_month)
+            except ValueError:
+                frappe.throw("Invalid Payroll Month")
+
+            payroll_date = getdate(f"{self.payroll_year}-{payroll_month_number:02d}-02")
+
+            base_assignment = frappe.db.sql("""
+                SELECT base FROM `tabSalary Structure Assignment`
+                WHERE employee = %s AND from_date <= %s AND docstatus = 1
+                ORDER BY from_date DESC LIMIT 1
+            """, (self.employee_id, payroll_date), as_dict=True)
+
+            if not base_assignment or not base_assignment[0].get("base"):
+                frappe.throw("No valid Salary Structure Assignment found.")
+
+        self.basic_pay = flt(base_assignment[0].base)
+
+        # Divider for time-loss calculation
+        divider = flt(self.time_loss_hours) / 240
+
+        # ------------------------------------------------------------------------------------
+        # EMPLOYMENT TYPE: REGULAR
+        # ------------------------------------------------------------------------------------
+        if self.employment_type != "Apprentice":
+
+            # Get Service Weightage
+            s_weightage = frappe.get_value(
+                "Employee Service Weightage",
+                {
+                    "employee_id": self.employee_id,
+                    "payroll_month": self.time_loss_month,
+                    "payroll_year": self.time_loss_year
+                },
+                "service_weightage"
+            )
+
+            if s_weightage is None:
+                s_weightage = frappe.db.get_value(
+                    "Employee",
+                    {"name": self.employee_id},
+                    "custom_service_weightage_emp"
+                )
+
+            self.service_weightage = flt(s_weightage)
+
+            # Map Time Loss Month to DA quarter start month
+            def get_da_reference_month(month_num):
+                if month_num in [4, 5, 6]:
+                    return 4  # April → Q1
+                elif month_num in [7, 8, 9]:
+                    return 7  # July → Q2
+                elif month_num in [10, 11, 12]:
+                    return 10  # October → Q3
+                else:
+                    return 1  # Jan → Q4
+
+            da_month_number = get_da_reference_month(tl_month_number)
+            da_month = calendar.month_name[da_month_number]
+
+            da_year = self.time_loss_year
+            if da_month_number == 1:  
+                da_year = int(self.time_loss_year) + 1 if tl_month_number in [1, 2, 3] else self.time_loss_year
+
+            # Get DA % from Payroll Master Setting
+            da_percent = frappe.db.get_value(
+                "Payroll Master Setting",
+                {
+                    "payroll_month_number": da_month_number,
+                    "payroll_year": self.time_loss_year
+                },
+                "dearness_allowance_"
+            ) or 0
+
+            # Calculate Variable DA
+            variable_da = (self.basic_pay + self.service_weightage) * flt(da_percent)
+            self.variable_da = round_half_up(variable_da, 2)
+
+            # -------------------------------------------------------------------------
+            # NEW: Separate Time Loss Calculations
+            # -------------------------------------------------------------------------
+            self.basic_pay_time_loss = round_half_up(self.basic_pay * divider, 2)
+            self.sw_time_loss = round_half_up(self.service_weightage * divider, 2)
+            self.vda_time_loss = round_half_up(self.variable_da * divider, 2)
+
+            # Total Time Loss
+            self.time_loss_amount = round_half_up(
+                (self.basic_pay + self.service_weightage + self.variable_da) * divider,
+                2
+            )
+
+        # ------------------------------------------------------------------------------------
+        # EMPLOYMENT TYPE: APPRENTICE
+        # ------------------------------------------------------------------------------------
+        else:
+            # Apprentice has no SW or VDA
+            self.service_weightage = 0
+            self.variable_da = 0
+
+            # NEW individual deductions
+            self.basic_pay_time_loss = round_half_up(self.basic_pay * divider, 2)
+            self.sw_time_loss = 0
+            self.vda_time_loss = 0
+
+            # Total Time Loss
+            self.time_loss_amount = round_half_up(
+                (self.basic_pay) * divider,
+                2
+            )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import frappe
+# from frappe.model.document import Document
+# from frappe.utils import getdate
+# import calendar
+# from a3_finance.utils.math_utils import round_half_up
+# class EmployeeTimeLoss(Document):
+
+# 	def validate(self):
+# 		import calendar
+# 		from frappe.utils import getdate, flt
+
+# 		if not self.employee_id:
+# 			frappe.throw("Employee ID is required.")
+
+# 		if self.time_loss_hours is None:
+# 			frappe.throw("Time Loss Hours must not be empty.")
+
+# 		if not self.time_loss_month or not self.time_loss_year:
+# 			frappe.throw("Please select both Time Loss Month and Year.")
+
+# 		# Convert month name to number
+# 		try:
+# 			tl_month_number = list(calendar.month_name).index(self.time_loss_month)
+# 		except ValueError:
+# 			frappe.throw("Invalid Time Loss Month")
+
+# 		tl_date = getdate(f"{self.time_loss_year}-{tl_month_number:02d}-01")
+
+# 		# 1️⃣ Get base from SSA valid for Time Loss Month
+# 		base_assignment = frappe.db.sql("""
+# 			SELECT base FROM `tabSalary Structure Assignment`
+# 			WHERE employee = %s AND from_date <= %s AND docstatus = 1
+# 			ORDER BY from_date DESC LIMIT 1
+# 		""", (self.employee_id, tl_date), as_dict=True)
+
+# 		# 2️⃣ If not found, fallback to Payroll Month
+# 		if not base_assignment or not base_assignment[0].get("base"):
+# 			if not self.payroll_month or not self.payroll_year:
+# 				frappe.throw("Fallback failed: Provide Payroll Month and Year for base calculation.")
 			
-			try:
-				payroll_month_number = list(calendar.month_name).index(self.payroll_month)
-			except ValueError:
-				frappe.throw("Invalid Payroll Month")
+# 			try:
+# 				payroll_month_number = list(calendar.month_name).index(self.payroll_month)
+# 			except ValueError:
+# 				frappe.throw("Invalid Payroll Month")
 
-			payroll_date = getdate(f"{self.payroll_year}-{payroll_month_number:02d}-02")
+# 			payroll_date = getdate(f"{self.payroll_year}-{payroll_month_number:02d}-02")
 
-			base_assignment = frappe.db.sql("""
-				SELECT base FROM `tabSalary Structure Assignment`
-				WHERE employee = %s AND from_date <= %s AND docstatus = 1
-				ORDER BY from_date DESC LIMIT 1
-			""", (self.employee_id, payroll_date), as_dict=True)
+# 			base_assignment = frappe.db.sql("""
+# 				SELECT base FROM `tabSalary Structure Assignment`
+# 				WHERE employee = %s AND from_date <= %s AND docstatus = 1
+# 				ORDER BY from_date DESC LIMIT 1
+# 			""", (self.employee_id, payroll_date), as_dict=True)
 
-			if not base_assignment or not base_assignment[0].get("base"):
-				frappe.throw("No valid Salary Structure Assignment found.")
+# 			if not base_assignment or not base_assignment[0].get("base"):
+# 				frappe.throw("No valid Salary Structure Assignment found.")
 
-		self.basic_pay = flt(base_assignment[0].base)
+# 		self.basic_pay = flt(base_assignment[0].base)
 
-		if self.employment_type != "Apprentice":
+# 		if self.employment_type != "Apprentice":
 
-			# ✅ Get Service Weightage
-			s_weightage = frappe.get_value(
-				"Employee Service Weightage",
-				{
-					"employee_id": self.employee_id,
-					"payroll_month": self.time_loss_month,
-					"payroll_year": self.time_loss_year
-				},
-				"service_weightage"
-			)
+# 			# ✅ Get Service Weightage
+# 			s_weightage = frappe.get_value(
+# 				"Employee Service Weightage",
+# 				{
+# 					"employee_id": self.employee_id,
+# 					"payroll_month": self.time_loss_month,
+# 					"payroll_year": self.time_loss_year
+# 				},
+# 				"service_weightage"
+# 			)
 
-			if s_weightage is None:
-				# frappe.throw("No Service Weightage found for selected Time Loss Month and Year.")
-				s_weightage= frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
+# 			if s_weightage is None:
+# 				# frappe.throw("No Service Weightage found for selected Time Loss Month and Year.")
+# 				s_weightage= frappe.db.get_value("Employee",{'name':self.employee_id},'custom_service_weightage_emp')
 
-			self.service_weightage = flt(s_weightage)
+# 			self.service_weightage = flt(s_weightage)
 
-			# ✅ Map Time Loss Month to DA quarter start month
-			def get_da_reference_month(month_num):
-				if month_num in [4, 5, 6]:
-					return 4  # April → Q1
-				elif month_num in [7, 8, 9]:
-					return 7  # July → Q2
-				elif month_num in [10, 11, 12]:
-					return 10  # October → Q3
-				else:
-					return 1  # Jan, Feb, Mar → Q4
+# 			# ✅ Map Time Loss Month to DA quarter start month
+# 			def get_da_reference_month(month_num):
+# 				if month_num in [4, 5, 6]:
+# 					return 4  # April → Q1
+# 				elif month_num in [7, 8, 9]:
+# 					return 7  # July → Q2
+# 				elif month_num in [10, 11, 12]:
+# 					return 10  # October → Q3
+# 				else:
+# 					return 1  # Jan, Feb, Mar → Q4
 
-			da_month_number = get_da_reference_month(tl_month_number)
-			da_month = calendar.month_name[da_month_number]
-			da_year = self.time_loss_year
-			if da_month_number == 1:  # Q4 starts Jan, which may belong to next financial year
-				da_year = int(self.time_loss_year) + 1 if tl_month_number in [1, 2, 3] else self.time_loss_year
+# 			da_month_number = get_da_reference_month(tl_month_number)
+# 			da_month = calendar.month_name[da_month_number]
+# 			da_year = self.time_loss_year
+# 			if da_month_number == 1:  # Q4 starts Jan, which may belong to next financial year
+# 				da_year = int(self.time_loss_year) + 1 if tl_month_number in [1, 2, 3] else self.time_loss_year
 
-			# ✅ Get DA from Payroll Master Setting for quarter-start month
-			da_percent = frappe.db.get_value(
-				"Payroll Master Setting",
-				{
-					"payroll_month_number": da_month_number,
-					"payroll_year": self.time_loss_year
-				},
-				"dearness_allowance_"
-			) or 0
+# 			# ✅ Get DA from Payroll Master Setting for quarter-start month
+# 			da_percent = frappe.db.get_value(
+# 				"Payroll Master Setting",
+# 				{
+# 					"payroll_month_number": da_month_number,
+# 					"payroll_year": self.time_loss_year
+# 				},
+# 				"dearness_allowance_"
+# 			) or 0
 
-			# ✅ Calculate Variable DA and Time Loss Amount
-			variable_da = (self.basic_pay + self.service_weightage) * (flt(da_percent))
-			self.variable_da = round_half_up(variable_da, 2)
+# 			# ✅ Calculate Variable DA and Time Loss Amount
+# 			variable_da = (self.basic_pay + self.service_weightage) * (flt(da_percent))
+# 			self.variable_da = round_half_up(variable_da, 2)
 
-			self.time_loss_amount = round_half_up(
-				(self.basic_pay + self.service_weightage + self.variable_da) * flt(self.time_loss_hours) / 240,
-				2
-			)
-		else:
-			self.time_loss_amount = round_half_up(
-				(self.basic_pay) * flt(self.time_loss_hours) / 240,
-				2
-			)
+# 			self.time_loss_amount = round_half_up(
+# 				(self.basic_pay + self.service_weightage + self.variable_da) * flt(self.time_loss_hours) / 240,
+# 				2
+# 			)
+# 		else:
+# 			self.time_loss_amount = round_half_up(
+# 				(self.basic_pay) * flt(self.time_loss_hours) / 240,
+# 				2
+# 			)
 
 
 

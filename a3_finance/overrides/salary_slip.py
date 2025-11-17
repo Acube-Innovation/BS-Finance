@@ -359,6 +359,9 @@ def set_employee_reimbursement_wages(slip, method):
         SELECT 
             SUM(reimbursement_hra) AS total_hra,
             SUM(lop_refund_amount) AS total_lop_refund,
+            SUM(reimbursement_basic_pay) AS reimbursement_basic_pay,
+            SUM(reimbursement_service_weightage) AS reimbursement_service_weightage_pay,
+            SUM(reimbursement_da) AS reimbursement_da,
             SUM(no_of_days) AS refund_days,
             SUM(tl_hours) AS refund_hrs
         FROM `tabEmployee Reimbursement Wages`
@@ -368,6 +371,9 @@ def set_employee_reimbursement_wages(slip, method):
     if result and result[0]:
         hra_sum = flt(result[0].total_hra or 0)
         lop_sum = flt(result[0].total_lop_refund or 0)
+        bp_sum = flt(result[0].reimbursement_basic_pay or 0)
+        sw_sum = flt(result[0].reimbursement_service_weightage_pay or 0)
+        da_sum = flt(result[0].reimbursement_da or 0)
         total_reimbursement = hra_sum + lop_sum
 
         slip.custom_employee_reimbursement_wages = round_half_up(lop_sum)
@@ -375,9 +381,12 @@ def set_employee_reimbursement_wages(slip, method):
         slip.custom_total_reimbursement = round_half_up(total_reimbursement)
         slip.custom_lop_refund_days = flt(result[0].refund_days or 0)
         slip.custom_lop_refund_hrs = flt(result[0].refund_hrs or 0)
+        slip.custom_reimbursement_basic_pay = round_half_up(bp_sum)
+        slip.custom_reimbursement_service_weightage = round_half_up(sw_sum)
+        slip.custom_reimbursement_da = round_half_up(da_sum)
+        
 
         print(f"HRA Sum: {hra_sum}, LOP Refund Sum: {lop_sum}, Total: {total_reimbursement}")
-
 
 
 
@@ -386,24 +395,57 @@ def set_lop_in_hours_deduction(slip, method):
     if slip.custom_employment_type in ["Workers", "Officers", "Apprentice"]:
         start_date = getdate(slip.start_date)
 
-        # Extract month name and year from start date
-        month = start_date.strftime("%B")     # e.g., "June"
-        year = start_date.strftime("%Y")      # e.g., "2025"
+        month = start_date.strftime("%B")
+        year = start_date.strftime("%Y")
 
-        # Get sum of time_loss_amount (will retain decimals)
-        total_time_loss = frappe.db.sql("""
-            SELECT SUM(time_loss_amount)
+        # Single SQL query for all sums
+        result = frappe.db.sql("""
+            SELECT 
+                COALESCE(SUM(time_loss_amount), 0) AS total_time_loss,
+                COALESCE(SUM(time_loss_hours), 0) AS total_hours,
+                COALESCE(SUM(basic_pay_time_loss), 0) AS tl_basic,
+                COALESCE(SUM(sw_time_loss), 0) AS tl_sw,
+                COALESCE(SUM(vda_time_loss), 0) AS tl_vda
             FROM `tabEmployee Time Loss`
-            WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
-        """, (slip.employee, year, month))[0][0] or 0
-        time_loss_hours = frappe.db.sql("""
-            SELECT SUM(time_loss_hours)
-            FROM `tabEmployee Time Loss`
-            WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
-        """, (slip.employee, year, month))[0][0] or 0
+            WHERE employee_id = %s
+              AND payroll_year = %s
+              AND payroll_month = %s
+        """, (slip.employee, year, month), as_dict=True)[0]
 
-        slip.custom_time_loss_in_hours_deduction = round_half_up(total_time_loss)
-        slip.custom_lop_hrs = time_loss_hours
+        # Assign values to slip fields
+        slip.custom_time_loss_in_hours_deduction = round_half_up(result.total_time_loss)
+        slip.custom_lop_hrs = result.total_hours
+
+        slip.custom_time_loss_in_basic_pay = round_half_up(result.tl_basic)
+        slip.custom_time_loss_in_sw = round_half_up(result.tl_sw)
+        slip.custom_time_loss_in_vda = round_half_up(result.tl_vda)
+
+
+
+
+
+# def set_lop_in_hours_deduction(slip, method):
+#     if slip.custom_employment_type in ["Workers", "Officers", "Apprentice"]:
+#         start_date = getdate(slip.start_date)
+
+#         # Extract month name and year from start date
+#         month = start_date.strftime("%B")     # e.g., "June"
+#         year = start_date.strftime("%Y")      # e.g., "2025"
+
+#         # Get sum of time_loss_amount (will retain decimals)
+#         total_time_loss = frappe.db.sql("""
+#             SELECT SUM(time_loss_amount) 
+#             FROM `tabEmployee Time Loss`
+#             WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
+#         """, (slip.employee, year, month))[0][0] or 0
+#         time_loss_hours = frappe.db.sql("""
+#             SELECT SUM(time_loss_hours)
+#             FROM `tabEmployee Time Loss`
+#             WHERE employee_id = %s AND payroll_year = %s AND payroll_month = %s
+#         """, (slip.employee, year, month))[0][0] or 0
+
+#         slip.custom_time_loss_in_hours_deduction = round_half_up(total_time_loss)
+#         slip.custom_lop_hrs = time_loss_hours
 
 
 # LOP Days Summary for taking leave
@@ -987,6 +1029,17 @@ def create_pf_detailed_summary(doc, method):
     # Get LOP Deduction and LOP Refund from salary components
     lop_in_hours = 0
     lop_refund = 0
+    pf = 0
+
+    # if doc.custom_time_loss_in_hours_deduction:
+    #     lop_in_hours = doc.custom_time_loss_in_hours_deduction
+    # elif doc.custom_employee_reimbursement_wages:
+    #     lop_refund = doc.custom_employee_reimbursement_wages
+    
+    # for comp in doc.deductions:
+    #     if comp.salary_component in ["Employee PF", "PF Deduction"]:
+    #         pf = comp.amount
+
     for comp in doc.deductions:
         if comp.salary_component == "LOP (in Hours) Deduction":
             lop_in_hours = comp.amount

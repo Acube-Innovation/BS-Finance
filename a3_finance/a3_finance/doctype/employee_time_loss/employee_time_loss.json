@@ -18,6 +18,9 @@
   "basic_pay",
   "service_weightage",
   "variable_da",
+  "basic_pay_time_loss",
+  "sw_time_loss",
+  "vda_time_loss",
   "column_break_fu9a",
   "time_loss_month",
   "time_loss_year",
@@ -118,11 +121,26 @@
   {
    "fieldname": "column_break_ogtu",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "basic_pay_time_loss",
+   "fieldtype": "Currency",
+   "label": "Basic Pay Time Loss"
+  },
+  {
+   "fieldname": "sw_time_loss",
+   "fieldtype": "Currency",
+   "label": "SW Time Loss"
+  },
+  {
+   "fieldname": "vda_time_loss",
+   "fieldtype": "Currency",
+   "label": "VDA Time Loss"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-17 10:52:37.318455",
+ "modified": "2025-11-14 14:55:08.905207",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Employee Time Loss",
