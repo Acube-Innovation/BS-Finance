@@ -173,6 +173,12 @@ treeviews = ["Asset Category"]
 # override_doctype_class = {
 # 	"ToDo": "custom_app.overrides.CustomToDo"
 # }
+
+
+
+override_doctype_class = {
+    "Payroll Entry": "a3_finance.a3_finance.doc_events.payroll_entry.CustomPayrollEntry"
+}
 scheduler_events = {
     "daily": [
         # "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",

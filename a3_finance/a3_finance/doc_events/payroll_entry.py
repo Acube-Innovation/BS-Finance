@@ -82,3 +82,74 @@ def get_employees_by_employment_type(payroll_entry_name, employment_types: str):
     doc.save()
 
     return doc
+
+
+
+import frappe
+from hrms.payroll.doctype.payroll_entry.payroll_entry import PayrollEntry
+ 
+ 
+class CustomPayrollEntry(PayrollEntry):
+ 
+    def get_salary_component_total(self, component_type=None, employee_wise_accounting_enabled=False):
+        """
+        Correctly split each employee's salary component amount 
+        using custom_employee_type in Salary Component Account table.
+        """
+ 
+        salary_components = self.get_salary_components(component_type)
+        if not salary_components:
+            return {}
+ 
+        component_dict = {}
+ 
+        for item in salary_components:
+ 
+            # Employee details
+            employee = item.employee
+            amount = item.amount
+            component = item.salary_component
+ 
+            emp_type = frappe.db.get_value("Employee", employee, "employment_type")
+ 
+            # Find specific account for this employee type
+            account = frappe.db.get_value(
+                "Salary Component Account",
+                {
+                    "parent": component,
+                    "parenttype": "Salary Component",
+                    "parentfield": "accounts",
+                    "company": self.company,
+                    "custom_employment_type": emp_type,
+                },
+                "account",
+            )
+ 
+            # Default account (no employee type)
+            if not account:
+                account = frappe.db.get_value(
+                    "Salary Component Account",
+                    {
+                        "parent": component,
+                        "parenttype": "Salary Component",
+                        "parentfield": "accounts",
+                        "company": self.company,
+                    },
+                    "account",
+                )
+ 
+            if not account:
+                frappe.throw(f"Account not set for Salary Component {component}")
+ 
+            # cost center logic (unchanged)
+            employee_cost_centers = self.get_payroll_cost_centers_for_employee(
+                employee, item.salary_structure
+            )
+ 
+            for cost_center, percentage in employee_cost_centers.items():
+                amount_cc = amount * percentage / 100
+ 
+                key = (account, cost_center)
+                component_dict[key] = component_dict.get(key, 0) + amount_cc
+ 
+        return component_dict
