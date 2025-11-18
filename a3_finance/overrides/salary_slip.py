@@ -2082,11 +2082,16 @@ def calculate_cea(employee, start_date, end_date=None):
 
 
 
+def fetch_relation(doc, method):
+    if not doc.employee:
+        return
 
-
-
-
-
+    employee = frappe.get_doc("Employee", doc.employee)
+    if employee.get("custom_family_details"):
+        first_relation = employee.custom_family_details[0]
+        if not doc.custom_co:
+            doc.custom_co = first_relation.name1
+      
 
 
 
