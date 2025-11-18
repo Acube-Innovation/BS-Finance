@@ -77,7 +77,7 @@ fixtures = [
 ]
 
 doctype_js = {
-    "Asset Category" : "public/js/asset_category.js",
+    # "Asset Category" : "public/js/asset_category.js",
     "Item" : "public/js/item.js",
     "Supplier" : "public/js/supplier.js",
     "Salary Slip" : "public/js/salary_slip.js",
@@ -240,7 +240,8 @@ doc_events = {
             
             
         ],
-        "before_save":["a3_finance.overrides.salary_slip.set_professional_tax"],
+        "before_save":["a3_finance.overrides.salary_slip.set_professional_tax",
+                       "a3_finance.overrides.salary_slip.fetch_relation"],
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
             "a3_finance.overrides.salary_slip.create_benevolent_fund_log",
