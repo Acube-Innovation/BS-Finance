@@ -15,7 +15,7 @@ frappe.query_reports["Pay Sheet"] = {
         // -------------------------------
         // ✅ ADD CUSTOM PRINT BUTTON HERE
         // -------------------------------
-        report.page.add_inner_button("Print Custom Format", function () {
+        report.page.add_inner_button("Print Report", function () {
             console.log("🟣 Print Button Clicked");
             print_custom_report(report);
         });
@@ -119,10 +119,19 @@ frappe.query_reports["Pay Sheet"] = {
         filters.verified_by = employee_map[filters.verified_by] || filters.verified_by || "";
         filters.approved_by = employee_map[filters.approved_by] || filters.approved_by || "";
 
-        let month_year = "";
+      let month_year = "";
         try {
-            let d = filters.start_date ? new Date(filters.start_date) : new Date(filters.end_date);
-            month_year = frappe.datetime.month_name(d.getMonth()) + "-" + d.getFullYear();
+            let date_str = filters.start_date || filters.end_date;
+
+            // Convert frappe date string ("2025-11-01") into a JS Date object
+            let d = frappe.datetime.str_to_obj(date_str);
+
+            const months = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+
+            month_year = months[d.getMonth()] + " " + d.getFullYear();
             console.log("📅 Computed Month-Year:", month_year);
         } catch (e) {
             console.error("❌ Month-Year Computation Error:", e);
@@ -136,16 +145,42 @@ frappe.query_reports["Pay Sheet"] = {
         let html = `
 <style>
     .pay-sheet-table th, .pay-sheet-table td {
-        padding: 6px !important;
+        padding: 3px !important;
+        font-size: 11px !important;
         vertical-align: middle !important;
+    }
+
+    .pay-sheet-table th {
+        font-size: 11px !important;
+        font-weight: bold;
+    }
+
+    .pay-sheet-table td {
+        font-size: 10px !important;
     }
 </style>
 
-<h3 class="text-center">BRAHMOS AEROSPACE THIRUVANANTHAPURAM LTD</h3>
-<h4 class="text-center">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</h4>
 
-<h3 class="text-center">SUMMARY STATEMENT OF SALARY - ${month_year}</h3>
-<h4 class="text-center">BREAKUP OF EARNINGS FOR THE MONTH OF- ${month_year}</h4>
+<div style="text-align: center; width: 100%; margin-bottom: 10px;">
+    <div style="font-size: 20px; font-weight: bold;">
+        ${filters.company }
+    </div>
+    <div style="font-size: 14px;">
+        CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM
+    </div>
+
+  <div style="font-size: 18px; font-weight: bold; margin-top: 12px;">
+    SUMMARY STATEMENT OF SALARY – ${filters.employment_subtype || "All Employment Subtypes"} – ${month_year}
+</div>
+
+
+    <div style="font-size: 16px; margin-top: 5px;">
+        BREAKUP OF EARNINGS FOR THE MONTH OF – ${month_year}
+    </div>
+</div>
+
+<hr>
+
 
 <hr>
 
@@ -175,26 +210,33 @@ frappe.query_reports["Pay Sheet"] = {
 </tbody>
 </table>
 
-<br><br>
 
-<table style="width:100%; margin-top:20px;">
-<tr>
-    <th>Prepared By</th>
-    <th>Checked By</th>
-    <th>Verified By</th>
-    <th>Approved By</th>
-</tr>
-<tr>
-    <td>${filters.prepared_by}</td>
-    <td>${filters.checked_by}</td>
-    <td>${filters.verified_by}</td>
-    <td>${filters.approved_by}</td>
-</tr>
+
+<div style="height:40px;"></div>
+
+<table style="width:100%; margin-top:10px; text-align:center;">
+    <tr>
+        <td style="font-weight:bold;font-size: 12px">Prepared By</td>
+        <td style="font-weight:bold;font-size: 12px">Checked By</td>
+        <td style="font-weight:bold;font-size: 12px">Verified By</td>
+        <td style="font-weight:bold;font-size: 12px">Approved By</td>
+    </tr>
+
+    <!-- Space for handwritten signature -->
+    <tr style="height:50px;font-size: 11px"></tr>
+
+    <tr>
+        <td style="font-size: 11px">${filters.prepared_by}</td>
+        <td style="font-size: 11px">${filters.checked_by}</td>
+        <td style="font-size: 11px">${filters.verified_by}</td>
+        <td style="font-size: 11px">${filters.approved_by}</td>
+    </tr>
 </table>
 
-<p class="text-right" style="margin-top:30px;">
-Printed on ${frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string())}
+<p class="text-right" style="margin-top:30px; font-size:9px;">
+    Printed on ${frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string())}
 </p>
+
 `;
 
         console.log("✅ Printable HTML generated successfully.");
