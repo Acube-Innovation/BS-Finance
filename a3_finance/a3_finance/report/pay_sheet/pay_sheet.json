@@ -7,11 +7,11 @@
  "docstatus": 0,
  "doctype": "Report",
  "filters": [],
- "idx": 0,
+ "idx": 4,
  "is_standard": "Yes",
- "letter_head": "BATL-Letter Head",
+ "letter_head": "",
  "letterhead": null,
- "modified": "2025-07-24 18:45:59.482654",
+ "modified": "2025-11-18 17:08:01.484469",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Pay Sheet",
@@ -29,9 +29,6 @@
   },
   {
    "role": "Employee"
-  },
-  {
-   "role": "Employee Self Service"
   }
  ],
  "timeout": 0
