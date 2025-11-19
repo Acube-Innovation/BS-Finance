@@ -1,17 +1,213 @@
+# import frappe
+# from frappe.utils import getdate
+
+# # Full list of components to check
+# ALL_COMPONENTS = [
+#     "Basic Pay", "Service Weightage", "Variable DA", "House Rent Allowance",
+#     "Conv. Allowance", "Canteen Subsidy", "Children Education Allowance", "Medical Allowance",
+#     "Overtime Wages", "Washing Allowance", "Book Allowance", "LOP Refund", "Deputation Allowance",
+#     "Night Shift Allowance", "Stitching Allowance", "Shoe Allowance", "Spectacle Allowance",
+#     "EL Encashment", "Arrear", "Festival Advance", "Others Earnings",
+#     "LOP (In Hours) Refund", "Exgratia", "Annual Bonus (For Tax)","Subsistence Allowance"
+# ]
+
+
+# def execute(filters=None):
+#     if not filters:
+#         filters = {}
+
+#     start_date = getdate(filters.get("start_date"))
+#     end_date = getdate(filters.get("end_date"))
+#     subtype_filter = filters.get("employment_subtype")
+#     emp_type_filter = filters.get("employment_type")
+
+#     # Get data
+#     data, totals = get_data(start_date, end_date, subtype_filter, emp_type_filter)
+
+#     # Dynamically build columns based on used components
+#     columns = get_columns(totals)
+
+#     # Filter result data by used components only
+#     filtered_data = []
+#     for row in data:
+#         filtered_row = {
+#             "employment_subtype": row["employment_subtype"]
+#         }
+#         for comp in totals:
+#             if comp != "total":
+#                 filtered_row[comp] = row.get(comp)
+#         filtered_row["total"] = row.get("total")
+#         filtered_data.append(filtered_row)
+
+    
+#     # Add footer rows
+#     footer_rows = [
+#         {"employment_subtype": " "},
+#         {"employment_subtype": "Prepared by", "role": "Checked by", "verifier": "Verified by", "approver": "Approved by"},
+#         {"employment_subtype": "ROSHINI B", "role": "KARTHIKA S", "verifier": "SUGUNAN T G", "approver": "JOSEPH A"},
+#         {"employment_subtype": "EXECUTIVE ASSISTANT", "role": "OFFICER -ACCOUNTS", "verifier": "CHIEF FINANCIAL OFFICER", "approver": "MANAGING DIRECTOR"},
+#     ]
+
+#     # Add new columns if not already present
+#     columns.extend([
+#         {"label": "Checked By", "fieldname": "role", "fieldtype": "Data", "width": 180},
+#         {"label": "Verified By", "fieldname": "verifier", "fieldtype": "Data", "width": 180},
+#         {"label": "Approved By", "fieldname": "approver", "fieldtype": "Data", "width": 180},
+#     ])
+
+#     # Append footer rows to the report data
+#     filtered_data.extend(footer_rows)
+#     message = """
+#         <br><br>
+#         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+#             <tr>
+#                 <th style="text-align:left;">Prepared by</th>
+#                 <th style="text-align:left;">Checked by</th>
+#                 <th style="text-align:left;">Verified by</th>
+#                 <th style="text-align:left;">Approved by</th>
+#             </tr>
+#             <tr>
+#                 <td>ROSHINI B<br><small>EXECUTIVE ASSISTANT</small></td>
+#                 <td>KARTHIKA S<br><small>OFFICER - ACCOUNTS</small></td>
+#                 <td>SUGUNAN T G<br><small>CHIEF FINANCIAL OFFICER</small></td>
+#                 <td>JOSEPH A<br><small>MANAGING DIRECTOR</small></td>
+#             </tr>
+#         </table>
+#         """
+
+
+
+
+
+#     return columns, filtered_data, message
+
+# def get_columns(totals):
+#     label_map = {
+#         "basic_pay": "Basic Pay",
+#         "service_weightage": "Service Weightage",
+#         "variable_da": "Variable DA",
+#         "house_rent_allowance": "House Rent Allowance",
+#         "conv_allowance": "Conv. Allowance",
+#         "canteen_subsidy": "Canteen Subsidy",
+#         "children_education_allowance": "Children Education Allowance",
+#         "medical_allowance": "Medical Allowance",
+#         "overtime_wages": "Overtime Wages",
+#         "washing_allowance": "Washing Allowance",
+#         "book_allowance": "Book Allowance",
+#         "lop_refund": "LOP Refund",
+#         "deputation_allowance": "Deputation Allowance",
+#         "night_shift_allowance": "Night Shift Allowance",
+#         "stitching_allowance": "Stitching Allowance",
+#         "shoe_allowance": "Shoe Allowance",
+#         "spectacle_allowance": "Spectacle Allowance",
+#         "el_encashment": "EL Encashment",
+#         "arrear": "Arrear",
+#         "festival_advance": "Festival Advance",
+#         "others_earnings": "Others Earnings",
+#         "lop_in_hours_refund": "LOP (In Hours) Refund",
+#         "exgratia": "Exgratia",
+#         "annual_bonus_for_tax": "Annual Bonus (For Tax)",
+#         "subsistence_allowance":" Subsistence Allowance"
+#     }
+
+#     columns = [
+#         {"label": "Particulars", "fieldname": "employment_subtype", "fieldtype": "Data", "width": 160}
+#     ]
+#     for comp in totals:
+#         if comp not in ("employment_subtype", "total"):
+#             columns.append({
+#                 "label": label_map.get(comp, comp.replace("_", " ").title()),
+#                 "fieldname": comp,
+#                 "fieldtype": "Currency",
+#                 "width": 130
+#             })
+
+#     columns.append({
+#         "label": "Total Earnings", "fieldname": "total", "fieldtype": "Currency", "width": 130
+#     })
+#     return columns
+
+
+
+# def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
+#     conditions = """
+#         s.docstatus IN (0,1)
+#         AND s.start_date >= %(start_date)s AND s.end_date <= %(end_date)s
+#         AND sd.parentfield = 'earnings'
+#         AND e.custom_employment_sub_type IS NOT NULL
+#         AND s.custom_employment_type IN ('Officers', 'Workers')
+#     """
+
+#     if subtype_filter:
+#         conditions += " AND e.custom_employment_sub_type = %(subtype_filter)s"
+#     if emp_type_filter:
+#         conditions += " AND e.employment_type = %(employment_type)s"
+
+#     # Build select clause dynamically
+#     component_sums = []
+#     for comp in ALL_COMPONENTS:
+#         field = comp.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("-", "").replace(".", "")
+#         component_sums.append(
+#             f"SUM(CASE WHEN sd.salary_component = '{comp}' THEN sd.amount END) AS `{field}`"
+#         )
+
+#     select_clause = ",\n            ".join(component_sums)
+
+#     query = f"""
+#         SELECT
+#             e.custom_employment_sub_type AS employment_subtype,
+#             {select_clause},
+#             SUM(sd.amount) AS total
+#         FROM `tabSalary Slip` s
+#         JOIN `tabSalary Detail` sd ON sd.parent = s.name
+#         JOIN `tabEmployee` e ON s.employee = e.name
+#         WHERE {conditions}
+#         GROUP BY e.custom_employment_sub_type
+#         ORDER BY e.custom_employment_sub_type
+#     """
+
+#     params = {
+#         "start_date": start_date,
+#         "end_date": end_date,
+#         "subtype_filter": subtype_filter,
+#         "employment_type": emp_type_filter
+#     }
+
+#     results = frappe.db.sql(query, params, as_dict=True)
+
+#     # Calculate grand totals and detect which components are actually used
+#     used_components = {}
+#     if results:
+#         grand_total = {"employment_subtype": "Grand Total"}
+#         for key in results[0].keys():
+#             if key != "employment_subtype":
+#                 grand_total[key] = sum((r.get(key) or 0) for r in results)
+#                 if grand_total[key] != 0:
+#                     used_components[key] = True
+#         results.append(grand_total)
+
+#     return results, used_components
+
+
+
 import frappe
 from frappe.utils import getdate
 
-# Full list of components to check
+# ===============================
+# LIST OF ALL COMPONENTS
+# ===============================
 ALL_COMPONENTS = [
     "Basic Pay", "Service Weightage", "Variable DA", "House Rent Allowance",
     "Conv. Allowance", "Canteen Subsidy", "Children Education Allowance", "Medical Allowance",
     "Overtime Wages", "Washing Allowance", "Book Allowance", "LOP Refund", "Deputation Allowance",
     "Night Shift Allowance", "Stitching Allowance", "Shoe Allowance", "Spectacle Allowance",
     "EL Encashment", "Arrear", "Festival Advance", "Others Earnings",
-    "LOP (In Hours) Refund", "Exgratia", "Annual Bonus (For Tax)","Subsistence Allowance"
+    "LOP (In Hours) Refund", "Exgratia", "Annual Bonus (For Tax)", "Subsistence Allowance"
 ]
 
-
+# ===============================
+# EXECUTE (MAIN REPORT QUERY)
+# ===============================
 def execute(filters=None):
     if not filters:
         filters = {}
@@ -20,19 +216,18 @@ def execute(filters=None):
     end_date = getdate(filters.get("end_date"))
     subtype_filter = filters.get("employment_subtype")
     emp_type_filter = filters.get("employment_type")
+    company = filters.get("company")
 
-    # Get data
-    data, totals = get_data(start_date, end_date, subtype_filter, emp_type_filter)
+    # GET RAW DATA
+    data, totals = get_data(start_date, end_date, subtype_filter, emp_type_filter, company)
 
-    # Dynamically build columns based on used components
+    # BUILD COLUMN LIST
     columns = get_columns(totals)
 
-    # Filter result data by used components only
+    # FILTER COMPONENTS
     filtered_data = []
     for row in data:
-        filtered_row = {
-            "employment_subtype": row["employment_subtype"]
-        }
+        filtered_row = {"employment_subtype": row["employment_subtype"]}
         for comp in totals:
             if comp != "total":
                 filtered_row[comp] = row.get(comp)
@@ -42,6 +237,9 @@ def execute(filters=None):
     return columns, filtered_data
 
 
+# ===============================
+# BUILD DYNAMIC COLUMNS
+# ===============================
 def get_columns(totals):
     label_map = {
         "basic_pay": "Basic Pay",
@@ -68,12 +266,13 @@ def get_columns(totals):
         "lop_in_hours_refund": "LOP (In Hours) Refund",
         "exgratia": "Exgratia",
         "annual_bonus_for_tax": "Annual Bonus (For Tax)",
-        "subsistence_allowance":" Subsistence Allowance"
+        "subsistence_allowance": "Subsistence Allowance"
     }
 
     columns = [
         {"label": "Particulars", "fieldname": "employment_subtype", "fieldtype": "Data", "width": 160}
     ]
+
     for comp in totals:
         if comp not in ("employment_subtype", "total"):
             columns.append({
@@ -84,13 +283,20 @@ def get_columns(totals):
             })
 
     columns.append({
-        "label": "Total Earnings", "fieldname": "total", "fieldtype": "Currency", "width": 130
+        "label": "Total Earnings",
+        "fieldname": "total",
+        "fieldtype": "Currency",
+        "width": 130
     })
+
     return columns
 
 
+# ===============================
+# FETCH DATA FROM DATABASE
+# ===============================
+def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None, company=None):
 
-def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
     conditions = """
         s.docstatus IN (0,1)
         AND s.start_date >= %(start_date)s AND s.end_date <= %(end_date)s
@@ -104,7 +310,6 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
     if emp_type_filter:
         conditions += " AND e.employment_type = %(employment_type)s"
 
-    # Build select clause dynamically
     component_sums = []
     for comp in ALL_COMPONENTS:
         field = comp.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("-", "").replace(".", "")
@@ -112,7 +317,7 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
             f"SUM(CASE WHEN sd.salary_component = '{comp}' THEN sd.amount END) AS `{field}`"
         )
 
-    select_clause = ",\n            ".join(component_sums)
+    select_clause = ", ".join(component_sums)
 
     query = f"""
         SELECT
@@ -136,15 +341,18 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
 
     results = frappe.db.sql(query, params, as_dict=True)
 
-    # Calculate grand totals and detect which components are actually used
     used_components = {}
     if results:
         grand_total = {"employment_subtype": "Grand Total"}
+
         for key in results[0].keys():
             if key != "employment_subtype":
                 grand_total[key] = sum((r.get(key) or 0) for r in results)
                 if grand_total[key] != 0:
                     used_components[key] = True
+
         results.append(grand_total)
 
     return results, used_components
+
+
