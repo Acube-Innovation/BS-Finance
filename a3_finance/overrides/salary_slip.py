@@ -760,18 +760,40 @@ def update_tax_on_salary_slip(slip, method):
         marginal_threshold = flt(slab_doc.marginal_relief_limit or 1275000)
         print(f"Using Tax Slab: {slab_doc.name}, Relief Threshold: {relief_threshold}, Marginal Threshold: {marginal_threshold}")
 
+        # slabs = []
+        # for row in slab_doc.slabs:
+        #     from_amt = flt(row.from_amount or 0)
+        #     to_amt = flt(row.to_amount or 0)
+        #     rate = flt(row.percent_deduction or 0) / 100
+        #     slab_range = to_amt - from_amt if to_amt else 40000000
+        #     slabs.append((slab_range, rate))
         slabs = []
+
         for row in slab_doc.slabs:
             from_amt = flt(row.from_amount or 0)
             to_amt = flt(row.to_amount or 0)
             rate = flt(row.percent_deduction or 0) / 100
-            slab_range = to_amt - from_amt if to_amt else 40000000
-            slabs.append((slab_range, rate))
-        print(f"Defined Slabs: {slabs}")
 
+            if to_amt:
+               
+                slab_range = flt(to_amt - from_amt)
+            else:
+                slab_range = flt(40000000)  # for last open slab
+
+            slabs.append((slab_range, rate))
+
+        print(f"Defined Slabs: {slabs}")
         tax = 0
-        remaining = net_taxable_income
+        remaining = flt(net_taxable_income)
+
         for slab_amt, rate in slabs:
+            slab_amt = flt(slab_amt)        # ensure clean float, removes tiny decimals
+            rate = flt(rate)
+
+            # limit slab_amt to avoid tiny float drift
+            slab_amt = round(slab_amt, 2)
+            print(f"Processing Slab: Amount={slab_amt}, Rate={rate}, Remaining={remaining}")
+
             if remaining > slab_amt:
                 tax += slab_amt * rate
                 remaining -= slab_amt
@@ -779,7 +801,22 @@ def update_tax_on_salary_slip(slip, method):
                 tax += remaining * rate
                 remaining = 0
                 break
+
+        tax = flt(tax)     # normalize float AGAIN
+
+
+        # tax = 0
+        # remaining = net_taxable_income
+        # for slab_amt, rate in slabs:
+        #     if remaining > slab_amt:
+        #         tax += slab_amt * rate
+        #         remaining -= slab_amt
+        #     else:
+        #         tax += remaining * rate
+        #         remaining = 0
+        #         break
         print(f"Tax Before Marginal Relief: {round_half_up(tax)}")
+        print(f"Tax Before Marginal Relief222222222222222222: {tax}")
         slip.custom_tax = round_half_up(tax)
 
         if (
