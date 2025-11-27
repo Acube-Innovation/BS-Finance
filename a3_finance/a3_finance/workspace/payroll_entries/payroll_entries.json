@@ -1,0 +1,323 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"UW5b55NPKa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">PAYROLL MANAGEMENT SYSTEM</span>\",\"col\":12}},{\"id\":\"9t8tCRiix9\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Employees\",\"col\":4}},{\"id\":\"GtgmZPwign\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Assigned Structures(Last Month)\",\"col\":4}},{\"id\":\"ic8H2Ld5_0\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Salary(Last month)\",\"col\":4}},{\"id\":\"PO2iAFS5xK\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll Master Setup</b></span>\",\"col\":12}},{\"id\":\"OcP0Ic6cOG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}},{\"id\":\"xEvFg8epFS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payroll Master Settings\",\"col\":3}},{\"id\":\"s7YhOWUV6V\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Income Tax Slab\",\"col\":3}},{\"id\":\"UbOqfo1LWg\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Profession Tax\",\"col\":3}},{\"id\":\"ezFOa_2lHW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Promotion\",\"col\":3}},{\"id\":\"qAaglx2snt\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Components &amp; Assignment</b></span>\",\"col\":12}},{\"id\":\"fBUTq5xdPy\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Component\",\"col\":3}},{\"id\":\"DknBy7DSuX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Structure\",\"col\":3}},{\"id\":\"kLrOV65wqs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Structure Assignment\",\"col\":3}},{\"id\":\"HCJCJKFOu0\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll</b><b>Data Import</b></span>\",\"col\":12}},{\"id\":\"WGCc5yrkxx\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Lop Upload\",\"col\":3}},{\"id\":\"Cd9ibQ9ZmG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Data Import\",\"col\":3}},{\"id\":\"uz_NsGB_qY\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Records</b></span>\",\"col\":12}},{\"id\":\"6ujM8gKve3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Lop Per Request\",\"col\":3}},{\"id\":\"yEIGWTPFvQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Time Loss\",\"col\":3}},{\"id\":\"o2N_Nzkgli\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Overtime Wages\",\"col\":3}},{\"id\":\"SVRbtLsoNs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Additional Salary\",\"col\":3}},{\"id\":\"aHmWw_7Kmw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Reimbursement Wages\",\"col\":3}},{\"id\":\"sVoG0-iO7e\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Service Weightage\",\"col\":3}},{\"id\":\"GLAnnuoq4i\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Conveyance Days\",\"col\":3}},{\"id\":\"_SfKW6GAF2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Society Deduction\",\"col\":3}},{\"id\":\"QUaITdVOG4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Arrear Breakup Log\",\"col\":3}},{\"id\":\"MCpbBKqykR\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Execution</b></span>\",\"col\":12}},{\"id\":\"okmu_3T71W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payroll Entry\",\"col\":3}},{\"id\":\"Jrhe3onrio\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Slip\",\"col\":3}},{\"id\":\"HO832iBJ8P\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll Reports</b></span>\",\"col\":12}},{\"id\":\"KSKP_fnTK4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Register\",\"col\":3}},{\"id\":\"9_el4VGtQl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Component Wise Totals\",\"col\":3}},{\"id\":\"Sbv2xNk5He\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Earnings Pay Sheet\",\"col\":3}},{\"id\":\"KrDeVv5nfc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Deductions Pay Sheet\",\"col\":3}},{\"id\":\"2pXTZXxugo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Advice To Bank\",\"col\":3}},{\"id\":\"ekIqXfhB3t\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Sheet Earnings\",\"col\":3}},{\"id\":\"3n3xqFrP7O\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Sheet Deductions\",\"col\":3}},{\"id\":\"TiAqzlsNuA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Advice To Bank\",\"col\":3}},{\"id\":\"Zi0OSZ8aPr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Head Total\",\"col\":3}},{\"id\":\"GZd8JcjsNW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Cutting Details\",\"col\":3}},{\"id\":\"VpilOLyUdV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gross Earnings and Deductions\",\"col\":3}},{\"id\":\"L9bsUps_7z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gross Total Income\",\"col\":3}},{\"id\":\"ZYa6uQl8Fz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Pay Head Breakup\",\"col\":3}},{\"id\":\"ZsC2N-4zYl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Calculation\",\"col\":3}},{\"id\":\"020f5WEW-G\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Arrear Calculation Report\",\"col\":3}}]",
+ "creation": "2025-11-05 14:46:09.891800",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "color-monthly-rank",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "PAYROLL ENTRIES",
+ "links": [],
+ "modified": "2025-11-27 22:35:54.603614",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "PAYROLL ENTRIES",
+ "number_cards": [
+  {
+   "label": "Active Assigned Structures(Last Month)",
+   "number_card_name": "Total Salary Structure"
+  },
+  {
+   "label": "Total Employees",
+   "number_card_name": "Total Employees"
+  },
+  {
+   "label": "Total Outgoing Salary(Last month)",
+   "number_card_name": "Total Outgoing Salary(Last month)"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 19.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee",
+   "link_to": "Employee",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Payroll Master Settings",
+   "link_to": "Payroll Master Setting",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Salary Structure Assignment",
+   "link_to": "Salary Structure Assignment",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Yellow",
+   "doc_view": "List",
+   "label": "Lop Upload",
+   "link_to": "LOP Upload",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Conveyance Days",
+   "link_to": "Employee Conveyance Days",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Society Deduction",
+   "link_to": "Society Deduction",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Data Import",
+   "link_to": "Data Import",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Employee Time Loss",
+   "link_to": "Employee Time Loss",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Employee Service Weightage",
+   "link_to": "Employee Service Weightage",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Payroll Entry",
+   "link_to": "Payroll Entry",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Pay Sheet Earnings",
+   "link_to": "Pay Sheet",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Arrear Breakup Log",
+   "link_to": "Arrear Breakup Log",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "Report Builder",
+   "label": "Arrear Calculation Report",
+   "link_to": "Arrear Breakup Log",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Promotion",
+   "link_to": "Employee Promotion",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Salary Register",
+   "link_to": "Salary Register",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Component Wise Totals",
+   "link_to": "Component Wise Totals",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Income Tax Slab",
+   "link_to": "Income Tax Slab",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Lop Per Request",
+   "link_to": "Lop Per Request",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Employee Overtime Wages",
+   "link_to": "Employee Overtime Wages",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Salary Slip",
+   "link_to": "Salary Slip",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Pay Sheet Deductions",
+   "link_to": "Pay Sheet Deductions",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Earnings Pay Sheet",
+   "link_to": "Pay Sheet",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Profession Tax",
+   "link_to": "Profession Tax",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Employee Reimbursement Wages",
+   "link_to": "Employee Reimbursement Wages",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Payment Advice To Bank",
+   "link_to": "Payment Advice To Bank",
+   "report_ref_doctype": "Employee",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Deductions Pay Sheet",
+   "link_to": "Pay Sheet Deductions",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Salary Component",
+   "link_to": "Salary Component",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Additional Salary",
+   "link_to": "Additional Salary",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Pay Head Total",
+   "link_to": "Pay Head Total",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Salary Structure",
+   "link_to": "Salary Structure",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Salary Cutting Details",
+   "link_to": "Salary Deduction Report",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Gross Earnings and Deductions",
+   "link_to": "Gross Earnings and Deductions",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Gross Total Income",
+   "link_to": "Gross Total Income",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Pay Head Breakup",
+   "link_to": "Employee Pay Head Breakup",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "IT Calculation",
+   "link_to": "TDS Statement",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  }
+ ],
+ "title": "PAYROLL ENTRIES"
+}
