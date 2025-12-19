@@ -1177,6 +1177,49 @@ def apprentice_working_days(doc, method):
     elif doc.custom_employment_type in ["Worker", "Officer"]:
         doc.custom_weekly_payment_days = (end_date - start_date).days + 1
 
+# from frappe.utils import getdate
+
+# def apprentice_working_days(doc, method):
+#     end_date = getdate(doc.end_date)
+#     start_date = getdate(doc.start_date)
+
+#     if doc.custom_employment_type == "Apprentice":
+#         app_end_date = getdate(
+#             frappe.db.get_value("Employee", doc.employee, "contract_end_date")
+#         )
+#         doj = getdate(
+#             frappe.db.get_value("Employee", doc.employee, "date_of_joining")
+#         )
+
+#         payroll_month = start_date.month
+#         payroll_year = start_date.year
+
+#         # ✅ Case 1: Contract ends within payroll month
+#         if (
+#             app_end_date
+#             and app_end_date.month == payroll_month
+#             and app_end_date.year == payroll_year
+#         ):
+#             print("rrrrrrrrrrrrrrrrrrrrrrrrr")
+#             end_day = min(app_end_date.day, 30)
+#             doc.custom_weekly_payment_days = end_day
+
+#         # ✅ Case 2: Joined within payroll month
+#         elif (
+#             doj.month == payroll_month
+#             and doj.year == payroll_year
+#         ):
+#             print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+#             join_day = min(doj.day, 30)
+#             doc.custom_weekly_payment_days = 30 - join_day + 1
+
+#         # ✅ Case 3: Full month active
+#         else:
+#             print("dddddddddddddddddddddddddddddddddddddd")
+#             doc.custom_weekly_payment_days = 30
+
+#     elif doc.custom_employment_type in ["Worker", "Officer"]:
+#         doc.custom_weekly_payment_days = (end_date - start_date).days + 1
 
 
 
