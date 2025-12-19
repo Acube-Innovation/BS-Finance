@@ -6,6 +6,8 @@ from collections import defaultdict
 import calendar
 from frappe.utils import getdate
 from frappe.utils import flt, getdate
+import math
+from decimal import Decimal, ROUND_HALF_UP
 @frappe.whitelist()
 def calculate_lop_refund(self, method=None):
     if self.salary_component != "LOP Refund":
@@ -160,15 +162,18 @@ def custom_validate(doc, method):
         vda_percentage = flt(setting.get("dearness_allowance_", 0))
 
         # Compute DA (Dearness Allowance)
-        da = round((basic + sw) * vda_percentage)
+        # da = round((basic + sw) * vda_percentage)
 
         # Compute per day and final amount
         payroll_days = setting.get("payroll_days") or 30
-        per_day = (basic + sw + da) * doc.custom_el_days
-        doc.amount = round(per_day / payroll_days, 2)
+        da_value = int(Decimal((basic + sw) * vda_percentage).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+        per_day = (basic + sw + da_value) * doc.custom_el_days
+        total_wage = basic + sw + da_value
+        doc.amount = int(Decimal((total_wage * doc.custom_el_days) / payroll_days).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
 
         # Debug log
-        print(f"[DEBUG] Basic: {basic}, SW: {sw}, VDA%: {vda_percentage}, DA: {da}, Per Day: {per_day}, EL Days: {doc.custom_el_days}, Amount: {doc.amount}")
+        print(f"[DEBUG] Basic: {basic}, SW: {sw}, VDA%: {vda_percentage}, DA: {da_value}, Per Day: {per_day}, EL Days: {doc.custom_el_days}, Amount: {doc.amount}")
 
 
 def get_previous_payroll_master_setting(year, month_number):
@@ -265,7 +270,7 @@ def process_lop_hour_refund(self, method=None):
 
 from collections import defaultdict
 from datetime import datetime
-import frappe
+
 
 
 def process_overtime_amount(self, method=None):
