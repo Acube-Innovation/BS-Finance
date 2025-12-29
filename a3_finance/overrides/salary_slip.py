@@ -54,8 +54,10 @@ def pull_values_from_payroll_master(doc, method):
     # doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
     doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund if setting.payroll_month_number in [6, 12] else 0
     doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution if setting.brahmos_recreation_club_contribution else 20
-    if not doc.custom_benevolent_fund:
-        doc.custom_benevolent_fund                        = setting.benevolent_fund if setting.benevolent_fund else 50
+    doc.custom_benevolent_fund                        = setting.benevolent_fund
+    print("@@@@@@@@@@@@@@@@@@@@",doc.custom_benevolent_fund)
+    print("####################",setting.benevolent_fund)
+
     doc.custom_canteen_recovery                       = setting.canteen_recovery
     # doc.custom_conveyance_allowances                  = setting.conveyance_allowances
     doc.custom_overtime_wages                         = setting.overtime_wages

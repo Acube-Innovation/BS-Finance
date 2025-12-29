@@ -1,28 +1,83 @@
+// frappe.ui.form.on('Payroll Entry', {
+//     refresh(frm) {
+//         if (frm.doc.docstatus === 0 && !frm.is_new()) {
+
+//             // Remove the original button
+//             if (frm.doc.payroll_frequency === 'Monthly') {
+//                 $('[data-label="Get%20Employees"]').hide();
+            
+//             // frm.page.clear_primary_action();
+
+//             // Button: Get Employees (Workers + Officers)
+//             frm.add_custom_button(__('Get Regular Employees'), () => {
+//                 fetch_employees(frm, ['Workers', 'Officers']);
+//             }).toggleClass("btn-primary", !(frm.doc.employees || []).length);
+
+//             // Button: Get Apprentices
+//             frm.add_custom_button(__('Get Apprentice'), () => {
+//                 fetch_employees(frm, ['Apprentice']);
+//             }).toggleClass("btn-primary", !(frm.doc.employees || []).length);;
+//         }
+//         } else {
+//             // Hide the custom buttons if the form is not in draft state or is a new document
+//             frm.page.clear_custom_buttons();
+//         }
+    
+//     }
+// });
+
+// function fetch_employees(frm, types) {
+//     frappe.call({
+//         method: "a3_finance.a3_finance.doc_events.payroll_entry.get_employees_by_employment_type",
+//         args: {
+//             payroll_entry_name: frm.doc.name,
+//             employment_types: types.join(',')
+//         },
+//         freeze: true,
+//         freeze_message: __("Fetching Employees"),
+//         callback: function(r) {
+//             if (r.docs?.[0]?.employees) {
+//                 frm.reload_doc();
+//                 frm.scroll_to_field("employees");
+//             }
+//         }
+//     });
+// }
+
+
+
+
+
 frappe.ui.form.on('Payroll Entry', {
     refresh(frm) {
         if (frm.doc.docstatus === 0 && !frm.is_new()) {
 
-            // Remove the original button
+            // Hide default Get Employees button
+            $('[data-label="Get%20Employees"]').hide();
+
+            // ------- MONTHLY -------
             if (frm.doc.payroll_frequency === 'Monthly') {
-                $('[data-label="Get%20Employees"]').hide();
-            
-            // frm.page.clear_primary_action();
 
-            // Button: Get Employees (Workers + Officers)
-            frm.add_custom_button(__('Get Regular Employees'), () => {
-                fetch_employees(frm, ['Workers', 'Officers']);
-            }).toggleClass("btn-primary", !(frm.doc.employees || []).length);
+                frm.add_custom_button(__('Get Regular Employees'), () => {
+                    fetch_employees(frm, ['Workers', 'Officers']);
+                }).toggleClass("btn-primary", !(frm.doc.employees || []).length);
 
-            // Button: Get Apprentices
-            frm.add_custom_button(__('Get Apprentice'), () => {
-                fetch_employees(frm, ['Apprentice']);
-            }).toggleClass("btn-primary", !(frm.doc.employees || []).length);;
-        }
+                frm.add_custom_button(__('Get Apprentice'), () => {
+                    fetch_employees(frm, ['Apprentice']);
+                }).toggleClass("btn-primary", !(frm.doc.employees || []).length);
+            }
+
+            // ------- WEEKLY -------
+            if (frm.doc.payroll_frequency === 'Weekly') {
+
+                frm.add_custom_button(__('Get Canteen Employees'), () => {
+                    fetch_employees(frm, ['Canteen']);
+                }).toggleClass("btn-primary", !(frm.doc.employees || []).length);
+            }
+
         } else {
-            // Hide the custom buttons if the form is not in draft state or is a new document
             frm.page.clear_custom_buttons();
         }
-    
     }
 });
 
