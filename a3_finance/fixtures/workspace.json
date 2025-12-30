@@ -12,7 +12,7 @@
   "is_hidden": 0,
   "label": "PAYROLL ENTRIES",
   "links": [],
-  "modified": "2025-10-22 14:19:36.268823",
+  "modified": "2025-12-17 12:37:31.602085",
   "module": null,
   "name": "PAYROLL ENTRIES",
   "number_cards": [
@@ -42,7 +42,20 @@
   "public": 1,
   "quick_lists": [],
   "restrict_to_domain": null,
-  "roles": [],
+  "roles": [
+   {
+    "parent": "PAYROLL ENTRIES",
+    "parentfield": "roles",
+    "parenttype": "Workspace",
+    "role": "Projects Manager"
+   },
+   {
+    "parent": "PAYROLL ENTRIES",
+    "parentfield": "roles",
+    "parenttype": "Workspace",
+    "role": "SCM Manager"
+   }
+  ],
   "sequence_id": 19.0,
   "shortcuts": [
    {
