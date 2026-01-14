@@ -110,7 +110,7 @@ def get_data(filters):
 					"employee_name": emp.employee_name,
 					"policy_number": p.policy_number,
 					"premium": p.amount,
-					"recovered": p.amount,
+					"recovered": round(p.amount),
 				})
 				sl_no += 1
 
@@ -124,7 +124,7 @@ def get_data(filters):
 					"employee_name": emp.employee_name,
 					"policy_number": p.policy_number,
 					"premium": p.amount,
-					"recovered": share,
+					"recovered": round(share),
 				})
 				sl_no += 1
 
@@ -139,7 +139,7 @@ def get_data(filters):
 			"employee_name": "Total",
 			"policy_number": "",
 			"premium": total_premium,
-			"recovered": total_recovered,
+			"recovered": round(total_recovered),
 		})
 
 	return data

@@ -144,20 +144,54 @@ frappe.query_reports["Pay Sheet"] = {
         // ------- START HTML GENERATION -------
         let html = `
 <style>
-    .pay-sheet-table th, .pay-sheet-table td {
-        padding: 3px !important;
-        font-size: 11px !important;
+@media print {
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        table-layout: auto !important;
+        page-break-inside: auto;
+        font-size: 9px !important;
+    }
+
+    .pay-sheet-table,
+    .pay-sheet-table th,
+    .pay-sheet-table td {
+        border: 1px solid #000 !important;
+        box-sizing: border-box;
+        padding: 2px !important;
         vertical-align: middle !important;
     }
 
-    .pay-sheet-table th {
-        font-size: 11px !important;
-        font-weight: bold;
+    /* Last column right border */
+    .pay-sheet-table th:last-child,
+    .pay-sheet-table td:last-child {
+        border-right: 1px solid #000 !important;
     }
 
-    .pay-sheet-table td {
-        font-size: 10px !important;
+    tr {
+        page-break-inside: avoid !important;
     }
+
+    /* Wrap header text */
+    .pay-sheet-table th {
+        white-space: normal !important;
+        text-align: center !important;
+        font-size: 9px !important;
+        padding: 2px !important;
+    }
+
+    /* Keep amounts on single line */
+    .pay-sheet-table td:not(:first-child) {
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    /* First column left align */
+    .pay-sheet-table td:first-child {
+        text-align: left;
+        font-weight: bold;
+    }
+}
 </style>
 
 

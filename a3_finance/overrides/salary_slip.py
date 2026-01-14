@@ -1156,112 +1156,112 @@ def final_calculation(doc, method):
 
 
 
-# def apprentice_working_days(doc, method):
-#     end_date = getdate(doc.end_date)
-#     start_date = getdate(doc.start_date)
-#     if doc.custom_employment_type == "Apprentice":
-#         # Get apprentice contract end date
-#         app_end_date = getdate(frappe.db.get_value('Employee', doc.employee, 'contract_end_date'))
-#         doj = getdate(frappe.db.get_value('Employee', doc.employee, 'date_of_joining'))
+def apprentice_working_days(doc, method):
+    end_date = getdate(doc.end_date)
+    start_date = getdate(doc.start_date)
+    if doc.custom_employment_type == "Apprentice":
+        # Get apprentice contract end date
+        app_end_date = getdate(frappe.db.get_value('Employee', doc.employee, 'contract_end_date'))
+        doj = getdate(frappe.db.get_value('Employee', doc.employee, 'date_of_joining'))
         
 
-#         # frappe.msgprint(f"Apprentice End Date: {app_end_date}, Salary Slip End Date: {end_date}")
+        # frappe.msgprint(f"Apprentice End Date: {app_end_date}, Salary Slip End Date: {end_date}")
 
-#         if app_end_date and app_end_date < end_date :
-#             print("rrrrrrrrrrrrrrrrrrrrrrrrr")
-#             # Calculate number of working days after apprentice contract ends
-#             total_working_days = (app_end_date - start_date).days + 1
-#             # frappe.msgprint(f"Total working days after apprentice contract end: {total_working_days}")
-#             doc.custom_weekly_payment_days = total_working_days
-#         elif doj > start_date and doj <= end_date:
-#             print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-#             # Calculate number of working days from date of joining to end date
-#             total_working_days = (end_date - doj).days + 1
-#             frappe.msgprint(f"Total working days from date of joining: {total_working_days}")
-#             doc.custom_weekly_payment_days = total_working_days
-#         else:
-#             print("dddddddddddddddddddddddddddddddddddddd")
-#             doc.custom_weekly_payment_days = 30
-#     elif doc.custom_employment_type in ["Worker", "Officer"]:
-#         doc.custom_weekly_payment_days = (end_date - start_date).days + 1
-
-
-
-
-from frappe.utils import getdate, add_days
-
-
-def apprentice_working_days(doc, method):
-    """
-    Fixed 30-day payroll with strict 12-month (360-day) cap.
-
-    Rules:
-    - Fixed 30-day month
-    - Apprentice joining on 31st → no salary for joining month
-    - Joining on 30th → salary allowed
-    - Contract end = DOJ + 1 year - 1 day
-    - Total payable days never exceed 360
-    """
-
-    start_date = getdate(doc.start_date)
-    end_date = getdate(doc.end_date)
-
-    if not start_date or not end_date or start_date > end_date:
-        doc.custom_weekly_payment_days = 0
-        return
-
-    # =======================
-    # APPRENTICE
-    # =======================
-    if doc.custom_employment_type == "Apprentice":
-
-        employee = frappe.get_doc("Employee", doc.employee)
-        doj = getdate(employee.date_of_joining)
-
-        # Enforce contract end = DOJ + 1 year - 1 day
-        contract_end = add_days(doj.replace(year=doj.year + 1), -1)
-
-        # Check joining month
-        is_joining_month = (
-            doj.year == start_date.year
-            and doj.month == start_date.month
-        )
-
-        # SPECIAL RULE: Joining on 31st → NO salary for that month
-        if is_joining_month and doj.day == 31:
-            doc.custom_weekly_payment_days = 0
-            return
-
-        # Determine effective period
-        effective_start = max(start_date, doj)
-        effective_end = min(end_date, contract_end)
-
-        if effective_start > effective_end:
-            doc.custom_weekly_payment_days = 0
-            return
-
-        # -----------------------
-        # FIXED 30-DAY CALCULATION
-        # -----------------------
-        start_day = min(effective_start.day, 30)
-        end_day = min(effective_end.day, 30)
-
-        payable_days = end_day - start_day + 1
-
-        # Safety: never allow negative or single-day salary
-        if payable_days <= 0:
-            doc.custom_weekly_payment_days = 0
+        if app_end_date and app_end_date < end_date :
+            print("rrrrrrrrrrrrrrrrrrrrrrrrr")
+            # Calculate number of working days after apprentice contract ends
+            total_working_days = (app_end_date - start_date).days + 1
+            # frappe.msgprint(f"Total working days after apprentice contract end: {total_working_days}")
+            doc.custom_weekly_payment_days = total_working_days
+        elif doj > start_date and doj <= end_date:
+            print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+            # Calculate number of working days from date of joining to end date
+            total_working_days = (end_date - doj).days + 1
+            frappe.msgprint(f"Total working days from date of joining: {total_working_days}")
+            doc.custom_weekly_payment_days = total_working_days
         else:
-            doc.custom_weekly_payment_days = payable_days
+            print("dddddddddddddddddddddddddddddddddddddd")
+            doc.custom_weekly_payment_days = 30
+    elif doc.custom_employment_type in ["Worker", "Officer"]:
+        doc.custom_weekly_payment_days = (end_date - start_date).days + 1
 
-    # =======================
-    # WORKER / OFFICER
-    # =======================
-    elif doc.custom_employment_type in ("Worker", "Officer"):
-        doc.custom_weekly_payment_days = 30
 
-    else:
-        doc.custom_weekly_payment_days = 0
+
+
+# from frappe.utils import getdate, add_days
+
+
+# def apprentice_working_days(doc, method):
+#     """
+#     Fixed 30-day payroll with strict 12-month (360-day) cap.
+
+#     Rules:
+#     - Fixed 30-day month
+#     - Apprentice joining on 31st → no salary for joining month
+#     - Joining on 30th → salary allowed
+#     - Contract end = DOJ + 1 year - 1 day
+#     - Total payable days never exceed 360
+#     """
+
+#     start_date = getdate(doc.start_date)
+#     end_date = getdate(doc.end_date)
+
+#     if not start_date or not end_date or start_date > end_date:
+#         doc.custom_weekly_payment_days = 0
+#         return
+
+#     # =======================
+#     # APPRENTICE
+#     # =======================
+#     if doc.custom_employment_type == "Apprentice":
+
+#         employee = frappe.get_doc("Employee", doc.employee)
+#         doj = getdate(employee.date_of_joining)
+
+#         # Enforce contract end = DOJ + 1 year - 1 day
+#         contract_end = add_days(doj.replace(year=doj.year + 1), -1)
+
+#         # Check joining month
+#         is_joining_month = (
+#             doj.year == start_date.year
+#             and doj.month == start_date.month
+#         )
+
+#         # SPECIAL RULE: Joining on 31st → NO salary for that month
+#         if is_joining_month and doj.day == 31:
+#             doc.custom_weekly_payment_days = 0
+#             return
+
+#         # Determine effective period
+#         effective_start = max(start_date, doj)
+#         effective_end = min(end_date, contract_end)
+
+#         if effective_start > effective_end:
+#             doc.custom_weekly_payment_days = 0
+#             return
+
+#         # -----------------------
+#         # FIXED 30-DAY CALCULATION
+#         # -----------------------
+#         start_day = min(effective_start.day, 30)
+#         end_day = min(effective_end.day, 30)
+
+#         payable_days = end_day - start_day + 1
+
+#         # Safety: never allow negative or single-day salary
+#         if payable_days <= 0:
+#             doc.custom_weekly_payment_days = 0
+#         else:
+#             doc.custom_weekly_payment_days = payable_days
+
+#     # =======================
+#     # WORKER / OFFICER
+#     # =======================
+#     elif doc.custom_employment_type in ("Worker", "Officer"):
+#         doc.custom_weekly_payment_days = 30
+
+#     else:
+#         doc.custom_weekly_payment_days = 0
 
 
 # from frappe.utils import getdate
