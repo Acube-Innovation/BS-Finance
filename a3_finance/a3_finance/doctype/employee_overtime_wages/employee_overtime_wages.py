@@ -23,6 +23,7 @@ class EmployeeOvertimeWages(Document):
     def process_overtime_calculation(self):
         quarter = self.quarter_details.upper()
         fy_year = int(self.quarter_year)
+        print(fy_year,quarter,"kkk")
         overtime_hours = self.convert_overtime_hours(float(self.overtime_hours or 0))
 
         # 1. Get quarter date range
@@ -30,7 +31,7 @@ class EmployeeOvertimeWages(Document):
             "Q1": (f"{fy_year}-04-01", f"{fy_year}-06-30"),
             "Q2": (f"{fy_year}-07-01", f"{fy_year}-09-30"),
             "Q3": (f"{fy_year}-10-01", f"{fy_year}-12-31"),
-            "Q4": (f"{fy_year + 1}-01-01", f"{fy_year + 1}-03-31"),
+            "Q4": (f"{fy_year}-01-01", f"{fy_year}-03-31"),
         }
 
         if quarter not in quarter_ranges:
@@ -38,7 +39,8 @@ class EmployeeOvertimeWages(Document):
 
         end_date = getdate(quarter_ranges[quarter][1])
         start_date = getdate(quarter_ranges[quarter][0])
-        is_current_quarter = self.is_current_quarter(end_date)
+        is_current_quarter = self.is_current_quarter(start_date)
+        print(is_current_quarter,"lll",end_date,start_date)
 
         # 2. Get Base Pay
         self.basic_pay = self.get_base_salary(start_date)
@@ -160,15 +162,17 @@ class EmployeeOvertimeWages(Document):
         return flt(frappe.db.get_value("Employee", self.employee_id, "custom_service_weightage_emp") or 0)
 
     def get_da_percentage(self, ssa_date, quarter):
-        if quarter == "Q1":
-            month_number = 4
-            year_number = int(self.quarter_year)
-        elif quarter == "Q4":
-            month_number = 3  # Use March for consistency
-            year_number = int(self.quarter_year)
-        else:
-            month_number = ssa_date.month
-            year_number = ssa_date.year
+        # if quarter == "Q1":
+        #     month_number = 4
+        #     year_number = int(self.quarter_year)
+        # elif quarter == "Q4":
+        #     month_number = 3  # Use March for consistency
+        #     year_number = int(self.quarter_year)
+        # else:
+        #     month_number = ssa_date.month
+        #     year_number = ssa_date.year
+        month_number = ssa_date.month
+        year_number = ssa_date.year
 
         da_setting = frappe.get_all(
             "Payroll Master Setting",
