@@ -1,8 +1,6 @@
 # Copyright (c) 2025, Acube and contributors
 # For license information, please see license.txt
 
-# import frappe
-
 import frappe
 
 def execute(filters=None):
@@ -10,9 +8,31 @@ def execute(filters=None):
         filters = {}
 
     columns = [
-        {"label": "Employee", "fieldname": "employee", "fieldtype": "Link", "options": "Employee", "width": 150},
-        {"label": "Employee Name", "fieldname": "employee_name", "fieldtype": "Data", "width": 200},
-        {"label": "Amount", "fieldname": "amount", "fieldtype": "Currency", "width": 150},
+        {
+            "label": "Sl No",
+            "fieldname": "sl_no",
+            "fieldtype": "Int",
+            "width": 80
+        },
+        {
+            "label": "Employee ID",
+            "fieldname": "employee",
+            "fieldtype": "Link",
+            "options": "Employee",
+            "width": 150
+        },
+        {
+            "label": "Employee Name",
+            "fieldname": "employee_name",
+            "fieldtype": "Data",
+            "width": 200
+        },
+        {
+            "label": "Amount",
+            "fieldname": "amount",
+            "fieldtype": "Currency",
+            "width": 150
+        },
     ]
 
     conditions = "1=1"
@@ -30,27 +50,34 @@ def execute(filters=None):
         conditions += " AND sse.salary_component = %(salary_component)s"
         values["salary_component"] = filters.get("salary_component")
 
-    data = frappe.db.sql(f"""
+    result = frappe.db.sql(f"""
         SELECT 
-            ss.name AS salary_slip,
             ss.employee,
             ss.employee_name,
             sse.amount
         FROM `tabSalary Slip` ss
-        INNER JOIN `tabSalary Detail` sse ON ss.name = sse.parent
+        INNER JOIN `tabSalary Detail` sse 
+            ON ss.name = sse.parent
         WHERE {conditions}
           AND sse.amount != 0
           AND ss.docstatus = 1
-        ORDER BY ss.employee ASC
+        ORDER BY ss.employee
     """, values, as_dict=True)
 
-    # Add Total row
+    data = []
+
+    for idx, row in enumerate(result, start=1):
+        row["sl_no"] = idx
+        data.append(row)
+
+    # TOTAL row 
     total_amount = sum(d.amount for d in data)
     if total_amount:
         data.append({
+            "sl_no": None,          
+            "employee": "",
             "employee_name": "TOTAL",
             "amount": total_amount
         })
 
     return columns, data
-

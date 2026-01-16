@@ -2,6 +2,19 @@
 // For license information, please see license.txt
 
 frappe.query_reports["Component Wise Totals"] = {
+
+
+
+    formatter: function (value, row, column, data, default_formatter) {
+
+        if (column.fieldname === "employee" && data && data.employee) {
+            return data.employee;
+        }
+
+        return default_formatter(value, row, column, data);
+    },
+
+
 	
  "filters": [
   {
