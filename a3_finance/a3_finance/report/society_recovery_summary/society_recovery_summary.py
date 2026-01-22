@@ -91,7 +91,7 @@ def get_data(filters=None):
     # add total row
     if data:
         data.append({
-            "sl_no": "",
+            "sl_no": None,
             "employee_number": "",
             "employee_name": "Total",
             "subscription_amount": sum(d.get("subscription_amount", 0) for d in data),
