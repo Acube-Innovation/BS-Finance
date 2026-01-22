@@ -134,7 +134,7 @@ def get_data(filters):
 	# Total row
 	if data:
 		data.append({
-			"sl_no": "",
+			"sl_no": None,
 			"employee_number": "",
 			"employee_name": "Total",
 			"policy_number": "",

@@ -75,7 +75,7 @@ def get_data(filters):
         sl_no += 1
 	
     data.append({
-		"sl_no": "",
+		"sl_no": None,
 		"employee_number": "",
 		"member_no": "",
 		"employee_name": "TOTAL",

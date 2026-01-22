@@ -673,7 +673,18 @@ def update_tax_on_salary_slip(slip, method):
     print(f"Monthly Earning: {monthly_earning}")
 
     fy_start_year = year if month_number >= 4 else year - 1
-    fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
+
+    month_number = start_date.month
+
+    if month_number >= 4:
+        # April–December
+        fiscal_months = list(month_name)[4:month_number]
+    else:
+        # January–March → include April–December
+        fiscal_months = list(month_name)[4:13]
+
+
+    # fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
 
     past_details = frappe.get_list(
         "Employee Payroll Details",
@@ -713,6 +724,7 @@ def update_tax_on_salary_slip(slip, method):
     
 
     months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
+    months_left = max(months_left, 1)
     slab_candidates = frappe.get_all(
             "Income Tax Slab",
             filters={"disabled": 0, "docstatus": 1},

@@ -95,7 +95,7 @@ def get_data(filters):
 
     # add total row
     data.append({
-        "sl_no": "",
+        "sl_no": None,
         "employee_number": "",
         "employee_name": "Total",
         "phone_no": "",
