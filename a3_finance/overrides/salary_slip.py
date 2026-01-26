@@ -750,9 +750,17 @@ def update_tax_on_salary_slip(slip, method):
     projection_end = fy_end
     if retirement_date and retirement_date < fy_end:
         projection_end = retirement_date
-    # Months left AFTER current month
-    months_left = (fy_end.year - start_date.year) * 12 + (fy_end.month - start_date.month)
-    months_left = max(months_left, 0)   
+
+    months_left = (
+        (projection_end.year - start_date.year) * 12
+        + (projection_end.month - start_date.month)
+    )
+
+    months_left = max(months_left, 0)
+
+    # # Months left AFTER current month
+    # months_left = (fy_end.year - start_date.year) * 12 + (fy_end.month - start_date.month)
+    # months_left = max(months_left, 0)   
 
     # months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
     # months_left = max(months_left, 1)
