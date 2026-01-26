@@ -8,6 +8,7 @@
  "field_order": [
   "payroll_month",
   "employee",
+  "uan_number",
   "column_break_bjvl",
   "payroll_year",
   "employee_name",
@@ -20,15 +21,19 @@
   "er",
   "epf_wages",
   "salary_slip",
+  "voluntary_pf",
+  "total_earnings",
   "column_break_xpkn",
   "service_weightage",
   "lop_in_hours",
   "reimbursement_hra",
   "eps",
+  "eps_wages",
   "edli_wages",
   "pf",
   "lop_days",
-  "return_days"
+  "return_days",
+  "total_earnings_pf"
  ],
  "fields": [
   {
@@ -141,6 +146,7 @@
   },
   {
    "fetch_from": "employee.custom_employee_pension_scheme",
+   "fetch_if_empty": 1,
    "fieldname": "employee_pension_scheme",
    "fieldtype": "Select",
    "in_filter": 1,
@@ -164,12 +170,39 @@
    "fieldname": "return_days",
    "fieldtype": "Float",
    "label": "Return Days"
+  },
+  {
+   "fieldname": "eps_wages",
+   "fieldtype": "Currency",
+   "label": "EPS Wages"
+  },
+  {
+   "fetch_from": "employee.custom_uan",
+   "fieldname": "uan_number",
+   "fieldtype": "Data",
+   "label": "UAN Number"
+  },
+  {
+   "fieldname": "voluntary_pf",
+   "fieldtype": "Currency",
+   "label": "Voluntary PF"
+  },
+  {
+   "fieldname": "total_earnings",
+   "fieldtype": "Currency",
+   "label": "Total Earnings"
+  },
+  {
+   "fieldname": "total_earnings_pf",
+   "fieldtype": "Currency",
+   "label": "Total Earnings - LOP in Hours"
+ 
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-02 13:24:28.353966",
+ "modified": "2026-01-23 17:01:46.832998",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PF Detailed Log",

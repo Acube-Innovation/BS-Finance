@@ -1,16 +1,13 @@
-// Copyright (c) 2025, Acube and contributors
-// For license information, please see license.txt
-
-frappe.query_reports["LWF Contribution Summary"] = {
+frappe.query_reports["ECR Upload Statement"] = {
 
     onload: function (report) {
 
         // Add Print button
         report.page.add_inner_button("Print Report", function () {
-            print_lwf_contribution_summary(report);
+            print_ecr_upload_statement(report);
         });
 
-        // Optional: hide S.No column in report view
+        // Hide S.No column
         setTimeout(() => {
             const wrapper = report.page.wrapper;
             wrapper.find(".dt-header .dt-cell--col-0").hide();
@@ -25,22 +22,42 @@ frappe.query_reports["LWF Contribution Summary"] = {
 
     filters: [
         {
-            fieldname: "month",
-            label: "Month",
+            fieldname: "employee",
+            label: "Employee",
+            fieldtype: "Link",
+            options: "Employee"
+        },
+        {
+            fieldname: "payroll_month",
+            label: "Payroll Month",
             fieldtype: "Select",
             options: ["01","02","03","04","05","06","07","08","09","10","11","12"],
             default: frappe.datetime.get_today().split("-")[1]
         },
         {
-            fieldname: "year",
-            label: "Year",
-            fieldtype: "Int",
+            fieldname: "payroll_year",
+            label: "Payroll Year",
+            fieldtype: "Data",
             default: frappe.datetime.get_today().split("-")[0]
+        },
+        {
+            fieldname: "employee_pension_scheme",
+            label: "Scheme",
+            fieldtype: "Select",
+            options: [
+                "",
+                "EPS-9.49  ER-2.51",
+                "EPS-0  ER-12",
+                "EPS-1250  ER-550",
+                "EPS-0  ER-1800",
+                "EPS-1250  ER-12%-1250",
+                "EPS-8.33  ER-3.67"
+            ]
         }
     ],
 
     // ---------------- PRINTABLE HTML ----------------
-    printable_html: async function(report) {
+    printable_html: async function (report) {
 
         let filters = frappe.query_report.get_filter_values();
         let data = report.data || [];
@@ -50,7 +67,8 @@ frappe.query_reports["LWF Contribution Summary"] = {
             "January","February","March","April","May","June",
             "July","August","September","October","November","December"
         ];
-        let month_name = month_names[parseInt(filters.month) - 1];
+
+        let month_name = month_names[parseInt(filters.payroll_month) - 1];
 
         let html = `
 <style>
@@ -65,11 +83,11 @@ frappe.query_reports["LWF Contribution Summary"] = {
 
 <div style="text-align:center; margin-bottom:12px;">
     <div style="font-size:18px; font-weight:bold;">
-        LWF Contribution Summary
+        ECR Upload Statement
     </div>
     <div style="font-size:13px; margin-top:4px;">
         Month: <b>${month_name}</b> &nbsp; | &nbsp;
-        Year: <b>${filters.year}</b>
+        Year: <b>${filters.payroll_year}</b>
     </div>
 </div>
 
@@ -85,12 +103,18 @@ frappe.query_reports["LWF Contribution Summary"] = {
         html += `</tr></thead><tbody>`;
 
         data.forEach(row => {
+
             html += `<tr>`;
+
             columns.forEach(col => {
                 let value = row[col.fieldname] ?? "";
                 let cls = col.fieldtype === "Currency" ? "num" : "";
-                html += `<td class="${cls}">${frappe.format(value, col)}</td>`;
+
+                html += `<td class="${cls}">
+                    ${frappe.format(value, col)}
+                </td>`;
             });
+
             html += `</tr>`;
         });
 
@@ -109,12 +133,15 @@ frappe.query_reports["LWF Contribution Summary"] = {
     }
 };
 
+
 // ---------------- CUSTOM PRINT FUNCTION ----------------
-async function print_lwf_contribution_summary(report) {
-    let html = await frappe.query_reports["LWF Contribution Summary"]
+async function print_ecr_upload_statement(report) {
+
+    let html = await frappe.query_reports["ECR Upload Statement"]
         .printable_html(report);
 
     let print_window = window.open("", "PRINT", "height=700,width=1000");
+
     print_window.document.write(html);
     print_window.document.close();
     print_window.focus();

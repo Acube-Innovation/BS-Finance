@@ -10,8 +10,10 @@ class PFDetailedLog(Document):
         self.calculate_epf_wages()
 
     def calculate_epf_wages(self):
+
         # Handle base = 0 by falling back to last submitted SSA
         if self.base is None or self.base == 0:
+        
             alt_ssa = frappe.get_all(
                 "Salary Structure Assignment",
                 filters={"employee": self.employee, "docstatus": 1},
@@ -23,6 +25,8 @@ class PFDetailedLog(Document):
 
         # Continue only if base is valid
         if self.base:
+            if self.total_earnings and self.lop_in_hours:
+                self.total_earnings_pf = self.total_earnings - self.lop_in_hours
             # Calculate DA (assume percentage)
             self.da = round_half_up((self.base + self.service_weightage) * (self.da_percentage or 0))
             self.edli_wages = 15000
@@ -36,6 +40,15 @@ class PFDetailedLog(Document):
                 + (self.lop_refund or 0)
                 - (self.reimbursement_hra or 0)
             )
+            self.eps_wages = round_half_up(
+                self.base
+                + self.service_weightage
+                + self.da
+                - (self.lop_in_hours or 0)
+                + (self.lop_refund or 0)
+                - (self.reimbursement_hra or 0)
+            )
+
 
             scheme = frappe.db.get_value("Employee", self.employee, "custom_employee_pension_scheme")
             eps_addl = frappe.db.get_value("Employee", self.employee,"custom_eps_addl") or 0
@@ -46,22 +59,27 @@ class PFDetailedLog(Document):
 
             elif scheme == "EPS-0  ER-12":
                 self.eps = 0
-                self.epf_wages = 0
+                # self.epf_wages = 0
+                self.eps_wages = 0
+              
                 self.er = 0
 
             elif scheme == "EPS-1250  ER-550":
                 self.eps = 1250
-                self.epf_wages = self.edli_wages
+                # self.epf_wages = self.edli_wages
+                self.eps_wages = self.edli_wages
                 self.er = 550
 
             elif scheme == "EPS-0  ER-1800":
                 self.eps = 0
-                self.epf_wages = 0
+                self.epf_wages = self.edli_wages
+                self.eps_wages = 0
                 self.er = 1800
 
             elif scheme == "EPS-1250  ER-12%-1250":
                 self.eps = 1250
                 self.epf_wages = self.edli_wages
+                # self.eps_wages = self.edli_wages
                 self.er = (self.pf if self.pf else 0) - 1250
 
             elif scheme == "EPS-8.33  ER-3.67" and eps_addl == 0:

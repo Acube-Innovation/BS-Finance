@@ -1,4 +1,5 @@
 import frappe
+from datetime import date
 from frappe.utils import getdate, flt
 from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
@@ -71,6 +72,7 @@ def pull_values_from_payroll_master(doc, method):
     if doc.custom_employment_type in ["Workers", "Officers","Canteen Employee"]:
         # Calculate days between start_date and end_date (inclusive)
         start = getdate(doc.start_date)
+        print(start,"lll")
         end = getdate(doc.end_date)
         doc.custom_weekly_payment_days = (end - start).days + 1
     if (not doc.custom_payroll_days and doc.custom_employment_type in ["Workers", "Officers"] ):
@@ -78,6 +80,7 @@ def pull_values_from_payroll_master(doc, method):
         doc.custom_payroll_days = setting.payroll_days if setting.payroll_days else 30
     elif doc.custom_employment_type == "Canteen Employee":
         doc.custom_payroll_days = 7
+        doc.custom_weekly_payment_days = (end - start).days + 1
     # elif doc.custom_employee_status == "Suspended":
     #     doc.custom_payroll_days = 10
 
@@ -671,6 +674,10 @@ def update_tax_on_salary_slip(slip, method):
         children_education_allowance + canteen_subsidy
     )
     print(f"Monthly Earning: {monthly_earning}")
+    retirement_date = frappe.db.get_value("Employee", employee, "date_of_retirement")
+    retirement_date = getdate(retirement_date) if retirement_date else None
+    print(retirement_date,"retirement_date")
+
 
     fy_start_year = year if month_number >= 4 else year - 1
 
@@ -700,6 +707,7 @@ def update_tax_on_salary_slip(slip, method):
     total_tax_paid = sum(flt(row.tax_paid) for row in past_details)
     slip.custom_current_total_tax_paid = total_tax_paid
     total_past_taxable = sum(flt(row.gross_pay) - flt(row.lop_hrs) for row in past_details)
+    print(total_past_taxable,"total_past_taxable")
     # for row in slip.earnings:
     #     if row.salary_component == "Other Earnings(Non- Taxable)":
     #         non_tax = flt(row.amount)
@@ -721,10 +729,33 @@ def update_tax_on_salary_slip(slip, method):
     ex = ex_gratia_frm_ss.amount if ex_gratia_frm_ss else 0
     current_taxable = current_gross - current_lop - ex - non_tax
     print(f"Current Taxable Income: {current_taxable}")
-    
+    start_date = getdate(slip.start_date)
+    month_number = start_date.month
+    year = start_date.year
 
-    months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
-    months_left = max(months_left, 1)
+    # FY runs April → March
+    if month_number >= 4:
+        fy_start_year = year
+        fy_end_year = year + 1
+    else:
+        fy_start_year = year - 1
+        fy_end_year = year
+
+    # FY start and end dates
+    fy_start = date(fy_start_year, 4, 1)
+    fy_end = date(fy_end_year, 3, 31)
+   
+
+    # Determine projection end date
+    projection_end = fy_end
+    if retirement_date and retirement_date < fy_end:
+        projection_end = retirement_date
+    # Months left AFTER current month
+    months_left = (fy_end.year - start_date.year) * 12 + (fy_end.month - start_date.month)
+    months_left = max(months_left, 0)   
+
+    # months_left = 15 - month_number if month_number >= 4 else 3 - month_number + 1
+    # months_left = max(months_left, 1)
     slab_candidates = frappe.get_all(
             "Income Tax Slab",
             filters={"disabled": 0, "docstatus": 1},
@@ -737,7 +768,7 @@ def update_tax_on_salary_slip(slip, method):
         latest_slab_doc = max(valid_slabs, key=lambda d: getdate(d.effective_from))
         slab_doc = frappe.get_doc("Income Tax Slab", latest_slab_doc.name)
     else:
-        frappe.msgprint("Plaese Set Up the income tax Slabs")
+        frappe.msgprint("Please Set Up the income tax Slabs")
     slip.calculate_component_amounts("deductions")
     # slip.calculate_component_amounts("Exgratia")
     
@@ -900,6 +931,7 @@ def update_employee_payroll_details(slip, method):
 
     # Extract only what’s needed
     gross_pay = flt(slip.gross_pay)
+    print(gross_pay,"ll")
     lop_hrs = flt(slip.custom_time_loss_in_hours_deduction)
 
     # Use next() with generator for faster lookup
@@ -1096,6 +1128,7 @@ def create_pf_detailed_summary(doc, method):
     lop_in_hours = 0
     lop_refund = 0
     pf = 0
+    voluntary_pf = 0
 
     # if doc.custom_time_loss_in_hours_deduction:
     #     lop_in_hours = doc.custom_time_loss_in_hours_deduction
@@ -1107,12 +1140,15 @@ def create_pf_detailed_summary(doc, method):
     #         pf = comp.amount
 
     for comp in doc.deductions:
+
         if comp.salary_component == "LOP (in Hours) Deduction":
             lop_in_hours = comp.amount
         elif comp.salary_component == "LOP Refund":
             lop_refund = comp.amount
         elif comp.salary_component in ["Employee PF", "PF Deduction"]:
             pf = comp.amount
+        elif comp.salary_component == "Voluntary PF":
+            voluntary_pf = comp.amount
 
     # Check if record exists
     existing = frappe.db.exists("PF Detailed Log", {
@@ -1124,12 +1160,14 @@ def create_pf_detailed_summary(doc, method):
     values = {
         "employee": doc.employee,
         "payroll_month": payroll_month,
+        "total_earnings":doc.gross_pay,
         "payroll_year": payroll_year,
         "da_percentage": doc.custom_dearness_allowence_percentage,
         "lop_in_hours": lop_in_hours,
         "lop_refund": lop_refund,
         "reimbursement_hra": doc.custom_reimbursement_hra_amount,
         "pf":pf,
+        "voluntary_pf":voluntary_pf,
         "salary_slip": doc.name,
         "return_days": doc.custom_uploaded_leave_without_pay
     }
@@ -1262,7 +1300,7 @@ def apprentice_working_days(doc, method):
     # -------------------------------
     # WORKER / OFFICER LOGIC
     # -------------------------------
-    if doc.custom_employment_type in ["Worker", "Officer"]:
+    if doc.custom_employment_type in ["Worker", "Officer","Canteen Employee"]:
         doc.custom_weekly_payment_days = (end_date - start_date).days + 1
 
 
@@ -1694,8 +1732,8 @@ def set_medical_allowance_from_slabs(doc,method):
     )
     base = flt(ssa_base) or flt(getattr(doc, "base", 0))
     # frappe.log("Basic Pay",base)
-    if not base:
-        frappe.throw("Unable to determine Base Pay for employee.")
+    # if not base:
+    #     frappe.throw("Unable to determine Base Pay for employee.")
 
     # Determine matched slab
     matched_amount = 0

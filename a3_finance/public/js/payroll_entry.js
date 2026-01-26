@@ -50,6 +50,29 @@
 
 frappe.ui.form.on('Payroll Entry', {
     refresh(frm) {
+         if (frm.doc.docstatus === 1) {
+
+        frm.add_custom_button("Generate Pay Sheet", () => {
+            frappe.call({
+                method: "a3_finance.api.paysheet.generate_paysheet_from_payroll_entry",
+                args: {
+                    payroll_entry: frm.doc.name
+                },
+                freeze: true,
+                callback(r) {
+                    if (r.message) {
+                        frappe.set_route(
+                            "Form",
+                            "Pay Sheet",
+                            r.message
+                        );
+                    }
+                }
+            });
+            
+        });
+    }
+        
         if (frm.doc.docstatus === 0 && !frm.is_new()) {
 
             // Hide default Get Employees button
