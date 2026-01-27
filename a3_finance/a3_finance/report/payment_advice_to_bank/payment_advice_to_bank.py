@@ -20,6 +20,7 @@ def execute(filters=None):
             emp_type_filter = "AND e.employment_type = %(employment_type)s"
 
     columns = [
+        {"label": "Sl No", "fieldname": "sl_no", "fieldtype": "Data", "width": 120},
         {"label": "Employee ID", "fieldname": "employee", "fieldtype": "Data", "width": 120},
         {"label": "Employee Name", "fieldname": "employee_name", "fieldtype": "Data", "width": 180},
         {"label": "Bank Account", "fieldname": "bank_account", "fieldtype": "Data", "width": 180},
@@ -43,6 +44,9 @@ def execute(filters=None):
     """.format(emp_type_filter=emp_type_filter), filters, as_dict=True)
 
     # Total footer
+        # Add Sl No
+    for i, row in enumerate(data, start=1):
+        row["sl_no"] = i
     total = sum(row["net_pay"] for row in data)
     if data:
         data.append({

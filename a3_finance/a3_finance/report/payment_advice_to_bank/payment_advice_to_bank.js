@@ -131,6 +131,7 @@ frappe.query_reports["Payment Advice To Bank"] = {
                 style="font-family:Arial; font-size:12px; border-collapse:collapse; margin-top:20px;">
                 <thead style="background:#f5f5f5; font-weight:bold;">
                     <tr>
+                        <th>Sl No</th>
                         <th>Employee ID</th>
                         <th>Employee Name</th>
                         <th>Bank Account</th>
@@ -140,6 +141,7 @@ frappe.query_reports["Payment Advice To Bank"] = {
                 <tbody>
                     ${data.map(r => `
                         <tr>
+                            <td>${r.sl_no || ""}</td>
                             <td>${r.employee || ""}</td>
                             <td>${r.employee_name || ""}</td>
                             <td>${r.bank_account || ""}</td>

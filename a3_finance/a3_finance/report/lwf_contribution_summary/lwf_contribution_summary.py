@@ -62,8 +62,9 @@ def get_data(filters):
 				LIMIT 1
 			""", slip[0].name, as_list=1)
 
-			if benevolent[0][0]!=0:
-				ee_contribution = benevolent[0][0] or 0
+			if benevolent and benevolent[0][0]:
+				ee_contribution = benevolent[0][0]
+
 
 				data.append({
 					"sl_no": sl_no,

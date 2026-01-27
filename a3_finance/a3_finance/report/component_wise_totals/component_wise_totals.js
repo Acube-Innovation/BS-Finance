@@ -81,15 +81,27 @@ frappe.query_reports["Component Wise Totals"].printable_html = async function(re
 
     html += `</tr></thead><tbody>`;
 
-    data.forEach(row => {
-        html += `<tr>`;
-        columns.forEach(col => {
+ data.forEach(row => {
+
+    const is_total = row.employee_name === "TOTAL";
+
+    html += `<tr class="${is_total ? 'total-row' : ''}">`;
+
+    columns.forEach(col => {
+        let cls = col.fieldtype === "Currency" ? "num" : "";
+
+     
+        if (is_total && col.fieldname === "sl_no") {
+            html += `<td></td>`;
+        } else {
             let value = row[col.fieldname] ?? "";
-            let cls = col.fieldtype === "Currency" ? "num" : "";
             html += `<td class="${cls}">${frappe.format(value, col)}</td>`;
-        });
-        html += `</tr>`;
+        }
     });
+
+    html += `</tr>`;
+});
+
 
     html += `
     </tbody>

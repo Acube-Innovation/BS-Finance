@@ -77,22 +77,31 @@ frappe.query_reports["BRC Deduction Summary"] = {
     <thead>
         <tr>
 `;
-
-        columns.forEach(col => {
-            html += `<th>${col.label}</th>`;
-        });
+columns.forEach(col => {
+    if (col.fieldname !== "sl_no") {
+        html += `<th>${col.label}</th>`;
+    }
+});
 
         html += `</tr></thead><tbody>`;
 
         data.forEach(row => {
-            html += `<tr>`;
-            columns.forEach(col => {
-                let value = row[col.fieldname] ?? "";
-                let cls = col.fieldtype === "Currency" ? "num" : "";
-                html += `<td class="${cls}">${frappe.format(value, col)}</td>`;
-            });
-            html += `</tr>`;
-        });
+    html += `<tr>`;
+
+    columns.forEach(col => {
+
+        //  Skip Sl No in PRINT
+        if (col.fieldname === "sl_no") return;
+
+        let value = row[col.fieldname] ?? "";
+        let cls = col.fieldtype === "Currency" ? "num" : "";
+
+        html += `<td class="${cls}">${frappe.format(value, col)}</td>`;
+    });
+
+    html += `</tr>`;
+});
+
 
         html += `
     </tbody>
