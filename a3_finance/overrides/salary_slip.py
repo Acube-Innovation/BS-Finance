@@ -1508,6 +1508,22 @@ def set_actual_amounts(doc, method):
         elif row.abbr == "Book Allowance":
             row.custom_actual_amount = row.amount
             total += row.custom_actual_amount
+        elif row.abbr == "Spectacle Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+        elif row.abbr == "SA":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+
+        elif row.abbr == "Stitching Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+
+        
+        elif row.abbr == "Overtime Wages":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+
 
 
     doc.custom_gross_actual_amount=total
