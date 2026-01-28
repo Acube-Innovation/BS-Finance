@@ -5,7 +5,7 @@ frappe.query_reports["Professional Tax Summary"] = {
 
 	onload: function (report) {
 
-		// ---- PRINT BUTTON (SAME AS ECR / PLI-LIC) ----
+		// ---- PRINT BUTTON ----
 		report.page.add_inner_button("Print Report", function () {
 			print_professional_tax_report(report);
 		});
@@ -55,13 +55,43 @@ frappe.query_reports["Professional Tax Summary"] = {
 
 		let html = `
 <style>
+@page {
+	margin: 10mm;
+}
+
 @media print {
-	table { border-collapse: collapse; width: 100%; font-size: 11px; }
-	th, td { border: 1px solid #000; padding: 4px; }
-	th { text-align: center; font-weight: bold; }
-	td { text-align: left; }
-	td.num { text-align: right; }
-	tr.total-row { font-weight: bold; }
+	body {
+		margin: 0;
+	}
+
+	table {
+		border-collapse: collapse;
+		width: 99%;
+		font-size: 11px;
+	}
+
+	th, td {
+		border: 1px solid #000;
+		padding: 4px;
+		box-sizing: border-box;
+	}
+
+	th {
+		text-align: center;
+		font-weight: bold;
+	}
+
+	td {
+		text-align: left;
+	}
+
+	td.num {
+		text-align: right;
+	}
+
+	tr.total-row {
+		font-weight: bold;
+	}
 }
 </style>
 
@@ -116,7 +146,7 @@ frappe.query_reports["Professional Tax Summary"] = {
 
 <p style="text-align:right; margin-top:25px; font-size:9px;">
 	Printed on ${frappe.datetime.str_to_user(
-		frappe.datetime.get_datetime_as_string()
+			frappe.datetime.get_datetime_as_string()
 	)}
 </p>
 `;
