@@ -306,8 +306,16 @@ scheduler_events = {
 	# 	"a3_finance.tasks.all"
 	# ],
 	"daily": [
-		"a3_finance.a3_finance.doc_events.supplier.change_supplier_status"
-	],
+		"a3_finance.a3_finance.doc_events.supplier.change_supplier_status",
+        # "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
+        "a3_finance.overrides.account_validity.update_account_status",
+        "a3_finance.scheduler.update_employee_total_service.update_total_service_for_all_employees"
+    ],
+    "cron": {
+        "0 0 15 * *": [  # Run at midnight on 15th
+            "a3_finance.overrides.additional_salary.reactivate_disabled_add_salaries"
+        ]
+    }
 	# "hourly": [
 	# 	"a3_finance.tasks.hourly"
 	# ],

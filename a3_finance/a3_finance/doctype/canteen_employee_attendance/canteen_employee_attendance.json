@@ -60,7 +60,8 @@
    "fieldname": "upload_file",
    "fieldtype": "Attach",
    "in_list_view": 1,
-   "label": "Upload File"
+   "label": "Upload File",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_lfuj",
@@ -76,7 +77,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-28 14:43:29.063233",
+ "modified": "2026-01-28 15:58:05.787912",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Canteen Employee Attendance",
