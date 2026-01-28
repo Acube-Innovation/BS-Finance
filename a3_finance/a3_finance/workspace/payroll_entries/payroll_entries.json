@@ -1,7 +1,7 @@
 {
  "charts": [],
- "content": "[{\"id\":\"UW5b55NPKa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">PAYROLL MANAGEMENT SYSTEM</span>\",\"col\":12}},{\"id\":\"9t8tCRiix9\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Employees\",\"col\":4}},{\"id\":\"GtgmZPwign\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Assigned Structures(Last Month)\",\"col\":4}},{\"id\":\"ic8H2Ld5_0\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Salary(Last month)\",\"col\":4}},{\"id\":\"PO2iAFS5xK\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll Master Setup</b></span>\",\"col\":12}},{\"id\":\"OcP0Ic6cOG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}},{\"id\":\"xEvFg8epFS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payroll Master Settings\",\"col\":3}},{\"id\":\"s7YhOWUV6V\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Income Tax Slab\",\"col\":3}},{\"id\":\"UbOqfo1LWg\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Profession Tax\",\"col\":3}},{\"id\":\"ezFOa_2lHW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Promotion\",\"col\":3}},{\"id\":\"qAaglx2snt\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Components &amp; Assignment</b></span>\",\"col\":12}},{\"id\":\"fBUTq5xdPy\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Component\",\"col\":3}},{\"id\":\"DknBy7DSuX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Structure\",\"col\":3}},{\"id\":\"kLrOV65wqs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Structure Assignment\",\"col\":3}},{\"id\":\"HCJCJKFOu0\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll</b><b>Data Import</b></span>\",\"col\":12}},{\"id\":\"WGCc5yrkxx\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Lop Upload\",\"col\":3}},{\"id\":\"Cd9ibQ9ZmG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Data Import\",\"col\":3}},{\"id\":\"uz_NsGB_qY\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Records</b></span>\",\"col\":12}},{\"id\":\"6ujM8gKve3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Lop Per Request\",\"col\":3}},{\"id\":\"yEIGWTPFvQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Time Loss\",\"col\":3}},{\"id\":\"o2N_Nzkgli\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Overtime Wages\",\"col\":3}},{\"id\":\"SVRbtLsoNs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Additional Salary\",\"col\":3}},{\"id\":\"aHmWw_7Kmw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Reimbursement Wages\",\"col\":3}},{\"id\":\"sVoG0-iO7e\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Service Weightage\",\"col\":3}},{\"id\":\"GLAnnuoq4i\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Conveyance Days\",\"col\":3}},{\"id\":\"_SfKW6GAF2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Society Deduction\",\"col\":3}},{\"id\":\"QUaITdVOG4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Arrear Breakup Log\",\"col\":3}},{\"id\":\"MCpbBKqykR\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Execution</b></span>\",\"col\":12}},{\"id\":\"okmu_3T71W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payroll Entry\",\"col\":3}},{\"id\":\"Jrhe3onrio\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Slip\",\"col\":3}},{\"id\":\"HO832iBJ8P\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll Reports</b></span>\",\"col\":12}},{\"id\":\"KSKP_fnTK4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Register\",\"col\":3}},{\"id\":\"9_el4VGtQl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Component Wise Totals\",\"col\":3}},{\"id\":\"Sbv2xNk5He\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Earnings Pay Sheet\",\"col\":3}},{\"id\":\"KrDeVv5nfc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Deductions Pay Sheet\",\"col\":3}},{\"id\":\"2pXTZXxugo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Advice To Bank\",\"col\":3}},{\"id\":\"ekIqXfhB3t\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Sheet Earnings\",\"col\":3}},{\"id\":\"3n3xqFrP7O\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Sheet Deductions\",\"col\":3}},{\"id\":\"TiAqzlsNuA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Advice To Bank\",\"col\":3}},{\"id\":\"Zi0OSZ8aPr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Head Total\",\"col\":3}},{\"id\":\"GZd8JcjsNW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Cutting Details\",\"col\":3}},{\"id\":\"VpilOLyUdV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gross Earnings and Deductions\",\"col\":3}},{\"id\":\"L9bsUps_7z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gross Total Income\",\"col\":3}},{\"id\":\"ZYa6uQl8Fz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Pay Head Breakup\",\"col\":3}},{\"id\":\"ZsC2N-4zYl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Calculation\",\"col\":3}},{\"id\":\"020f5WEW-G\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Arrear Calculation Report\",\"col\":3}}]",
- "creation": "2025-11-05 14:46:09.891800",
+ "content": "[{\"id\":\"UW5b55NPKa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">PAYROLL MANAGEMENT SYSTEM</span>\",\"col\":12}},{\"id\":\"9t8tCRiix9\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Employees\",\"col\":4}},{\"id\":\"GtgmZPwign\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Assigned Structures(Last Month)\",\"col\":4}},{\"id\":\"ic8H2Ld5_0\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Outgoing Salary(Last month)\",\"col\":4}},{\"id\":\"PO2iAFS5xK\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll Master Setup</b></span>\",\"col\":12}},{\"id\":\"OcP0Ic6cOG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}},{\"id\":\"xEvFg8epFS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payroll Master Settings\",\"col\":3}},{\"id\":\"s7YhOWUV6V\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Income Tax Slab\",\"col\":3}},{\"id\":\"UbOqfo1LWg\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Profession Tax\",\"col\":3}},{\"id\":\"ezFOa_2lHW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Promotion\",\"col\":3}},{\"id\":\"qAaglx2snt\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Components &amp; Assignment</b></span>\",\"col\":12}},{\"id\":\"fBUTq5xdPy\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Component\",\"col\":3}},{\"id\":\"DknBy7DSuX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Structure\",\"col\":3}},{\"id\":\"kLrOV65wqs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Structure Assignment\",\"col\":3}},{\"id\":\"HCJCJKFOu0\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll</b><b>Data Import</b></span>\",\"col\":12}},{\"id\":\"WGCc5yrkxx\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Lop Upload\",\"col\":3}},{\"id\":\"Cd9ibQ9ZmG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Data Import\",\"col\":3}},{\"id\":\"uz_NsGB_qY\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Records</b></span>\",\"col\":12}},{\"id\":\"6ujM8gKve3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Lop Per Request\",\"col\":3}},{\"id\":\"yEIGWTPFvQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Time Loss\",\"col\":3}},{\"id\":\"o2N_Nzkgli\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Overtime Wages\",\"col\":3}},{\"id\":\"SVRbtLsoNs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Additional Salary\",\"col\":3}},{\"id\":\"aHmWw_7Kmw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Reimbursement Wages\",\"col\":3}},{\"id\":\"sVoG0-iO7e\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Service Weightage\",\"col\":3}},{\"id\":\"GLAnnuoq4i\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Conveyance Days\",\"col\":3}},{\"id\":\"_SfKW6GAF2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Society Deduction\",\"col\":3}},{\"id\":\"QUaITdVOG4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Arrear Breakup Log\",\"col\":3}},{\"id\":\"0z5viSAZL3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Benevolent Fund Log\",\"col\":3}},{\"id\":\"3UHP1TknKQ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pf Detailed Log\",\"col\":3}},{\"id\":\"M0GUQesGsI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Lop Per Request\",\"col\":3}},{\"id\":\"MCpbBKqykR\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Payroll Execution</b></span>\",\"col\":12}},{\"id\":\"okmu_3T71W\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payroll Entry\",\"col\":3}},{\"id\":\"Jrhe3onrio\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Slip\",\"col\":3}},{\"id\":\"HO832iBJ8P\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Payroll Reports</b></span>\",\"col\":12}},{\"id\":\"KSKP_fnTK4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Register\",\"col\":3}},{\"id\":\"9_el4VGtQl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Component Wise Totals\",\"col\":3}},{\"id\":\"Sbv2xNk5He\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Earnings Pay Sheet\",\"col\":3}},{\"id\":\"KrDeVv5nfc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Deductions Pay Sheet\",\"col\":3}},{\"id\":\"2pXTZXxugo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Advice To Bank\",\"col\":3}},{\"id\":\"ekIqXfhB3t\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Sheet Earnings\",\"col\":3}},{\"id\":\"3n3xqFrP7O\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Sheet Deductions\",\"col\":3}},{\"id\":\"TiAqzlsNuA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Payment Advice To Bank\",\"col\":3}},{\"id\":\"Zi0OSZ8aPr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Pay Head Total\",\"col\":3}},{\"id\":\"GZd8JcjsNW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Salary Cutting Details\",\"col\":3}},{\"id\":\"VpilOLyUdV\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gross Earnings and Deductions\",\"col\":3}},{\"id\":\"L9bsUps_7z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gross Total Income\",\"col\":3}},{\"id\":\"ZYa6uQl8Fz\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Pay Head Breakup\",\"col\":3}},{\"id\":\"ZsC2N-4zYl\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Calculation\",\"col\":3}},{\"id\":\"020f5WEW-G\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Arrear Calculation Report\",\"col\":3}},{\"id\":\"cV66JOfZJh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Bebf Trust Contribution\",\"col\":3}},{\"id\":\"K4CBCSfwBG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ECR Upload Statement\",\"col\":3}},{\"id\":\"ULojxJpR1m\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"PLI- LIC Recovery Summary\",\"col\":3}},{\"id\":\"EjqiANbBVa\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Society Recovery Summary\",\"col\":3}},{\"id\":\"4MG4SWbx_D\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"LWF Contribution Summary\",\"col\":3}},{\"id\":\"Lh3iaqyfAY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"BRC Deduction Summary\",\"col\":3}},{\"id\":\"6gAOuT8SgL\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"TDS Statement\",\"col\":3}},{\"id\":\"4kcLQ7SeVF\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Professional Tax Summary\",\"col\":3}}]",
+ "creation": "2026-01-23 12:58:56.255282",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "PAYROLL ENTRIES",
  "links": [],
- "modified": "2025-11-27 22:35:54.603614",
+ "modified": "2026-01-28 11:46:37.745227",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PAYROLL ENTRIES",
@@ -35,9 +35,48 @@
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [],
+ "roles": [
+  {
+   "role": "Projects Manager"
+  },
+  {
+   "role": "SCM Manager"
+  }
+ ],
  "sequence_id": 19.0,
  "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "TDS Statement",
+   "link_to": "TDS Statement",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Pf Detailed Log",
+   "link_to": "PF Detailed Log",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "BRC Deduction Summary",
+   "link_to": "BRC Deduction Summary",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "PLI- LIC Recovery Summary",
+   "link_to": "PLI-LIC Recovery Summary",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
   {
    "color": "Grey",
    "doc_view": "List",
@@ -47,12 +86,68 @@
    "type": "DocType"
   },
   {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Benevolent Fund Log",
+   "link_to": "Benevolent Fund Log",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Society Recovery Summary",
+   "link_to": "Society Recovery Summary",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Professional Tax Summary",
+   "link_to": "Professional Tax Summary",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "ECR Upload Statement",
+   "link_to": "ECR Upload Statement",
+   "report_ref_doctype": "PF Detailed Log",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Lop Per Request",
+   "link_to": "Lop Per Request",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "LWF Contribution Summary",
+   "link_to": "LWF Contribution Summary",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
+  },
+  {
    "color": "Blue",
    "doc_view": "List",
    "label": "Payroll Master Settings",
    "link_to": "Payroll Master Setting",
    "stats_filter": "[]",
    "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Bebf Trust Contribution",
+   "link_to": "BEBF Trust Contribution",
+   "report_ref_doctype": "Salary Slip",
+   "type": "Report"
   },
   {
    "color": "Green",
@@ -171,14 +266,6 @@
    "doc_view": "List",
    "label": "Income Tax Slab",
    "link_to": "Income Tax Slab",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Red",
-   "doc_view": "List",
-   "label": "Lop Per Request",
-   "link_to": "Lop Per Request",
    "stats_filter": "[]",
    "type": "DocType"
   },
