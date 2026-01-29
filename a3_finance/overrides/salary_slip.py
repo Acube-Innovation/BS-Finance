@@ -1314,7 +1314,7 @@ def apprentice_working_days(doc, method):
     # -------------------------------
     # WORKER / OFFICER LOGIC
     # -------------------------------
-    if doc.custom_employment_type in ["Worker", "Officer","Canteen Employee"]:
+    if doc.custom_employment_type in ["Workers", "Officers","Canteen Employee"]:
         doc.custom_weekly_payment_days = (end_date - start_date).days + 1
 
 
