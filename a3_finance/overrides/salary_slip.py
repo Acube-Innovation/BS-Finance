@@ -1197,6 +1197,12 @@ def final_calculation(doc, method):
 
     # Determine fiscal year start (April 1 of the year of start_date)
     fiscal_year_start = getdate(doc.start_date).replace(month=4, day=1)
+    start_date = getdate(doc.start_date)
+    if start_date.month < 4:
+        fiscal_year_start = start_date.replace(year=start_date.year - 1, month=4, day=1)
+    else:
+        fiscal_year_start = start_date.replace(month=4, day=1)
+
 
     for row in doc.deductions:
         if row.salary_component == "Society":
@@ -1669,6 +1675,7 @@ def apply_society_deduction_cap(doc, method):
     doc.total_deduction = sum(d.amount for d in doc.deductions)
     doc.net_pay = doc.gross_pay - doc.total_deduction
     doc.custom_gross_deduction_year_to_date = sum((d.year_to_date or 0) for d in doc.deductions)
+    print(doc.custom_gross_deduction_year_to_date,"lllllll")
     doc.rounded_total = rounded(doc.net_pay)
     doc.compute_year_to_date()
     doc.compute_month_to_date()
