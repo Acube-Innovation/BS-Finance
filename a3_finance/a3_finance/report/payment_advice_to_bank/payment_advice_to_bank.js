@@ -39,18 +39,18 @@ frappe.query_reports["Payment Advice To Bank"] = {
             fieldtype: "Link",
             options: "Employee"
         },
-        {
-            fieldname: "checked_by",
-            label: "Checked by",
-            fieldtype: "Link",
-            options: "Employee"
-        },
-        {
-            fieldname: "verified_by",
-            label: "Verified by",
-            fieldtype: "Link",
-            options: "Employee"
-        },
+        // {
+        //     fieldname: "checked_by",
+        //     label: "Checked by",
+        //     fieldtype: "Link",
+        //     options: "Employee"
+        // },
+        // {
+        //     fieldname: "verified_by",
+        //     label: "Verified by",
+        //     fieldtype: "Link",
+        //     options: "Employee"
+        // },
         {
             fieldname: "approved_by",
             label: "Approved by",
@@ -153,14 +153,36 @@ frappe.query_reports["Payment Advice To Bank"] = {
 
             <br><br>
 
-            <table width="100%" style="font-family:Arial; font-size:12px; text-align:center;">
-                <tr>
-                    <td><b>Prepared By</b><div style="height:55px;"></div>${prepared}</td>
-                    <td><b>Checked By</b><div style="height:55px;"></div>${checked}</td>
-                    <td><b>Verified By</b><div style="height:55px;"></div>${verified}</td>
-                    <td><b>Approved By</b><div style="height:55px;"></div>${approved}</td>
-                </tr>
-            </table>
+          <table width="100%" style="font-family: Arial; font-size: 12px; text-align: center;">
+    <tr>
+        <!-- Left: Authorized -->
+        <td width="50%">
+            <b>Authorized Signatory & Designation</b>
+            <div style="height:55px;"></div>
+        </td>
+
+      
+    </tr>
+
+    <tr>
+        <!-- Prepared below Authorized -->
+        <td>
+            
+            <div style="height:55px;"></div>
+            ${prepared}
+        </td>
+
+        <td width="50%">
+           
+            <div style="height:55px;"></div>
+            ${approved}
+        </td>
+
+        <!-- Empty cell to keep structure -->
+        <td></td>
+    </tr>
+</table>
+
         `;
     }
 };
