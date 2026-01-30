@@ -1581,7 +1581,7 @@ def set_weekly_present_days_from_canteen(doc,method):
         (self.start_date, self.end_date, self.employee),
         as_dict=True,
     )
-    print(f"Present Days Query Result: {present_days}")
+    print(f"Present Days Query Result: {present_days}",doc.custom_current_basic_pay_,"Base")
 
     if present_days:
         record = present_days[0]

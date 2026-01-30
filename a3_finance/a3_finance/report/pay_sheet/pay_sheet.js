@@ -87,196 +87,193 @@ frappe.query_reports["Pay Sheet"] = {
         },
     ],
 
-    printable_html: async function (report) {
-        console.log("🟣 printable_html() called!");
+printable_html: async function (report) {
 
-        let filters = frappe.query_report.get_filter_values();
-        let data = report.data;
-        let columns = report.columns;
+    let filters = frappe.query_report.get_filter_values();
+    let data = report.data || [];
+    let columns = report.columns || [];
 
-        console.log("📌 Filters:", filters);
-        console.log("📌 Columns:", columns);
-        console.log("📌 Data:", data);
+    // -----------------------------
+    // FETCH EMPLOYEE DISPLAY NAMES
+    // -----------------------------
+    let employee_ids = [
+        filters.prepared_by,
+        filters.checked_by,
+        filters.verified_by,
+        filters.approved_by
+    ].filter(Boolean);
 
-        // Fetch employee full names
-        let employee_ids = [filters.prepared_by, filters.checked_by, filters.verified_by, filters.approved_by].filter(Boolean);
-        let employees = [];
-        if (employee_ids.length > 0) {
-            employees = await frappe.db.get_list("Employee", {
-                filters: { name: ["in", employee_ids] },
-                fields: ["name", "employee_name", "designation"]
-            });
-        }
-
-        let employee_map = {};
-        employees.forEach(emp => {
-            employee_map[emp.name] = `${emp.employee_name}${emp.designation ? ' - ' + emp.designation : ''}`;
+    let employee_map = {};
+    if (employee_ids.length) {
+        let employees = await frappe.db.get_list("Employee", {
+            filters: { name: ["in", employee_ids] },
+            fields: ["name", "employee_name", "designation"]
         });
 
-        // Replace IDs with full names
-        filters.prepared_by = employee_map[filters.prepared_by] || filters.prepared_by || "";
-        filters.checked_by = employee_map[filters.checked_by] || filters.checked_by || "";
-        filters.verified_by = employee_map[filters.verified_by] || filters.verified_by || "";
-        filters.approved_by = employee_map[filters.approved_by] || filters.approved_by || "";
+        employees.forEach(e => {
+            employee_map[e.name] =
+                `${e.employee_name}${e.designation ? " - " + e.designation : ""}`;
+        });
+    }
 
-      let month_year = "";
-        try {
-            let date_str = filters.start_date || filters.end_date;
+    filters.prepared_by = employee_map[filters.prepared_by] || "";
+    filters.checked_by  = employee_map[filters.checked_by]  || "";
+    filters.verified_by = employee_map[filters.verified_by] || "";
+    filters.approved_by = employee_map[filters.approved_by] || "";
 
-            // Convert frappe date string ("2025-11-01") into a JS Date object
-            let d = frappe.datetime.str_to_obj(date_str);
+    // -----------------------------
+    // MONTH YEAR
+    // -----------------------------
+    let d = frappe.datetime.str_to_obj(filters.start_date || filters.end_date);
+    let month_year = d
+        ? d.toLocaleString("en-IN", { month: "long", year: "numeric" })
+        : "";
 
-            const months = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            ];
+    // -----------------------------
+    // DYNAMIC ZOOM BASED ON COLUMNS
+    // -----------------------------
+    let col_count = columns.length;
+    let zoom = 0.85;
+    if (col_count > 15) zoom = 0.75;
+    if (col_count > 20) zoom = 0.65;
 
-            month_year = months[d.getMonth()] + " " + d.getFullYear();
-            console.log("📅 Computed Month-Year:", month_year);
-        } catch (e) {
-            console.error("❌ Month-Year Computation Error:", e);
-        }
-
-        let col_count = columns.length;
-        let first_width = 100 - (col_count - 1) * 10;
-        console.log("📐 Column Count:", col_count, "First Width:", first_width);
-
-        // ------- START HTML GENERATION -------
-        let html = `
+    // -----------------------------
+    // HTML START
+    // -----------------------------
+    let html = `
 <style>
+
+@page {
+    size: A4 landscape;
+    margin: 8mm;
+}
+
 @media print {
+
+    body {
+        zoom: ${zoom};
+        -webkit-print-color-adjust: exact;
+    }
+
     table {
-        border-collapse: collapse !important;
         width: 100% !important;
-        table-layout: auto !important;
-        page-break-inside: auto;
-        font-size: 9px !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
     }
 
-    .pay-sheet-table,
-    .pay-sheet-table th,
-    .pay-sheet-table td {
-        border: 1px solid #000 !important;
-        box-sizing: border-box;
-        padding: 2px !important;
-        vertical-align: middle !important;
-    }
-
-    /* Last column right border */
-    .pay-sheet-table th:last-child,
-    .pay-sheet-table td:last-child {
-        border-right: 1px solid #000 !important;
+    thead {
+        display: table-header-group;
     }
 
     tr {
         page-break-inside: avoid !important;
     }
 
-    /* Wrap header text */
-    .pay-sheet-table th {
-        white-space: normal !important;
-        text-align: center !important;
-        font-size: 9px !important;
+    .pay-sheet-table {
+        font-size: 8px !important;
+    }
+
+    .pay-sheet-table th,
+    .pay-sheet-table td {
+        border: 1px solid #000 !important;
         padding: 2px !important;
+        vertical-align: middle !important;
     }
 
-    /* Keep amounts on single line */
-    .pay-sheet-table td:not(:first-child) {
-        white-space: nowrap;
+    .pay-sheet-table th {
+        text-align: center;
+        white-space: normal !important;
+        word-break: break-word;
+    }
+
+    .pay-sheet-table td {
         text-align: right;
+        white-space: nowrap;
     }
 
-    /* First column left align */
     .pay-sheet-table td:first-child {
         text-align: left;
         font-weight: bold;
     }
 }
+
 </style>
 
+<div style="text-align:center;">
+    <div style="font-size:18px;font-weight:bold;">${filters.company || ""}</div>
+    <div style="font-size:12px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
 
-<div style="text-align: center; width: 100%; margin-bottom: 10px;">
-    <div style="font-size: 20px; font-weight: bold;">
-        ${filters.company }
+    <div style="font-size:15px;font-weight:bold;margin-top:10px;">
+        SUMMARY STATEMENT OF SALARY – ${filters.employment_subtype || "ALL"} – ${month_year}
     </div>
-    <div style="font-size: 14px;">
-        CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM
-    </div>
 
-  <div style="font-size: 18px; font-weight: bold; margin-top: 12px;">
-    SUMMARY STATEMENT OF SALARY – ${filters.employment_subtype || "All Employment Subtypes"} – ${month_year}
-</div>
-
-
-    <div style="font-size: 16px; margin-top: 5px;">
-        BREAKUP OF EARNINGS FOR THE MONTH OF – ${month_year}
+    <div style="font-size:13px;margin-top:4px;">
+        BREAKUP OF EARNINGS FOR THE MONTH OF ${month_year}
     </div>
 </div>
 
 <hr>
 
-
-<hr>
-
-<table class="table table-bordered pay-sheet-table">
+<table class="pay-sheet-table">
 <thead>
 <tr>
-<th style="width:${first_width}%;">Particulars</th>
+    <th style="width:160px;">Particulars</th>
 `;
 
+    // -----------------------------
+    // COLUMN HEADERS
+    // -----------------------------
+    columns.slice(1).forEach(col => {
+        html += `<th>${col.label}</th>`;
+    });
+
+    html += `</tr></thead><tbody>`;
+
+    // -----------------------------
+    // DATA ROWS
+    // -----------------------------
+    data.forEach(row => {
+        html += `<tr>`;
+        html += `<td>${row.employment_subtype || ""}</td>`;
+
         columns.slice(1).forEach(col => {
-            html += `<th style="width:10%;">${col.label}</th>`;
+            let val = Math.round(row[col.fieldname] || 0);
+            html += `<td>${frappe.format(val, { fieldtype: "Currency" })}</td>`;
         });
 
-        html += `</tr></thead><tbody>`;
+        html += `</tr>`;
+    });
 
-        data.forEach(row => {
-            html += `<tr><td><b>${row.employment_subtype || ""}</b></td>`;
-
-            columns.slice(1).forEach(col => {
-                html += `<td class="text-right"> ${frappe.format(row[col.fieldname], col)} </td>`;
-            });
-
-            html += `</tr>`;
-        });
-
-        html += `
+    html += `
 </tbody>
 </table>
 
+<br><br>
 
-
-<div style="height:40px;"></div>
-
-<table style="width:100%; margin-top:10px; text-align:center;">
-    <tr>
-        <td style="font-weight:bold;font-size: 12px">Prepared By</td>
-        <td style="font-weight:bold;font-size: 12px">Checked By</td>
-        <td style="font-weight:bold;font-size: 12px">Verified By</td>
-        <td style="font-weight:bold;font-size: 12px">Approved By</td>
-    </tr>
-
-    <!-- Space for handwritten signature -->
-    <tr style="height:50px;font-size: 11px"></tr>
-
-    <tr>
-        <td style="font-size: 11px">${filters.prepared_by}</td>
-        <td style="font-size: 11px">${filters.checked_by}</td>
-        <td style="font-size: 11px">${filters.verified_by}</td>
-        <td style="font-size: 11px">${filters.approved_by}</td>
-    </tr>
+<table style="width:100%;text-align:center;font-size:10px;">
+<tr>
+    <td><b>Prepared By</b></td>
+    <td><b>Checked By</b></td>
+    <td><b>Verified By</b></td>
+    <td><b>Approved By</b></td>
+</tr>
+<tr style="height:50px;"></tr>
+<tr>
+    <td>${filters.prepared_by}</td>
+    <td>${filters.checked_by}</td>
+    <td>${filters.verified_by}</td>
+    <td>${filters.approved_by}</td>
+</tr>
 </table>
 
-<p class="text-right" style="margin-top:30px; font-size:9px;">
+<p style="text-align:right;font-size:9px;margin-top:20px;">
     Printed on ${frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string())}
 </p>
-
 `;
 
-        console.log("✅ Printable HTML generated successfully.");
-        return html;
-    }
-};
+    return html;
+}
+}
 
 
 // -----------------------------------------------------
