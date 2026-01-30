@@ -43,7 +43,8 @@ frappe.query_reports["Pay Sheet"] = {
             });
 
             emps.forEach(e => {
-                emp_map[e.name] = `${e.employee_name}${e.designation ? " - " + e.designation : ""}`;
+                emp_map[e.name] =
+                    `${e.employee_name}${e.designation ? " - " + e.designation : ""}`;
             });
         }
 
@@ -92,26 +93,30 @@ frappe.query_reports["Pay Sheet"] = {
         page-break-inside: avoid;
     }
 
+    /* ---------- PAY SHEET TABLE ---------- */
+
     .pay-sheet-table {
-        font-size: 10.5px;
+        font-size: 12.5px;
     }
 
     .pay-sheet-table th,
     .pay-sheet-table td {
         border: 1px solid #000;
-        padding: 6px 4px;
-        line-height: 1.4;
+        padding: 10px 6px;
+        line-height: 1.8;
         vertical-align: middle;
     }
 
     .pay-sheet-table th {
-        font-size: 11px;
+        font-size: 11.5px;
         font-weight: 700;
         text-align: center;
         white-space: normal;
     }
 
     .pay-sheet-table td {
+        font-size: 13px;
+        font-weight: 500;
         text-align: right;
         white-space: nowrap;
     }
@@ -126,9 +131,12 @@ frappe.query_reports["Pay Sheet"] = {
 </style>
 
 <div style="text-align:center;">
-    <div style="font-size:18px;font-weight:bold;">${filters.company || ""}</div>
+    <div style="font-size:18px;font-weight:bold;">
+        ${filters.company || ""}
+    </div>
     <div style="font-size:13px;margin-top:6px;">
-        SUMMARY STATEMENT OF SALARY – ${filters.employment_subtype || "ALL"} – ${month_year}
+        SUMMARY STATEMENT OF SALARY – 
+        ${filters.employment_subtype || "ALL"} – ${month_year}
     </div>
 </div>
 
@@ -137,14 +145,18 @@ frappe.query_reports["Pay Sheet"] = {
 <table class="pay-sheet-table">
 <thead>
 <tr>
-    <th style="width:220px;">Particulars</th>
+    <th style="width:210px;">Particulars</th>
 `;
 
         columns.slice(1).forEach(col => {
             html += `<th>${col.label}</th>`;
         });
 
-        html += `</tr></thead><tbody>`;
+        html += `
+</tr>
+</thead>
+<tbody>
+`;
 
         /* ---------------- DATA ---------------- */
         data.forEach(row => {
@@ -182,7 +194,9 @@ frappe.query_reports["Pay Sheet"] = {
 </table>
 
 <p style="text-align:right;font-size:10px;margin-top:20px;">
-    Printed on ${frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string())}
+    Printed on ${frappe.datetime.str_to_user(
+        frappe.datetime.get_datetime_as_string()
+    )}
 </p>
 `;
 
