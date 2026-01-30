@@ -1,5 +1,12 @@
+// =====================================================
+// 📄 PAY SHEET QUERY REPORT
+// =====================================================
+
 frappe.query_reports["Pay Sheet"] = {
 
+    // =================================================
+    // 🔹 ONLOAD: SET DEFAULT DATES & ADD PRINT BUTTON
+    // =================================================
     onload: function (report) {
         let today = frappe.datetime.get_today();
         report.set_filter_value("start_date", frappe.datetime.month_start(today));
@@ -10,6 +17,9 @@ frappe.query_reports["Pay Sheet"] = {
         });
     },
 
+    // =================================================
+    // 🔹 REPORT FILTERS
+    // =================================================
     filters: [
         { fieldname: "start_date", label: "Start Date", fieldtype: "Date", reqd: 1 },
         { fieldname: "end_date", label: "End Date", fieldtype: "Date", reqd: 1 },
@@ -21,13 +31,21 @@ frappe.query_reports["Pay Sheet"] = {
         { fieldname: "approved_by", label: "Approved By", fieldtype: "Link", options: "Employee" }
     ],
 
+    // =================================================
+    // 🔹 PRINTABLE HTML GENERATION
+    // =================================================
     printable_html: async function (report) {
 
+        // ---------------------------------------------
+        // 📌 FETCH FILTERS, DATA & COLUMNS
+        // ---------------------------------------------
         let filters = frappe.query_report.get_filter_values();
         let data = report.data || [];
         let columns = report.columns || [];
 
-        /* ---------------- EMPLOYEE NAMES ---------------- */
+        // ---------------------------------------------
+        // 👤 FETCH & MAP EMPLOYEE NAMES
+        // ---------------------------------------------
         let emp_ids = [
             filters.prepared_by,
             filters.checked_by,
@@ -53,18 +71,24 @@ frappe.query_reports["Pay Sheet"] = {
         filters.verified_by = emp_map[filters.verified_by] || "";
         filters.approved_by = emp_map[filters.approved_by] || "";
 
-        /* ---------------- MONTH YEAR ---------------- */
+        // ---------------------------------------------
+        // 📅 COMPUTE MONTH & YEAR
+        // ---------------------------------------------
         let d = frappe.datetime.str_to_obj(filters.start_date);
         let month_year = d
             ? d.toLocaleString("en-IN", { month: "long", year: "numeric" })
             : "";
 
-        /* ---------------- ZOOM ---------------- */
+        // ---------------------------------------------
+        // 🔍 PRINT ZOOM ADJUSTMENT
+        // ---------------------------------------------
         let zoom = 0.9;
         if (columns.length > 15) zoom = 0.8;
         if (columns.length > 20) zoom = 0.7;
 
-        /* ---------------- HTML ---------------- */
+        // ---------------------------------------------
+        // 🧾 HTML & PRINT STYLES
+        // ---------------------------------------------
         let html = `
 <style>
 @page {
@@ -129,22 +153,37 @@ frappe.query_reports["Pay Sheet"] = {
     }
 }
 </style>
+</style>
 
-<div style="text-align:center;">
-    <div style="font-size:18px;font-weight:bold;">
+<!-- ================= HEADER ================= -->
+<div style="text-align:center; width:100%; margin-bottom:10px;">
+    <div style="font-size:20px; font-weight:bold;">
         ${filters.company || ""}
     </div>
-    <div style="font-size:13px;margin-top:6px;">
-        SUMMARY STATEMENT OF SALARY – 
+
+    <div style="font-size:14px;">
+        CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM
+    </div>
+
+    <div style="font-size:18px; font-weight:bold; margin-top:12px;">
+        SUMMARY STATEMENT OF SALARY –
         ${filters.employment_subtype || "ALL"} – ${month_year}
+    </div>
+
+    <div style="font-size:16px; margin-top:5px;">
+        BREAKUP OF EARNINGS FOR THE MONTH OF – ${month_year}
     </div>
 </div>
 
 <hr>
 
+<!-- ================= PAY TABLE ================= -->
 <table class="pay-sheet-table">
 <thead>
 <tr>
+
+
+
     <th style="width:210px;">Particulars</th>
 `;
 
@@ -158,7 +197,9 @@ frappe.query_reports["Pay Sheet"] = {
 <tbody>
 `;
 
-        /* ---------------- DATA ---------------- */
+        // ---------------------------------------------
+        // 📊 DATA ROWS
+        // ---------------------------------------------
         data.forEach(row => {
             html += `<tr>`;
             html += `<td>${row.employment_subtype || ""}</td>`;
@@ -177,6 +218,7 @@ frappe.query_reports["Pay Sheet"] = {
 
 <br><br>
 
+<!-- ================= SIGNATURE SECTION ================= -->
 <table style="width:100%;text-align:center;font-size:11px;">
 <tr>
     <td><b>Prepared By</b></td>
@@ -205,7 +247,9 @@ frappe.query_reports["Pay Sheet"] = {
 };
 
 
-/* ---------------- PRINT FUNCTION ---------------- */
+// =====================================================
+// 🖨️ CUSTOM PRINT FUNCTION
+// =====================================================
 async function print_custom_report(report) {
     let html = await frappe.query_reports["Pay Sheet"].printable_html(report);
     let w = window.open("", "PRINT", "height=800,width=1100");
