@@ -1,25 +1,20 @@
 // =====================================================
-// 📄 PAY SHEET QUERY REPORT
+// 📄 PAY SHEET QUERY REPORT – ROTATED HEADER FINAL
 // =====================================================
 
 frappe.query_reports["Pay Sheet"] = {
 
-    // =================================================
-    // 🔹 ONLOAD: SET DEFAULT DATES & ADD PRINT BUTTON
-    // =================================================
-    onload: function (report) {
-        let today = frappe.datetime.get_today();
+    onload(report) {
+        const today = frappe.datetime.get_today();
         report.set_filter_value("start_date", frappe.datetime.month_start(today));
         report.set_filter_value("end_date", frappe.datetime.month_end(today));
 
-        report.page.add_inner_button("Print Report", function () {
+        report.page.add_inner_button("Print Report", () => {
             print_custom_report(report);
         });
+        
     },
 
-    // =================================================
-    // 🔹 REPORT FILTERS
-    // =================================================
     filters: [
         { fieldname: "start_date", label: "Start Date", fieldtype: "Date", reqd: 1 },
         { fieldname: "end_date", label: "End Date", fieldtype: "Date", reqd: 1 },
@@ -31,31 +26,25 @@ frappe.query_reports["Pay Sheet"] = {
         { fieldname: "approved_by", label: "Approved By", fieldtype: "Link", options: "Employee" }
     ],
 
-    // =================================================
-    // 🔹 PRINTABLE HTML GENERATION
-    // =================================================
     printable_html: async function (report) {
 
-        // ---------------------------------------------
-        // 📌 FETCH FILTERS, DATA & COLUMNS
-        // ---------------------------------------------
-        let filters = frappe.query_report.get_filter_values();
-        let data = report.data || [];
-        let columns = report.columns || [];
+        const filters = frappe.query_report.get_filter_values();
+        const data = report.data || [];
+        const columns = report.columns || [];
 
-        // ---------------------------------------------
-        // 👤 FETCH & MAP EMPLOYEE NAMES
-        // ---------------------------------------------
-        let emp_ids = [
+        // ===============================
+        // EMPLOYEE NAME + DESIGNATION
+        // ===============================
+        const emp_ids = [
             filters.prepared_by,
             filters.checked_by,
             filters.verified_by,
             filters.approved_by
         ].filter(Boolean);
 
-        let emp_map = {};
+        const emp_map = {};
         if (emp_ids.length) {
-            let emps = await frappe.db.get_list("Employee", {
+            const emps = await frappe.db.get_list("Employee", {
                 filters: { name: ["in", emp_ids] },
                 fields: ["name", "employee_name", "designation"]
             });
@@ -71,24 +60,33 @@ frappe.query_reports["Pay Sheet"] = {
         filters.verified_by = emp_map[filters.verified_by] || "";
         filters.approved_by = emp_map[filters.approved_by] || "";
 
-        // ---------------------------------------------
-        // 📅 COMPUTE MONTH & YEAR
-        // ---------------------------------------------
-        let d = frappe.datetime.str_to_obj(filters.start_date);
-        let month_year = d
+        // ===============================
+        // MONTH YEAR
+        // ===============================
+        const d = frappe.datetime.str_to_obj(filters.start_date);
+        const month_year = d
             ? d.toLocaleString("en-IN", { month: "long", year: "numeric" })
             : "";
 
-        // ---------------------------------------------
-        // 🔍 PRINT ZOOM ADJUSTMENT
-        // ---------------------------------------------
-        let zoom = 0.9;
-        if (columns.length > 15) zoom = 0.8;
-        if (columns.length > 20) zoom = 0.7;
+        
+        // ===============================
+        // ===============================
+        // COLUMN WIDTHS (BASIC PAY WIDER)
+        // ===============================
+        const firstColWidth = 22;
+        const lastColWidth  = 10;
+        const basicPayWidth = 8;   // 👈 wider column for Basic Pay
 
-        // ---------------------------------------------
-        // 🧾 HTML & PRINT STYLES
-        // ---------------------------------------------
+        const middleCols = columns.length - 2;
+        const remainingWidth = 100 - firstColWidth - lastColWidth - basicPayWidth;
+        const normalColWidth = remainingWidth / (middleCols - 1);
+
+
+        // const middleColWidth = (100 - firstColWidth - lastColWidth) / middleCols;
+
+        // ===============================
+        // HTML
+        // ===============================
         let html = `
 <style>
 @page {
@@ -98,15 +96,61 @@ frappe.query_reports["Pay Sheet"] = {
 
 @media print {
 
+
+
     body {
-        zoom: ${zoom};
+        font-family: Arial, Helvetica, sans-serif;
         -webkit-print-color-adjust: exact;
     }
+.pay-sheet-table th:nth-child(2),
+.pay-sheet-table td:nth-child(2) {
+    width: 8% !important;   /* Basic Pay column */
+}
+/* ===== APPROVAL SECTION – FINAL FIX ===== */
+.approval-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.approval-table td {
+    border: none !important;
+    text-align: center;
+    vertical-align: top;        /* 🔑 key fix */
+    padding: 4px 6px;
+    font-size: 11px;
+}
+
+/* Headings */
+.approval-table .label-row td {
+    font-weight: 700;
+    padding-bottom: 6px;
+}
+
+/* Signature space */
+.approval-table .sign-space td {
+    height: 35px;               /* controlled gap */
+}
+
+/* Names */
+.approval-table .name-row td {
+    font-weight: 600;
+    padding-top: 6px;
+    white-space: normal;
+}
+
+
 
     table {
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
+    }
+
+    th, td {
+        border: 1px solid #000;
+        padding: 5px;
     }
 
     thead {
@@ -117,97 +161,111 @@ frappe.query_reports["Pay Sheet"] = {
         page-break-inside: avoid;
     }
 
-    /* ---------- PAY SHEET TABLE ---------- */
-
-    .pay-sheet-table {
-        font-size: 12.5px;
-    }
-
-    .pay-sheet-table th,
-    .pay-sheet-table td {
-        border: 1px solid #000;
-        padding: 10px 6px;
-        line-height: 1.8;
-        vertical-align: middle;
-    }
-
-    .pay-sheet-table th {
-        font-size: 11.5px;
-        font-weight: 700;
+    /* ===== HEADERS ===== */
+    th {
         text-align: center;
-        white-space: normal;
+        vertical-align: bottom;
+        height: 120px;
     }
 
-    .pay-sheet-table td {
-        font-size: 13px;
-        font-weight: 500;
-        text-align: right;
+    .rotate-header {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
         white-space: nowrap;
+        font-size: 9px;
+        font-weight: 700;
+        line-height: 1;
+        margin: auto;
     }
+/* ===== APPROVAL SECTION (NO BORDERS) ===== */
+.approval-table td {
+    border: none !important;
+    padding: 6px;
+}
 
-    .pay-sheet-table th:first-child,
-    .pay-sheet-table td:first-child {
+    /* ===== DATA ===== */
+    td:first-child {
         text-align: left;
         font-weight: 600;
+        font-size: 10px;
         white-space: normal;
+    }
+
+    td:not(:first-child) {
+        text-align: right;
+        font-size: 10px;
+        white-space: nowrap;   /* 🔑 NEVER BREAK NUMBERS */
+    }
+
+    .grand-total {
+        font-weight: 700;
+        background: #f2f2f2;
     }
 }
 </style>
-</style>
 
-<!-- ================= HEADER ================= -->
-<div style="text-align:center; width:100%; margin-bottom:10px;">
-    <div style="font-size:20px; font-weight:bold;">
-        ${filters.company || ""}
+<div style="text-align:center;">
+    <div style="font-size:18px;font-weight:bold;">${filters.company || ""}</div>
+    <div style="font-size:13px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
+    <div style="font-size:16px;font-weight:bold;margin-top:8px;">
+        SUMMARY STATEMENT OF SALARY – ${filters.employment_subtype || "ALL"}
     </div>
-
-    <div style="font-size:14px;">
-        CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM
-    </div>
-
-    <div style="font-size:18px; font-weight:bold; margin-top:12px;">
-        SUMMARY STATEMENT OF SALARY –
-        ${filters.employment_subtype || "ALL"} – ${month_year}
-    </div>
-
-    <div style="font-size:16px; margin-top:5px;">
+        <div style="font-size: 16px; margin-top: 5px;">
         BREAKUP OF EARNINGS FOR THE MONTH OF – ${month_year}
     </div>
 </div>
 
-<hr>
-
-<!-- ================= PAY TABLE ================= -->
+<div style="height":100px>
+&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<div style = "text-align:right"><b>(Amount in Rupees)</b></div>
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <table class="pay-sheet-table">
 <thead>
 <tr>
-
-
-
-    <th style="width:210px;">Particulars</th>
+    <th style="width:${firstColWidth}%;">Particulars</th>
 `;
 
-        columns.slice(1).forEach(col => {
-            html += `<th>${col.label}</th>`;
-        });
+    columns.slice(1, -1).forEach(col => {
+    const isBasicPay = col.fieldname === "basic_pay";
+    const width = isBasicPay ? basicPayWidth : normalColWidth;
+
+    html += `
+        <th style="width:${width}%;">
+            <div class="rotate-header">${col.label}</div>
+        </th>`;
+});
+
 
         html += `
+    <th style="width:${lastColWidth}%;">
+        <div class="rotate-header">${columns.at(-1).label}</div>
+    </th>
 </tr>
 </thead>
 <tbody>
 `;
 
-        // ---------------------------------------------
-        // 📊 DATA ROWS
-        // ---------------------------------------------
+        // ===============================
+        // DATA ROWS
+        // ===============================
         data.forEach(row => {
-            html += `<tr>`;
+            const isGrand = row.employment_subtype === "Grand Total";
+            html += `<tr class="${isGrand ? "grand-total" : ""}">`;
+
             html += `<td>${row.employment_subtype || ""}</td>`;
 
-            columns.slice(1).forEach(col => {
-                let val = Math.round(row[col.fieldname] || 0);
-                html += `<td>${val.toLocaleString("en-IN")}</td>`;
+            columns.slice(1, -1).forEach(col => {
+                const val = Math.round(row[col.fieldname] || 0).toLocaleString("en-IN");
+                html += `<td>${val}</td>`;
             });
+
+            const totalCol = columns.at(-1);
+            const totalVal = Math.round(row[totalCol.fieldname] || 0).toLocaleString("en-IN");
+            html += `<td>${totalVal}</td>`;
 
             html += `</tr>`;
         });
@@ -218,41 +276,52 @@ frappe.query_reports["Pay Sheet"] = {
 
 <br><br>
 
-<!-- ================= SIGNATURE SECTION ================= -->
-<table style="width:100%;text-align:center;font-size:11px;">
-<tr>
-    <td><b>Prepared By</b></td>
-    <td><b>Checked By</b></td>
-    <td><b>Verified By</b></td>
-    <td><b>Approved By</b></td>
-</tr>
-<tr style="height:55px;"></tr>
-<tr>
-    <td>${filters.prepared_by}</td>
-    <td>${filters.checked_by}</td>
-    <td>${filters.verified_by}</td>
-    <td>${filters.approved_by}</td>
-</tr>
+<table class="approval-table">
+    <colgroup>
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+    </colgroup>
+
+    <tr class="label-row">
+        <td>Prepared By</td>
+        <td>Checked By</td>
+        <td>Verified By</td>
+        <td>Approved By</td>
+    </tr>
+
+    <tr class="sign-space">
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+
+    <tr class="name-row">
+        <td>${filters.prepared_by}</td>
+        <td>${filters.checked_by}</td>
+        <td>${filters.verified_by}</td>
+        <td>${filters.approved_by}</td>
+    </tr>
 </table>
 
-<p style="text-align:right;font-size:10px;margin-top:20px;">
-    Printed on ${frappe.datetime.str_to_user(
-        frappe.datetime.get_datetime_as_string()
-    )}
-</p>
+
+
+
+
 `;
 
         return html;
     }
 };
 
-
-// =====================================================
-// 🖨️ CUSTOM PRINT FUNCTION
-// =====================================================
+// ===============================
+// PRINT HANDLER
+// ===============================
 async function print_custom_report(report) {
-    let html = await frappe.query_reports["Pay Sheet"].printable_html(report);
-    let w = window.open("", "PRINT", "height=800,width=1100");
+    const html = await frappe.query_reports["Pay Sheet"].printable_html(report);
+    const w = window.open("", "PRINT", "width=1400,height=900");
     w.document.write(html);
     w.document.close();
     w.focus();

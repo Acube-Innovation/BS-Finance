@@ -164,7 +164,7 @@
 frappe.ui.form.on('Arrear Breakup Log', {
     onload: function(frm) {
         // If values are pre-set, fetch details from server
-        if (frm.doc.employee && frm.doc.effective_from) {
+        if (frm.doc.employee && frm.doc.effective_from && frm.new()) {
             frm.trigger('fetch_employee_details');
         }
     },
