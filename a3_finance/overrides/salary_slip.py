@@ -53,7 +53,7 @@ def pull_values_from_payroll_master(doc, method):
     deduction_cap                                     = 75
     # print("eeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap,setting.deduction_cap)
     # doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
-    doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund if setting.payroll_month_number in [6, 12] else 0
+    doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund
     doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution if setting.brahmos_recreation_club_contribution else 20
     doc.custom_benevolent_fund                        = setting.benevolent_fund
     print("@@@@@@@@@@@@@@@@@@@@",doc.custom_benevolent_fund)
@@ -718,7 +718,7 @@ def update_tax_on_salary_slip(slip, method):
         filters={
             "employee": slip.employee,
             "payroll_date": slip.end_date,
-            "salary_component": "Other Earnings(Non- Taxable)"
+            "salary_component": "Other Earnings"
         },
         fields=["amount"]
     )

@@ -61,30 +61,61 @@ class PFDetailedLog(Document):
                 self.eps = 0
                 # self.epf_wages = 0
                 self.eps_wages = 0
-              
-                self.er = 0
+            #  12% of epf wages for ER
+                self.er = self.epf_wages * 12 / 100
 
             elif scheme == "EPS-1250  ER-550":
-                self.eps = 1250
+                if self.epf_wages <15000:
+                    self.eps = (1250/15000)*self.epf_wages
+                    self.er = (550/15000)*self.epf_wages
+
+                else:
+                   
+                    self.eps =1250
+                    self.er = 550
+              
                 # self.epf_wages = self.edli_wages
-                self.eps_wages = self.edli_wages
-                self.er = 550
+                # self.eps_wages = self.edli_wages
+               
 
             elif scheme == "EPS-0  ER-1800":
-                self.eps = 0
-                self.epf_wages = self.edli_wages
-                self.eps_wages = 0
-                self.er = 1800
+                # self.eps = 0
+                # self.epf_wages = self.edli_wages
+                # self.eps_wages = 0
+
+                if self.epf_wages <15000:
+                    self.eps = (0/15000)*self.epf_wages
+                    self.er = (1800/15000)*self.epf_wages
+
+                else:
+                   
+                    self.eps = 0
+                    self.er = 1800
 
             elif scheme == "EPS-1250  ER-12%-1250":
-                self.eps = 1250
-                self.epf_wages = self.edli_wages
-                # self.eps_wages = self.edli_wages
-                self.er = (self.pf if self.pf else 0) - 1250
+                epf_wages_12 = (self.epf_wages)*12/100
 
-            elif scheme == "EPS-8.33  ER-3.67" and eps_addl == 0:
-                self.eps = self.epf_wages * 8.33 / 100
-                self.er = self.epf_wages * 3.67 / 100
+                if self.epf_wages <15000:
+                    self.eps = (1250/15000)*self.epf_wages
+                    self.er = epf_wages_12 - (1250/15000)*self.epf_wages
+                else:
+                    self.eps = 1250
+                    self.er = epf_wages_12 - 1250
+                    
+                    # self.epf_wages = self.edli_wages
+                    # self.eps_wages = self.edli_wages
+                    # self.er = (self.pf if self.pf else 0) - 1250
+
+            # elif scheme == "EPS-8.33  ER-3.67" and eps_addl == 0:
+            #     self.eps = self.epf_wages * 8.33 / 100
+            #     self.er = self.epf_wages * 3.67 / 100
             elif scheme == "EPS-8.33  ER-3.67" and eps_addl != 0:
-                self.eps = round_half_up((self.epf_wages * 8.33 / 100) + (self.epf_wages - self.edli_wages)*eps_addl/100)
-                self.er = round_half_up(self.pf - self.eps)
+                
+                if self.epf_wages >15000:
+                    self.eps = 1250 + (self.epf_wages  - 15000) *(9.49/100)
+                    self.er = (self.epf_wages)*12/100 - self.eps
+                else:
+                    self.eps = (self.epf_wages)*8.33/100
+                    self.er = (self.epf_wages)*12/100 - self.eps
+                # self.eps = round_half_up((self.epf_wages * 8.33 / 100) + (self.epf_wages - self.edli_wages)*eps_addl/100)
+                # self.er = round_half_up(self.pf - self.eps)
