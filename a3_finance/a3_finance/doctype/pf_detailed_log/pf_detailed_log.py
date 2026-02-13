@@ -80,8 +80,8 @@ class PFDetailedLog(Document):
 
             elif scheme == "EPS-0  ER-1800":
                 # self.eps = 0
-                # self.epf_wages = self.edli_wages
-                # self.eps_wages = 0
+                self.epf_wages = self.edli_wages
+                self.eps_wages = 0
 
                 if self.epf_wages <15000:
                     self.eps = (0/15000)*self.epf_wages
@@ -98,12 +98,14 @@ class PFDetailedLog(Document):
                 if self.epf_wages <15000:
                     self.eps = (1250/15000)*self.epf_wages
                     self.er = epf_wages_12 - (1250/15000)*self.epf_wages
+                    self.eps_wages = self.epf_wages
                 else:
                     self.eps = 1250
                     self.er = epf_wages_12 - 1250
+                    self.eps_wages = self.edli_wages
                     
                     # self.epf_wages = self.edli_wages
-                    # self.eps_wages = self.edli_wages
+            
                     # self.er = (self.pf if self.pf else 0) - 1250
 
             # elif scheme == "EPS-8.33  ER-3.67" and eps_addl == 0:
