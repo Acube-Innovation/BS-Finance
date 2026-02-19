@@ -6,10 +6,25 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "profession_tax_id",
   "is_active",
+  "profession_tax_id",
   "column_break_mgmz",
   "year",
+  "applicable_months_section",
+  "january",
+  "february",
+  "march",
+  "april",
+  "column_break_zamm",
+  "may",
+  "june",
+  "july",
+  "august",
+  "column_break_zwcy",
+  "september",
+  "october",
+  "november",
+  "december",
   "section_break_hts0",
   "profession__tax_slab"
  ],
@@ -52,12 +67,97 @@
    "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Is Active"
+  },
+  {
+   "fieldname": "applicable_months_section",
+   "fieldtype": "Section Break",
+   "label": "Applicable Months"
+  },
+  {
+   "default": "0",
+   "fieldname": "january",
+   "fieldtype": "Check",
+   "label": "January"
+  },
+  {
+   "default": "0",
+   "fieldname": "february",
+   "fieldtype": "Check",
+   "label": "February"
+  },
+  {
+   "default": "0",
+   "fieldname": "march",
+   "fieldtype": "Check",
+   "label": "March"
+  },
+  {
+   "default": "0",
+   "fieldname": "april",
+   "fieldtype": "Check",
+   "label": "April"
+  },
+  {
+   "fieldname": "column_break_zamm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "may",
+   "fieldtype": "Check",
+   "label": "May"
+  },
+  {
+   "default": "0",
+   "fieldname": "june",
+   "fieldtype": "Check",
+   "label": "June"
+  },
+  {
+   "default": "0",
+   "fieldname": "july",
+   "fieldtype": "Check",
+   "label": "July"
+  },
+  {
+   "default": "0",
+   "fieldname": "august",
+   "fieldtype": "Check",
+   "label": "August"
+  },
+  {
+   "fieldname": "column_break_zwcy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "september",
+   "fieldtype": "Check",
+   "label": "September"
+  },
+  {
+   "default": "0",
+   "fieldname": "october",
+   "fieldtype": "Check",
+   "label": "October"
+  },
+  {
+   "default": "0",
+   "fieldname": "november",
+   "fieldtype": "Check",
+   "label": "November"
+  },
+  {
+   "default": "0",
+   "fieldname": "december",
+   "fieldtype": "Check",
+   "label": "December"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-05 15:15:49.352172",
+ "modified": "2026-02-13 11:08:37.242400",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Profession Tax",

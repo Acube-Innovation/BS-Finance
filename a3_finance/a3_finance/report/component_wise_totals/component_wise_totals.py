@@ -12,12 +12,12 @@ def execute(filters=None):
             "label": "Sl No",
             "fieldname": "sl_no",
             "fieldtype": "Int",
-            "width": 80
+            "width": 60
         },
         {
             "label": "Employee ID",
             "fieldname": "employee",
-            "fieldtype": "Link",
+            "fieldtype": "Data",
             "options": "Employee",
             "width": 150
         },

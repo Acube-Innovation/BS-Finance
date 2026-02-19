@@ -24,15 +24,20 @@ def get_columns():
 def get_data(filters):
 	month = int(filters.get("month"))
 	year = int(filters.get("year"))
+	company = filters.get("company")
 	start_date = get_first_day(f"{year}-{month}-01")
 	end_date = get_last_day(f"{year}-{month}-01")
 
+	employee_filters = {
+		"custom_has_recreation_club_contribution": 1,
+		"status": ["in", ["Active", "Suspended"]],
+	}
+	if company:
+		employee_filters["company"] = company
+
 	employees = frappe.get_all(
     "Employee",
-    filters={
-        "custom_has_recreation_club_contribution": 1,
-        "status": ["in", ["Active", "Suspended"]],
-    },
+    filters=employee_filters,
     fields=["name", "employee_name", "employee_number", "custom_bebf_no"]
 )
 
@@ -54,8 +59,9 @@ def get_data(filters):
 			  AND start_date >= %s
 			  AND end_date <= %s
 			  AND docstatus = 1
+			  AND (%s IS NULL OR company = %s)
 			""",
-			(emp.name, start_date, end_date),
+			(emp.name, start_date, end_date, company, company),
 			as_dict=1,
 		)
 

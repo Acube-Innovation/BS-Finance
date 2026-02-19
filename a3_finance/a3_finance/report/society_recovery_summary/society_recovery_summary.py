@@ -26,6 +26,7 @@ def get_columns():
 def get_data(filters=None):
     month = int(filters.get("month"))
     year = int(filters.get("year"))
+    company = filters.get("company")
     last_date = get_last_day(f"{year}-{month}-01")
 
     # get all society deductions for that payroll date
@@ -46,10 +47,13 @@ def get_data(filters=None):
             """
             SELECT name, employee, employee_name
             FROM `tabSalary Slip`
-            WHERE employee = %s AND end_date = %s AND docstatus = 1
+            WHERE employee = %s
+                AND end_date = %s
+                AND docstatus = 1
+                AND (%s IS NULL OR company = %s)
             LIMIT 1
             """,
-            (record.employee, record.payroll_date),
+            (record.employee, record.payroll_date, company, company),
             as_dict=True,
         )
 
@@ -57,9 +61,12 @@ def get_data(filters=None):
         emp = frappe.db.get_value(
             "Employee",
             record.employee,
-            ["employee_number", "employee_name", "custom_baecsl_no"],
+            ["employee_number", "employee_name", "custom_baecsl_no", "company"],
             as_dict=True,
         )
+
+        if company and (not emp or emp.company != company):
+            continue
 
         if salary_slip:
             # try fetching from deductions first

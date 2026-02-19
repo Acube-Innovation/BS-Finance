@@ -14,7 +14,7 @@ def execute(filters=None):
 def get_columns():
     return [
         {"label": "S.No", "fieldname": "sno", "fieldtype": "Int", "width": 50},
-        {"label": "EC", "fieldname": "employee", "fieldtype": "Link", "options": "Employee", "width": 120},
+        {"label": "EC", "fieldname": "employee", "fieldtype": "Data", "options": "Employee", "width": 120},
         {"label": "Name", "fieldname": "employee_name", "fieldtype": "Data", "width": 160},
         {"label": "UAN", "fieldname": "uan_number", "fieldtype": "Data", "width": 140},
         {"label": "PF A/c", "fieldname": "pf_ac", "fieldtype": "Data", "width": 120},
@@ -58,6 +58,7 @@ def get_data(filters):
         f"""
         SELECT
             employee,
+            epf_ac,
             employee_name,
             uan_number,
             base,
@@ -96,7 +97,7 @@ def get_data(filters):
             "employee": d.employee,
             "employee_name": d.employee_name,
             "uan_number": d.uan_number,
-            "pf_ac": d.employee,
+            "pf_ac": d.epf_ac,
             "epf_wages": d.epf_wages,
             "eps_wages": d.eps_wages,
             "edli_wages": d.edli_wages,
@@ -112,5 +113,4 @@ def get_data(filters):
         })
 
         sno += 1
-
     return data

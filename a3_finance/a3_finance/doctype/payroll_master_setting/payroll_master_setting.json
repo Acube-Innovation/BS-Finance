@@ -413,6 +413,7 @@
   {
    "fieldname": "arrear_details_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Arrear Details"
   },
   {
@@ -434,7 +435,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-29 10:30:41.004280",
+ "modified": "2026-02-13 11:04:28.267131",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "Payroll Master Setting",

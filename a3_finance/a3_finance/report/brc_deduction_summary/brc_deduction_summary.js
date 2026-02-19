@@ -25,6 +25,13 @@ frappe.query_reports["BRC Deduction Summary"] = {
 
     filters: [
         {
+            fieldname: "company",
+            label: "Company",
+            fieldtype: "Link",
+            options: "Company",
+            default: frappe.defaults.get_user_default("Company")
+        },
+        {
             fieldname: "month",
             label: "Month",
             fieldtype: "Select",
@@ -36,6 +43,12 @@ frappe.query_reports["BRC Deduction Summary"] = {
             label: "Year",
             fieldtype: "Int",
             default: frappe.datetime.get_today().split("-")[0]
+        },
+        {
+            fieldname: "prepared_by",
+            label: "Prepared By",
+            fieldtype: "Link",
+            options: "Employee"
         }
     ],
 
@@ -51,6 +64,20 @@ frappe.query_reports["BRC Deduction Summary"] = {
             "July","August","September","October","November","December"
         ];
         let month_name = month_names[parseInt(filters.month) - 1];
+        let company_name = filters.company || "All Companies";
+        let prepared_by = filters.prepared_by || "";
+        let prepared_by_name = prepared_by;
+        let prepared_by_designation = "";
+
+        if (prepared_by) {
+            const emp_details = await frappe.db.get_value(
+                "Employee",
+                prepared_by,
+                ["employee_name", "designation"]
+            );
+            prepared_by_name = emp_details?.message?.employee_name || prepared_by;
+            prepared_by_designation = emp_details?.message?.designation || "";
+        }
 
         let html = `
 <style>
@@ -64,10 +91,16 @@ frappe.query_reports["BRC Deduction Summary"] = {
 </style>
 
 <div style="text-align:center; margin-bottom:12px;">
+<div style="font-size:18px; font-weight:bold;">
+    ${company_name}
+</div>
+
+<div style="font-size:13px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
     <div style="font-size:18px; font-weight:bold;">
         BRC Deduction Summary
     </div>
     <div style="font-size:13px; margin-top:4px;">
+        
         Month: <b>${month_name}</b> &nbsp; | &nbsp;
         Year: <b>${filters.year}</b>
     </div>
@@ -107,11 +140,16 @@ columns.forEach(col => {
     </tbody>
 </table>
 
-<p style="text-align:right; margin-top:20px; font-size:9px;">
-    Printed on ${frappe.datetime.str_to_user(
-        frappe.datetime.get_datetime_as_string()
-    )}
-</p>
+<div style="margin-top:35px; width:280px;">
+    <div style="font-size:11px; font-weight:bold; margin-bottom:6px;">Prepared By</div>
+    <div style="height:50px;"></div>
+   
+        <div><b>${prepared_by_name}</b></div>
+        <div>${prepared_by_designation}</div>
+    </div>
+</div>
+
+
 `;
 
         return html;

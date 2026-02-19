@@ -9,6 +9,7 @@
   "payroll_month",
   "employee",
   "uan_number",
+  "epf_ac",
   "column_break_bjvl",
   "payroll_year",
   "employee_name",
@@ -196,13 +197,18 @@
    "fieldname": "total_earnings_pf",
    "fieldtype": "Currency",
    "label": "Total Earnings - LOP in Hours"
- 
+  },
+  {
+   "fetch_from": "employee.custom_epf",
+   "fieldname": "epf_ac",
+   "fieldtype": "Data",
+   "label": "EPF A/C"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-23 17:01:46.832998",
+ "modified": "2026-02-18 17:44:29.052090",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PF Detailed Log",

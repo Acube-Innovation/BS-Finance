@@ -10,6 +10,7 @@ from frappe.utils import getdate, flt, cint, nowdate, rounded,get_last_day
 from a3_finance.utils.math_utils import round_half_up
 from a3_finance.utils.payroll_master import get_previous_payroll_master_setting
 from a3_finance.utils.math_utils import _days360
+from erpnext.accounts.utils import get_fiscal_year
 
 deduction_cap = 0
 actual_base =0
@@ -1702,6 +1703,98 @@ def apply_society_deduction_cap(doc, method):
 
 
 
+
+# def warn_yearly_components(doc, method=None):
+#     employee = doc.employee
+#     posting_date = getdate(doc.posting_date)
+
+#     # Get financial year range
+#     fiscal_year = get_fiscal_year(posting_date, company=doc.company)
+#     fy_start, fy_end = fiscal_year[1], fiscal_year[2]
+#     print(fy_start,fy_end,"llll")
+
+#     warned_components = []
+
+#     for row in doc.earnings:
+#         component = frappe.get_cached_doc("Salary Component", row.salary_component)
+
+#         if component.custom_is_annual_payout:
+#             already_paid = frappe.db.exists(
+#                 "Salary Detail",
+#                 {
+#                     "parenttype": "Salary Slip",
+#                     "salary_component": row.salary_component,
+#                     "employee": employee,
+#                     "docstatus": 1,
+#                     "posting_date": ["between", [fy_start, fy_end]],
+#                 },
+#             )
+
+#             if already_paid:
+#                 warned_components.append(row.salary_component)
+
+#     if warned_components:
+#         frappe.msgprint(
+#             msg=f"""
+#             <b>Warning:</b> The following yearly components were already processed in this financial year ({fiscal_year[0]}):<br>
+#             <ul>
+#                 {''.join(f'<li>{c}</li>' for c in warned_components)}
+#             </ul>
+#             """,
+#             title="Yearly Component Already Processed",
+#             indicator="orange"
+#         )
+
+
+
+
+
+def warn_yearly_components(doc, method=None):
+    if doc.is_new():
+        return  # avoid duplicate warning on draft reload
+
+    employee = doc.employee
+    posting_date = getdate(doc.posting_date)
+    year = posting_date.year
+
+    start_date = f"{year}-01-01"
+    end_date = f"{year}-12-31"
+
+    warned_components = []
+
+    for row in doc.earnings:
+        component = frappe.get_cached_doc("Salary Component", row.salary_component)
+
+        if component.custom_is_annual_payout:
+
+            already_paid = frappe.db.sql("""
+                SELECT sd.salary_component
+                FROM `tabSalary Detail` sd
+                INNER JOIN `tabSalary Slip` ss ON sd.parent = ss.name
+                WHERE ss.employee = %s
+                AND ss.docstatus = 1
+                AND ss.posting_date BETWEEN %s AND %s
+                AND sd.salary_component = %s
+                LIMIT 1
+            """, (employee, start_date, end_date, row.salary_component))
+
+            if already_paid:
+                warned_components.append(row.salary_component)
+
+    if warned_components:
+        frappe.msgprint(
+            msg=f"""
+            <b>Warning:</b> The following components were already processed in {year}:<br>
+            <ul>
+                {''.join(f'<li>{c}</li>' for c in warned_components)}
+            </ul>
+            """,
+            title="Yearly Component Already Processed",
+            indicator="orange"
+        )
+
+
+
 def custom_skip_society(doc, method):
     """
     Remove Society components that came from Additional Salary
@@ -1800,6 +1893,14 @@ DAYS_IN_MONTH_FIXED = 30
 
 
 def set_subsistence_allowance(slip, method=None):
+
+
+    start = getdate(slip.start_date)
+    month_number = start.month
+    year = start.year
+    setting = frappe.get_doc("Payroll Master Setting",{"payroll_month_number":month_number,"payroll_year":year})
+    DAYS_IN_MONTH_FIXED = setting.payroll_days
+    print(setting,DAYS_IN_MONTH_FIXED)
     print("\n[SA DEBUG] ---- set_subsistence_allowance ----")
     print(f"[SA DEBUG] Slip: {getattr(slip,'name',None)}  Emp: {slip.employee}")
 

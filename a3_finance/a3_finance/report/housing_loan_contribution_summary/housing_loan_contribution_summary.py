@@ -25,17 +25,22 @@ def get_columns():
 def get_data(filters):
     month = int(filters.get("month"))
     year = int(filters.get("year"))
+    company = filters.get("company")
     start_date = get_first_day(f"{year}-{month}-01")
     end_date = get_last_day(f"{year}-{month}-01")
 
+    additional_salary_filters = {
+        "salary_component": "Housing Loan",
+        "is_recurring": 1,
+        "disabled": 0,
+        "docstatus": 1,
+    }
+    if company:
+        additional_salary_filters["company"] = company
+
     add_sal = frappe.get_all(
         "Additional Salary",
-        filters={
-            "salary_component": "Housing Loan",
-            "is_recurring": 1,
-            "disabled": 0,
-            "docstatus": 1,
-        },
+        filters=additional_salary_filters,
         fields=["*"],
     )
 
@@ -48,10 +53,14 @@ def get_data(filters):
         salary_slip = frappe.db.sql(
             """
             SELECT name FROM `tabSalary Slip`
-            WHERE employee = %s AND start_date >= %s AND end_date <= %s AND docstatus = 1
+            WHERE employee = %s
+                AND start_date >= %s
+                AND end_date <= %s
+                AND docstatus = 1
+                AND (%s IS NULL OR company = %s)
             LIMIT 1
             """,
-            (d.employee, start_date, end_date),
+            (d.employee, start_date, end_date, company, company),
             as_dict=True,
         )
 

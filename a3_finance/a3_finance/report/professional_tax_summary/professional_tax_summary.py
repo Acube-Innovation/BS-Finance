@@ -30,6 +30,7 @@ def get_columns():
 def get_data(filters=None):
 	month = int(filters.get("month"))
 	year = int(filters.get("year"))
+	company = filters.get("company")
 	start_date = get_first_day(f"{year}-{month}-01")
 
 	data = []
@@ -48,8 +49,10 @@ def get_data(filters=None):
 		"""
 		SELECT name, employee, employee_name
 		FROM `tabSalary Slip`
-		WHERE start_date = %s""",
-		(start_date),
+		WHERE start_date = %s
+		  AND docstatus = 1
+		  AND (%s IS NULL OR company = %s)""",
+		(start_date, company, company),
 		as_dict=True,
 	)
 	for slip in salary_slip:

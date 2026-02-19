@@ -5,6 +5,7 @@
 frappe.query_reports["Pay Sheet"] = {
 
     onload(report) {
+
         const today = frappe.datetime.get_today();
         report.set_filter_value("start_date", frappe.datetime.month_start(today));
         report.set_filter_value("end_date", frappe.datetime.month_end(today));
@@ -13,13 +14,14 @@ frappe.query_reports["Pay Sheet"] = {
             print_custom_report(report);
         });
         
+        
     },
 
     filters: [
         { fieldname: "start_date", label: "Start Date", fieldtype: "Date", reqd: 1 },
         { fieldname: "end_date", label: "End Date", fieldtype: "Date", reqd: 1 },
         { fieldname: "employment_subtype", label: "Employment Subtype", fieldtype: "Link", options: "Employment Sub Type" },
-        { fieldname: "company", label: "Company", fieldtype: "Link", options: "Company" },
+        { fieldname: "company", label: "Company", fieldtype: "Link", options: "Company", "default": frappe.defaults.get_user_default("Company") },
         { fieldname: "prepared_by", label: "Prepared By", fieldtype: "Link", options: "Employee" },
         { fieldname: "checked_by", label: "Checked By", fieldtype: "Link", options: "Employee" },
         { fieldname: "verified_by", label: "Verified By", fieldtype: "Link", options: "Employee" },
@@ -73,20 +75,14 @@ frappe.query_reports["Pay Sheet"] = {
         // ===============================
         // COLUMN WIDTHS (BASIC PAY WIDER)
         // ===============================
-        const firstColWidth = 22;
-        const lastColWidth  = 10;
-        const basicPayWidth = 8;   // 👈 wider column for Basic Pay
+        const firstColWidth = 12;
+        const lastColWidth  = 7;
+        const basicPayWidth = 6;   
 
         const middleCols = columns.length - 2;
         const remainingWidth = 100 - firstColWidth - lastColWidth - basicPayWidth;
-        const normalColWidth = remainingWidth / (middleCols - 1);
+        const normalColWidth = basicPayWidth
 
-
-        // const middleColWidth = (100 - firstColWidth - lastColWidth) / middleCols;
-
-        // ===============================
-        // HTML
-        // ===============================
         let html = `
 <style>
 @page {
@@ -191,11 +187,13 @@ frappe.query_reports["Pay Sheet"] = {
         white-space: normal;
     }
 
-    td:not(:first-child) {
-        text-align: right;
-        font-size: 10px;
-        white-space: nowrap;   /* 🔑 NEVER BREAK NUMBERS */
-    }
+  td:not(:first-child) {
+    text-align: left;
+    padding: 4px 4px 4px 6px;   /* top right bottom left */
+    font-size: 10px;
+    white-space: nowrap;
+}
+
 
     .grand-total {
         font-weight: 700;

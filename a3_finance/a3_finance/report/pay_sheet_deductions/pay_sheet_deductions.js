@@ -136,7 +136,7 @@ tbody td {
     th {
         text-align: center;
         vertical-align: bottom;
-        height: 120px;
+        height: 100px;
     }
 
     .rotate-header {
@@ -171,7 +171,7 @@ tbody td {
         border: none !important;
         padding: 6px;
         font-size: 11px;
-        text-align: center;
+        text-align: left;
     }
 
     .approval-table tr.sign-space td {

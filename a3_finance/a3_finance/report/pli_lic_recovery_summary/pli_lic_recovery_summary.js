@@ -38,7 +38,24 @@ frappe.query_reports["PLI-LIC Recovery Summary"] = {
 			fieldtype: "Select",
 			options: ["PLI Recovery","LIC Recovery"],
 			default: "PLI Recovery"
-		}
+		},
+		{
+			fieldname: "company",
+			label: "Company",
+			fieldtype: "Link",
+			options: "Company",
+			default: frappe.defaults.get_user_default("Company"),
+			reqd: 1,
+			
+		},
+		{
+			fieldname: "prepared_by",
+			label: "Prepared By",
+			fieldtype: "Link",
+			options: "Employee"
+}
+
+
 	],
 
 	// ---------------- PRINTABLE HTML ----------------
@@ -47,6 +64,33 @@ frappe.query_reports["PLI-LIC Recovery Summary"] = {
 		let filters = frappe.query_report.get_filter_values();
 		let data = report.data || [];
 		let columns = report.columns || [];
+		let company_name = filters.company || "";
+
+		if (filters.company) {
+			const res = await frappe.db.get_value("Company", filters.company, "company_name");
+			const company = res.message || res;
+			company_name = company.company_name || filters.company;
+		}
+
+		let prepared_by_name = "";
+
+		if (filters.prepared_by) {
+			const res = await frappe.db.get_value("Employee", filters.prepared_by, [
+				"employee_name",
+				"designation"
+			]);
+
+			const emp = res.message || res;
+
+			if (emp) {
+				prepared_by_name = emp.employee_name || filters.prepared_by;
+				if (emp.designation) {
+					prepared_by_name += " - " + emp.designation;
+				}
+			}
+		}
+
+
 
 		const month_names = [
 			"January","February","March","April","May","June",
@@ -69,8 +113,13 @@ frappe.query_reports["PLI-LIC Recovery Summary"] = {
 
 <div style="text-align:center; margin-bottom:15px;">
 	<div style="font-size:18px; font-weight:bold;">
-		${filters.type} Summary
-	</div>
+	${company_name}
+</div>
+ <div style="font-size:13px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
+<div style="font-size:16px; font-weight:bold; margin-top:4px;">
+	${filters.type} Summary
+</div>
+
 	<div style="font-size:14px; margin-top:4px;">
 		Month: <b>${month_name}</b> &nbsp; | &nbsp;
 		Year: <b>${filters.year}</b>
@@ -116,11 +165,16 @@ frappe.query_reports["PLI-LIC Recovery Summary"] = {
 	</tbody>
 </table>
 
-<p style="text-align:right; margin-top:25px; font-size:9px;">
-	Printed on ${frappe.datetime.str_to_user(
-		frappe.datetime.get_datetime_as_string()
-	)}
-</p>
+<div style="display:flex; justify-content:flex-start; margin-top:40px; font-size:11px;">
+	<div style="text-align:left;">
+		<b>Prepared By</b>
+		<div style="height:50px;"></div>
+		
+		<div style="margin-top:4px;">${prepared_by_name}</div>
+	</div>
+</div>
+
+
 `;
 
 		return html;

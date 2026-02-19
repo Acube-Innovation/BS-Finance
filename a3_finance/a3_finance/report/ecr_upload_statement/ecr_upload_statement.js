@@ -24,7 +24,7 @@ frappe.query_reports["ECR Upload Statement"] = {
         {
             fieldname: "employee",
             label: "Employee",
-            fieldtype: "Link",
+            fieldtype: "Data",
             options: "Employee"
         },
         {
@@ -40,6 +40,16 @@ frappe.query_reports["ECR Upload Statement"] = {
             fieldtype: "Data",
             default: frappe.datetime.get_today().split("-")[0]
         },
+
+        {
+        fieldname: "company",
+        label: "Company",
+        fieldtype: "Link",
+        options: "Company",
+        default: frappe.defaults.get_user_default("Company"),
+        reqd: 1
+    },
+
         {
             fieldname: "employee_pension_scheme",
             label: "Scheme",
@@ -62,6 +72,13 @@ frappe.query_reports["ECR Upload Statement"] = {
         let filters = frappe.query_report.get_filter_values();
         let data = report.data || [];
         let columns = report.columns || [];
+let company_name = filters.company || "";
+
+if (filters.company) {
+    const res = await frappe.db.get_value("Company", filters.company, "company_name");
+    const company = res.message || res;
+    company_name = company.company_name || filters.company;
+}
 
         const month_names = [
             "January","February","March","April","May","June",
@@ -82,9 +99,15 @@ frappe.query_reports["ECR Upload Statement"] = {
 </style>
 
 <div style="text-align:center; margin-bottom:12px;">
-    <div style="font-size:18px; font-weight:bold;">
-        ECR Upload Statement
-    </div>
+<div style="font-size:18px; font-weight:bold;">
+    ${company_name}
+</div>
+
+<div style="font-size:13px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
+<div style="font-size:16px; font-weight:bold; margin-top:4px;">
+    ECR Upload Statement
+</div>
+
     <div style="font-size:13px; margin-top:4px;">
         Month: <b>${month_name}</b> &nbsp; | &nbsp;
         Year: <b>${filters.payroll_year}</b>
@@ -122,11 +145,7 @@ frappe.query_reports["ECR Upload Statement"] = {
     </tbody>
 </table>
 
-<p style="text-align:right; margin-top:20px; font-size:9px;">
-    Printed on ${frappe.datetime.str_to_user(
-        frappe.datetime.get_datetime_as_string()
-    )}
-</p>
+
 `;
 
         return html;

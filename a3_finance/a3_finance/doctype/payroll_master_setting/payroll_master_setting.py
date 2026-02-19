@@ -1,7 +1,7 @@
 # Copyright (c) 2025, Acube and contributors
 # For license information, please see license.txt
 
-# import frappe
+# zzimport frappe
 from frappe.model.document import Document
 
 

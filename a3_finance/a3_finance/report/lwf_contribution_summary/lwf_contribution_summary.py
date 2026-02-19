@@ -29,12 +29,17 @@ def get_columns():
 def get_data(filters):
 	month = int(filters.get("month")) if filters.get("month") else None
 	year = int(filters.get("year")) if filters.get("year") else None
+	company = filters.get("company")
 	start_date = get_first_day(f"{year}-{month}-01")
 	end_date = get_last_day(f"{year}-{month}-01")
 
+	employee_filters = {"custom_has_labour_welfare_fund": 1}
+	if company:
+		employee_filters["company"] = company
+
 	employees = frappe.get_all(
 	"Employee",
-	filters={"custom_has_labour_welfare_fund": 1},
+	filters=employee_filters,
 	fields=["name", "employee_name", "employee_number","custom_epf","custom_aadhar_no","cell_number","bank_ac_no","bank_name","ifsc_code","custom_bank_branch"])
 
 	data = []
@@ -48,8 +53,9 @@ def get_data(filters):
 			  AND start_date >= %s
 			  AND end_date <= %s
 			  AND docstatus = 1
+			  AND (%s IS NULL OR company = %s)
 			LIMIT 1
-		""", (emp.name, start_date, end_date), as_dict=1)
+		""", (emp.name, start_date, end_date, company, company), as_dict=1)
 
 		ee_contribution = 0
 		if slip :
