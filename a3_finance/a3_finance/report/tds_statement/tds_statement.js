@@ -2,6 +2,14 @@ frappe.query_reports["TDS Statement"] = {
 
 	filters: [
 		{
+			fieldname: "company",
+			label: "Company",
+			fieldtype: "Link",
+			options: "Company",
+			default: frappe.defaults.get_user_default("Company"),
+			reqd: 1
+		},
+		{
 			fieldname: "month",
 			label: "Month",
 			fieldtype: "Select",
@@ -13,6 +21,12 @@ frappe.query_reports["TDS Statement"] = {
 			label: "Year",
 			fieldtype: "Int",
 			default: frappe.datetime.get_today().split("-")[0]
+		},
+		{
+			fieldname: "prepared_by",
+			label: "Prepared By",
+			fieldtype: "Link",
+			options: "Employee"
 		}
 	],
 
@@ -42,7 +56,8 @@ function update_ui_title(report) {
 	const values = report.get_values();
 	if (!values?.month || !values?.year) return;
 
-	const subtitle = `For the Month of ${get_month_name(values.month)} ${values.year}`;
+	const company_text = values.company ? ` | ${values.company}` : "";
+	const subtitle = `For the Month of ${get_month_name(values.month)} ${values.year}${company_text}`;
 
 	if (report.page?.set_title) {
 		report.page.set_title("TDS Statement", subtitle);
@@ -60,6 +75,24 @@ frappe.query_reports["TDS Statement"].printable_html = async function (report) {
 	let columns = report.columns || [];
 
 	let month_name = get_month_name(filters.month);
+	let company_name = filters.company || frappe.defaults.get_user_default("Company") || "";
+	if (filters.company) {
+		const res = await frappe.db.get_value("Company", filters.company, "company_name");
+		const company = res.message || res;
+		company_name = company.company_name || filters.company;
+	}
+
+	let prepared_by_name = frappe.session.user_fullname || frappe.session.user || "";
+	if (filters.prepared_by) {
+		const emp_res = await frappe.db.get_value("Employee", filters.prepared_by, ["employee_name", "designation"]);
+		const emp = emp_res.message || emp_res;
+		if (emp) {
+			prepared_by_name = emp.employee_name || filters.prepared_by;
+			if (emp.designation) {
+				prepared_by_name += ` - ${emp.designation}`;
+			}
+		}
+	}
 
 	let html = `
 <style>
@@ -74,7 +107,9 @@ frappe.query_reports["TDS Statement"].printable_html = async function (report) {
 </style>
 
 <div style="text-align:center; margin-bottom:15px;">
-	<div style="font-size:18px; font-weight:bold;">TDS Statement</div>
+	<div style="font-size:18px; font-weight:bold;">${company_name || "-"}</div>
+	<div style="font-size:13px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
+	<div style="font-size:16px; font-weight:bold; margin-top:4px;">TDS Statement</div>
 	<div style="font-size:14px;">
 		For the Month of <b>${month_name} ${filters.year}</b>
 	</div>
@@ -104,7 +139,7 @@ frappe.query_reports["TDS Statement"].printable_html = async function (report) {
 			}
 
 			let value = row[col.fieldname] ?? "";
-			let cls = col.fieldtype === "Currency" ? "num" : "";
+			let cls = ["Currency", "Float", "Int"].includes(col.fieldtype) ? "num" : "";
 
 			html += `<td class="${cls}">
 				${frappe.format(value, col)}
@@ -118,11 +153,15 @@ frappe.query_reports["TDS Statement"].printable_html = async function (report) {
 </tbody>
 </table>
 
-<p style="text-align:right; margin-top:25px; font-size:9px;">
-	Printed on ${frappe.datetime.str_to_user(
-		frappe.datetime.get_datetime_as_string()
-	)}
-</p>
+<div style="margin-top:24px; font-size:11px; width:280px;">
+	<div style="font-weight:bold;">Prepared By</div>
+	<div style="height:55px;"></div>
+
+		${prepared_by_name}
+	</div>
+</div>
+
+
 `;
 
 	return html;

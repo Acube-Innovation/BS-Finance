@@ -71,6 +71,10 @@ fixtures = [
         "filters": [["doc_type", "in", ["Asset Category"]]]
     },
     {
+        "doctype": "Property Setter",
+        "filters": [["name", "=", "Salary Structure Assignment-income_tax_slab-allow_on_submit"]]
+    },
+    {
         "doctype": "Workspace",
         "filters": [["name", "in", ["PAYROLL ENTRIES"]]]
     }
@@ -179,18 +183,18 @@ treeviews = ["Asset Category"]
 override_doctype_class = {
     "Payroll Entry": "a3_finance.a3_finance.doc_events.payroll_entry.CustomPayrollEntry"
 }
-scheduler_events = {
-    "daily": [
-        # "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
-        "a3_finance.overrides.account_validity.update_account_status",
-        "a3_finance.scheduler.update_employee_total_service.update_total_service_for_all_employees"
-    ],
-    "cron": {
-        "0 0 15 * *": [  # Run at midnight on 15th
-            "a3_finance.overrides.additional_salary.reactivate_disabled_add_salaries"
-        ]
-    }
-}
+# scheduler_events = {
+#     "daily": [
+#         # "a3_finance.overrides.employee_updates.update_years_of_service_for_all_employees",
+#         "a3_finance.overrides.account_validity.update_account_status",
+#         "a3_finance.scheduler.update_employee_total_service.update_total_service_for_all_employees"
+#     ],
+#     "cron": {
+#         "0 0 15 * *": [  # Run at midnight on 15th
+#             "a3_finance.overrides.additional_salary.reactivate_disabled_add_salaries"
+#         ]
+#     }
+# }
 
 
 
@@ -236,7 +240,8 @@ doc_events = {
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
             # "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             "a3_finance.overrides.salary_slip.set_professional_tax",
-            "a3_finance.overrides.salary_slip.warn_yearly_components"
+            "a3_finance.overrides.salary_slip.warn_yearly_components",
+        
             # "a3_finance.overrides.salary_slip.calculate_cea"
             
             
@@ -253,6 +258,7 @@ doc_events = {
             "a3_finance.overrides.salary_slip.create_pf_detailed_summary",
             "a3_finance.overrides.salary_slip.update_ex_gratia_in_employee",
             "a3_finance.overrides.salary_slip.reactivate_add_sal",
+             "a3_finance.overrides.salary_slip.create_festival_recovery"
             
         ],
         "on_cancel":[

@@ -193,6 +193,17 @@ def calculate_exgratia(doc, method):
     # Set total LOP days in field
     doc.custom_total_lop_previous_year = total_lop
 
+    total_refund_days = frappe.db.sql("""
+        SELECT SUM(custom_lop_refund_days)
+        FROM `tabSalary Slip`
+        WHERE employee = %s
+          AND start_date BETWEEN %s AND %s
+          AND docstatus = 1
+    """, (employee, prev_fy_start, prev_fy_end))[0][0] or 0
+
+    doc.custom_total_lop_refund_previous_year_for_exgratia = total_refund_days
+
+
     # Calculate Ex-Gratia
     # exgratia = (bonus_amount / 360.0) * (360.0 - total_lop)
     # doc.custom_ex_gratia = round(exgratia)
@@ -200,27 +211,69 @@ def calculate_exgratia(doc, method):
     print(f"[DEBUG] Bonus: {bonus_amount}, LOP: {total_lop}, ExGratia: {doc.custom_ex_gratia}")
 
 
+
+
+
+
+MONTH_FIELD_MAP = {
+    1: "january", 2: "february", 3: "march", 4: "april",
+    5: "may", 6: "june", 7: "july", 8: "august",
+    9: "september", 10: "october", 11: "november", 12: "december",
+}
+
+
 def set_professional_tax(doc, method):
     doc.set_totals()
     salary_month = getdate(doc.start_date).month
     salary_year = getdate(doc.start_date).year
 
-    if salary_month not in [1, 7]:
-        return  # Apply tax only in Jan or July
+    # if salary_month not in [1, 7]:
+    #     return  # Apply tax only in Jan or July
+
+
+    # Fetch active Profession Tax
+    profession_tax = frappe.get_value("Profession Tax", {"is_active": 1}, "name")
+    if not profession_tax:
+        return
+
+    profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
+
+    # Check if tax is applicable for this month
+    month_field = MONTH_FIELD_MAP.get(salary_month)
+
+    if not getattr(profession_tax_doc, month_field, 0):
+        return
+
 
     if not doc.employee:
         return
 
-    # Define financial year range for the current tax window
-    if salary_month == 7:
-        # July → Apr to Sep of same financial year
+
+
+
+    if 4 <= salary_month <= 9:
+        # Apr → Sep
         start = datetime(salary_year, 4, 1)
         end = datetime(salary_year, 9, 30)
-    else:  # January
-        # Jan → Oct to Mar (spans two calendar years)
-        if salary_month == 1:
+    else:
+        # Oct → Mar (cross-year)
+        if salary_month <= 3:
             start = datetime(salary_year - 1, 10, 1)
             end = datetime(salary_year, 3, 31)
+        else:
+            start = datetime(salary_year, 10, 1)
+            end = datetime(salary_year + 1, 3, 31)
+
+    # # Define financial year range for the current tax window
+    # if salary_month == 7:
+    #     # July → Apr to Sep of same financial year
+    #     start = datetime(salary_year, 4, 1)
+    #     end = datetime(salary_year, 9, 30)
+    # else:  # January
+    #     # Jan → Oct to Mar (spans two calendar years)
+    #     if salary_month == 1:
+    #         start = datetime(salary_year - 1, 10, 1)
+    #         end = datetime(salary_year, 3, 31)
 
     # Sum gross pay for eligible months
     gross_total = frappe.db.sql("""
@@ -231,16 +284,18 @@ def set_professional_tax(doc, method):
       AND ss.posting_date BETWEEN %s AND %s
       AND sd.parentfield = 'earnings'
       AND sd.salary_component IN ('Basic Pay', 'Variable DA')
-""", (doc.employee, start, end), as_dict=True)[0]["total"] or 0
+    """, (doc.employee, start, end), as_dict=True)[0]["total"] or 0
 
 
     # Fetch active Profession Tax
-    profession_tax = frappe.get_value("Profession Tax", {"is_active": 1}, "name")
-    if not profession_tax:
-        frappe.log_error("No active Profession Tax document found", "Professional Tax Calculation")
-        return
+    # profession_tax = frappe.get_value("Profession Tax", {"is_active": 1}, "name")
+    # if not profession_tax:
+    #     frappe.log_error("No active Profession Tax document found", "Professional Tax Calculation")
+    #     return
 
-    profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
+    # profession_tax_doc = frappe.get_doc("Profession Tax", profession_tax)
+
+
     basic_pay = frappe.db.get_value(
     "Salary Detail",
     {
@@ -690,6 +745,7 @@ def update_tax_on_salary_slip(slip, method):
     else:
         # January–March → include April–December
         fiscal_months = list(month_name)[4:13]
+        
 
 
     # fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
@@ -757,7 +813,18 @@ def update_tax_on_salary_slip(slip, method):
         + (projection_end.month - start_date.month)
     )
 
-    months_left = max(months_left, 0)
+    # months_left = max(months_left , 0)
+    # Months remaining AFTER current month
+    future_months = (
+    (projection_end.year - start_date.year) * 12
+    + (projection_end.month - start_date.month)
+    )
+
+    future_months = max(future_months, 0)
+
+    # Months remaining INCLUDING current month (TDS recovery months)
+    months_left = future_months + 1
+
 
     # # Months left AFTER current month
     # months_left = (fy_end.year - start_date.year) * 12 + (fy_end.month - start_date.month)
@@ -881,6 +948,7 @@ def update_tax_on_salary_slip(slip, method):
         print(f"Tax Before Marginal Relief: {round_half_up(tax)}")
         print(f"Tax Before Marginal Relief222222222222222222: {tax}")
         slip.custom_tax = round_half_up(tax)
+        
 
         if (
             net_taxable_income > relief_threshold and
@@ -907,6 +975,9 @@ def update_tax_on_salary_slip(slip, method):
 
         final_tax = tax_with_cess - total_tax_paid
         slip.custom_deputation_allowance = tax_with_cess
+        print(months_left)
+     
+
         monthly_tax = round_half_up(final_tax / (months_left + 1)) if final_tax > 0 else 0
         print(f"Final Tax: {final_tax}, Monthly Tax: {monthly_tax}")
 
@@ -928,6 +999,7 @@ def update_tax_on_salary_slip(slip, method):
         slip.calculate_net_pay()
         print(f"--- Completed Tax Update for {slip.name} ---\n")
     slip.calculate_net_pay()
+    
 
 def update_employee_payroll_details(slip, method):
     from frappe.utils import getdate, flt
@@ -2313,6 +2385,52 @@ def _upsert_fa_deduction(slip, amount, picked_ids):
 
     if hasattr(slip, "set_totals"): slip.set_totals()
     if hasattr(slip, "calculate_net_pay"): slip.calculate_net_pay()
+
+
+
+def create_festival_recovery(doc, method=None):
+    """
+    Auto-create Festival Advance Disbursement when Festival Advance is paid.
+    disbursement_month = payroll month (YYYY-MM)
+    Trigger: Salary Slip on_submit
+    """
+
+    festival_amount = 0
+
+  
+    for row in doc.earnings:
+        if row.salary_component == "Festival Advance" and row.amount > 0:
+            festival_amount = row.amount
+            break
+
+    if not festival_amount:
+        return
+
+ 
+    payroll_month = doc.start_date
+
+ 
+    if frappe.db.exists("Festival Advance Disbursement", {
+        "employee": doc.employee,
+        "disbursement_month": payroll_month
+    }):
+        return
+
+ 
+    disbursement = frappe.new_doc("Festival Advance Disbursement")
+    disbursement.employee = doc.employee
+    disbursement.employee_name = doc.employee_name
+    disbursement.disbursement_month = payroll_month
+    disbursement.festival_advance_amount = festival_amount
+    disbursement.salary_slip = doc.name
+
+    disbursement.insert(ignore_permissions=True)
+    disbursement.submit()
+
+    frappe.msgprint(
+        f"Festival Advance recorded for {doc.employee} ({payroll_month})"
+    )
+
 
 
 def festival_advance_recovery_on_submit(slip, method=None):
