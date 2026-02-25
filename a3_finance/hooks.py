@@ -232,13 +232,13 @@ doc_events = {
             # "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
             "a3_finance.overrides.salary_slip.final_calculation",
-            # "a3_finance.overrides.salary_slip.add_society_deduction",
+            "a3_finance.overrides.salary_slip.add_society_deduction",
             "a3_finance.overrides.salary_slip.set_subsistence_allowance",
             "a3_finance.overrides.salary_slip.validate_additional_salaries",
             "a3_finance.overrides.salary_slip.festival_advance_recovery_validate",
             "a3_finance.overrides.salary_slip.set_actual_amounts",
             "a3_finance.overrides.salary_slip.update_tax_on_salary_slip",
-            # "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
+            "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.warn_yearly_components",
         
@@ -247,8 +247,8 @@ doc_events = {
             
         ],
         "before_save":["a3_finance.overrides.salary_slip.set_professional_tax",
-                        "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
-                        "a3_finance.overrides.salary_slip.add_society_deduction",
+                        # "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
+                        # "a3_finance.overrides.salary_slip.add_society_deduction",
                        "a3_finance.overrides.salary_slip.fetch_relation"],
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",

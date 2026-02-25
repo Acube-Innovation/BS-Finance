@@ -690,7 +690,7 @@ def update_tax_on_salary_slip(slip, method):
         {
             "employee":slip.employee,
             "salary_component":"Exgratia",
-            # "payroll_date": slip.end_date,
+            #"payroll_date": slip.end_date,
         })
     # print("exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",ex_gratia_frm_ss.amount)
 
@@ -733,35 +733,63 @@ def update_tax_on_salary_slip(slip, method):
     retirement_date = frappe.db.get_value("Employee", employee, "date_of_retirement")
     retirement_date = getdate(retirement_date) if retirement_date else None
     print(retirement_date,"retirement_date")
+   
 
+    month_number = start_date.month
+    year = start_date.year
 
     fy_start_year = year if month_number >= 4 else year - 1
 
-    month_number = start_date.month
-
+    # Fiscal months from April to previous month
     if month_number >= 4:
-        # April–December
         fiscal_months = list(month_name)[4:month_number]
     else:
-        # January–March → include April–December
-        fiscal_months = list(month_name)[4:13]
-        
+        fiscal_months = list(month_name)[4:13] + list(month_name)[1:month_number]
 
+    print("Fiscal months:", fiscal_months)
 
-    # fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
+    filters = {"employee": employee}
+
+    if fiscal_months:
+        filters["payroll_month"] = ["in", fiscal_months]
 
     past_details = frappe.get_list(
         "Employee Payroll Details",
-        filters={
-            "employee": employee,
-            "payroll_year": str(fy_start_year),
-            "payroll_month": ["in", fiscal_months] if fiscal_months else ""
-        },
+        filters=filters,
         fields=["gross_pay", "lop_hrs", "tax_paid"],
-        order_by="payroll_month asc"
-    ) if fiscal_months else []
+        order_by="payroll_month desc"
+    )
+
+
+    # fy_start_year = year if month_number >= 4 else year - 1
+
+    # month_number = start_date.month
+
+    # if month_number >= 4:
+    #     # April to previous month in current calendar year
+    #     fiscal_months = list(month_name)[4:month_number]
+    # else:
+    #     # January–March: include Apr–Dec from previous year and Jan to previous month
+    #     fiscal_months = list(month_name)[4:13] + list(month_name)[1:month_number]
+        
+
+
+    # # fiscal_months = list(month_name)[4:month_number] if month_number > 4 else []
+    # print(fiscal_months,"fiss")
+    # past_details = frappe.get_list(
+    #     "Employee Payroll Details",
+    #     filters={
+    #         "employee": employee,
+    #         # "payroll_year": str(fy_start_year),
+    #         "payroll_month": ["in", fiscal_months] if fiscal_months else ""
+    #     },
+    #     fields=["gross_pay", "lop_hrs", "tax_paid"],
+    #     order_by="payroll_month desc"
+    # ) if fiscal_months else []
+ 
 
     total_tax_paid = sum(flt(row.tax_paid) for row in past_details)
+    print(total_tax_paid,"total_tax_paid")
     slip.custom_current_total_tax_paid = total_tax_paid
     total_past_taxable = sum(flt(row.gross_pay) - flt(row.lop_hrs) for row in past_details)
     print(total_past_taxable,"total_past_taxable")
@@ -775,7 +803,7 @@ def update_tax_on_salary_slip(slip, method):
         filters={
             "employee": slip.employee,
             "payroll_date": slip.end_date,
-            "salary_component": "Other Earnings"
+            "salary_component": "Others Earnings"
         },
         fields=["amount"]
     )
@@ -808,10 +836,10 @@ def update_tax_on_salary_slip(slip, method):
     if retirement_date and retirement_date < fy_end:
         projection_end = retirement_date
 
-    months_left = (
-        (projection_end.year - start_date.year) * 12
-        + (projection_end.month - start_date.month)
-    )
+    # months_left = (
+    #     (projection_end.year - start_date.year) * 12
+    #     + (projection_end.month - start_date.month)
+    # )
 
     # months_left = max(months_left , 0)
     # Months remaining AFTER current month
@@ -823,7 +851,7 @@ def update_tax_on_salary_slip(slip, method):
     future_months = max(future_months, 0)
 
     # Months remaining INCLUDING current month (TDS recovery months)
-    months_left = future_months + 1
+    months_left = future_months 
 
 
     # # Months left AFTER current month
