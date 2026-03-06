@@ -1247,13 +1247,15 @@ def create_pf_detailed_summary(doc, method):
     # for comp in doc.deductions:
     #     if comp.salary_component in ["Employee PF", "PF Deduction"]:
     #         pf = comp.amount
+    for comp in doc.earnings:
+        if comp.salary_component == "LOP Refund":
+            lop_refund = comp.amount
 
     for comp in doc.deductions:
 
         if comp.salary_component == "LOP (in Hours) Deduction":
             lop_in_hours = comp.amount
-        elif comp.salary_component == "LOP Refund":
-            lop_refund = comp.amount
+        
         elif comp.salary_component in ["Employee PF", "PF Deduction"]:
             pf = comp.amount
         elif comp.salary_component == "Voluntary PF":
@@ -1265,7 +1267,7 @@ def create_pf_detailed_summary(doc, method):
         "payroll_month": payroll_month,
         "payroll_year": payroll_year
     })
-
+    
     values = {
         "employee": doc.employee,
         "payroll_month": payroll_month,
@@ -1278,7 +1280,9 @@ def create_pf_detailed_summary(doc, method):
         "pf":pf,
         "voluntary_pf":voluntary_pf,
         "salary_slip": doc.name,
-        "return_days": doc.custom_uploaded_leave_without_pay
+        "return_days": doc.custom_uploaded_leave_without_pay,
+        # "lop_days": doc.custom_uploaded_leave_without_pay
+
     }
 
     if existing:

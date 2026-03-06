@@ -76,13 +76,11 @@
    "label": "Payroll Year"
   },
   {
-   "fetch_from": "employee.custom_basic_pay",
    "fieldname": "base",
    "fieldtype": "Currency",
    "label": "Base"
   },
   {
-   "fetch_from": "employee.custom_service_weightage_emp",
    "fieldname": "service_weightage",
    "fieldtype": "Currency",
    "label": "Service Weightage"
@@ -208,7 +206,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-18 17:44:29.052090",
+ "modified": "2026-03-06 15:24:18.566313",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PF Detailed Log",
