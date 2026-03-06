@@ -73,6 +73,9 @@ class PFDetailedLog(Document):
                    
                     self.eps =1250
                     self.er = 550
+                    self.epf_wages = 15000
+                    self.edli_wages = 15000
+                    self.eps_wages = 15000
               
                 # self.epf_wages = self.edli_wages
                 # self.eps_wages = self.edli_wages
@@ -91,6 +94,9 @@ class PFDetailedLog(Document):
                    
                     self.eps = 0
                     self.er = 1800
+                    self.epf_wages = 15000
+                    self.edli_wages = 15000
+                    
 
             elif scheme == "EPS-1250  ER-12%-1250":
                 epf_wages_12 = (self.epf_wages)*12/100
