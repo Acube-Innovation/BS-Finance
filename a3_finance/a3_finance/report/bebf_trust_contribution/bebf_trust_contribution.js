@@ -36,6 +36,20 @@ frappe.query_reports["BEBF Trust Contribution"] = {
             label: "Year",
             fieldtype: "Int",
             default: frappe.datetime.get_today().split("-")[0]
+        },
+        {
+            fieldname: "company",
+            label: "Company",
+            fieldtype: "Link",
+            options: "Company",
+            default: frappe.defaults.get_user_default("Company"),
+            reqd: 1
+        },
+        {
+            fieldname: "prepared_by",
+            label: "Prepared By",
+            fieldtype: "Link",
+            options: "Employee"
         }
     ],
 
@@ -45,6 +59,28 @@ frappe.query_reports["BEBF Trust Contribution"] = {
         let filters = frappe.query_report.get_filter_values();
         let data = report.data || [];
         let columns = report.columns || [];
+        let company_name = filters.company || "";
+        let prepared_by_name = "";
+        let prepared_by_designation = "";
+
+        if (filters.company) {
+            const res = await frappe.db.get_value("Company", filters.company, "company_name");
+            const company = res.message || res;
+            company_name = company.company_name || filters.company;
+        }
+
+        if (filters.prepared_by) {
+            const emp_res = await frappe.db.get_value(
+                "Employee",
+                filters.prepared_by,
+                ["employee_name", "designation"]
+            );
+            const emp = emp_res.message || emp_res;
+            if (emp) {
+                prepared_by_name = emp.employee_name || filters.prepared_by;
+                prepared_by_designation = emp.designation || "";
+            }
+        }
 
         const month_names = [
             "January","February","March","April","May","June",
@@ -65,6 +101,10 @@ frappe.query_reports["BEBF Trust Contribution"] = {
 </style>
 
 <div style="text-align:center; margin-bottom:12px;">
+    <div style="font-size:18px; font-weight:bold;">
+        ${company_name}
+    </div>
+    <div style="font-size:13px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
     <div style="font-size:18px; font-weight:bold;">
         BEBF Trust Contribution
     </div>
@@ -101,11 +141,17 @@ frappe.query_reports["BEBF Trust Contribution"] = {
     </tbody>
 </table>
 
-<p style="text-align:right; margin-top:20px; font-size:9px;">
-    Printed on ${frappe.datetime.str_to_user(
-        frappe.datetime.get_datetime_as_string()
-    )}
-</p>
+<div style="margin-top:32px; display:flex; justify-content:flex-start;">
+    <div style="text-align:center; min-width:220px;">
+        <div style="font-size:11px; font-weight:bold; margin-bottom:6px;">Prepared By</div>
+        <div style="font-size:12px;">
+            <div><b>${prepared_by_name}</b></div>
+            <div>${prepared_by_designation}</div>
+        </div>
+    </div>
+</div>
+
+
 `;
 
         return html;

@@ -39,6 +39,8 @@ app_license = "mit"
 # webform_include_js = {"doctype": "public/js/doctype.js"}
 # webform_include_css = {"doctype": "public/css/doctype.css"}
 
+
+
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
 
@@ -87,7 +89,11 @@ doctype_js = {
     "Salary Slip" : "public/js/salary_slip.js",
     "Payroll Entry" : "public/js/payroll_entry.js",
     "Asset Physical Verification": "public/js/asset_physical_verification.js",
-    "Employee": "public/js/employee.js"
+    "Employee": "public/js/employee.js",
+    "Purchase Order": "public/js/purchase_order.js",
+    "Purchase Invoice": "public/js/purchase_invoice.js",
+    "Purchase Receipt": "public/js/purchase_receipt.js",
+    "Journal Entry": "public/js/journal_entry.js"
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -180,8 +186,12 @@ treeviews = ["Asset Category"]
 
 
 
+
 override_doctype_class = {
-    "Payroll Entry": "a3_finance.a3_finance.doc_events.payroll_entry.CustomPayrollEntry"
+    "Payroll Entry": "a3_finance.a3_finance.doc_events.payroll_entry.CustomPayrollEntry",
+     "Purchase Receipt": "a3_finance.overrides.status_override.CustomPurchaseReceipt",
+
+
 }
 # scheduler_events = {
 #     "daily": [
@@ -232,7 +242,7 @@ doc_events = {
             # "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.set_pending_benevolent_fund",
             "a3_finance.overrides.salary_slip.final_calculation",
-            "a3_finance.overrides.salary_slip.add_society_deduction",
+            # "a3_finance.overrides.salary_slip.add_society_deduction",
             "a3_finance.overrides.salary_slip.set_subsistence_allowance",
             "a3_finance.overrides.salary_slip.validate_additional_salaries",
             "a3_finance.overrides.salary_slip.festival_advance_recovery_validate",
@@ -248,7 +258,7 @@ doc_events = {
         ],
         "before_save":["a3_finance.overrides.salary_slip.set_professional_tax",
                         # "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
-                        # "a3_finance.overrides.salary_slip.add_society_deduction",
+                        "a3_finance.overrides.salary_slip.add_society_deduction",
                        "a3_finance.overrides.salary_slip.fetch_relation"],
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
@@ -301,8 +311,15 @@ doc_events = {
         "on_submit": "a3_finance.a3_finance.doctype.asset_physical_verification.asset_physical_verification.on_submit"
     },
     "Supplier":{
-        "before_insert":"a3_finance.a3_finance.doc_events.supplier.before_insert"
-    }
+        "before_insert":"a3_finance.a3_finance.doc_events.supplier.before_insert",
+        "before_save":"a3_finance.overrides.supplier.update_search_key"
+
+    },
+  
+}
+
+override_whitelisted_methods = {
+    "frappe.desk.reportview.get": "a3_finance.overrides.supplier.get"
 }
 
 

@@ -1,0 +1,147 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-26 15:45:54.708067",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "petty_labour",
+  "days",
+  "wages",
+  "amount",
+  "esi",
+  "pf",
+  "column_break_kuvt",
+  "employer_contribution_esi_",
+  "employee_contribution_esi_",
+  "employer_contribution_pf_",
+  "employee_contribution_pf_",
+  "pf_administrative_charges_",
+  "column_break_zyve",
+  "employer_contribution_esi_amount",
+  "employee_contribution_esi_amount",
+  "employer_contribution_pf_amount",
+  "employee_contribution_pf_amount",
+  "pf_administrative_charges"
+ ],
+ "fields": [
+  {
+   "fieldname": "petty_labour",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Petty Labour",
+   "options": "Petty Labour Employees",
+   "reqd": 1
+  },
+  {
+   "fieldname": "days",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Days",
+   "reqd": 1
+  },
+  {
+   "fieldname": "wages",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Wages",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "esi",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "ESI",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "pf",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "PF",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_kuvt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employer_contribution_esi_",
+   "fieldtype": "Percent",
+   "label": "Employer Contribution ESI (%)"
+  },
+  {
+   "fieldname": "employee_contribution_esi_",
+   "fieldtype": "Percent",
+   "label": "Employee Contribution ESI (%)"
+  },
+  {
+   "fieldname": "employer_contribution_pf_",
+   "fieldtype": "Percent",
+   "label": "Employer Contribution PF (%)"
+  },
+  {
+   "fieldname": "employee_contribution_pf_",
+   "fieldtype": "Percent",
+   "label": "Employee Contribution PF (%)"
+  },
+  {
+   "fieldname": "pf_administrative_charges_",
+   "fieldtype": "Percent",
+   "label": "PF Administrative Charges (%)"
+  },
+  {
+   "fieldname": "column_break_zyve",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employer_contribution_esi_amount",
+   "fieldtype": "Currency",
+   "label": "Employer Contribution ESI Amount"
+  },
+  {
+   "fieldname": "employee_contribution_esi_amount",
+   "fieldtype": "Currency",
+   "label": "Employee Contribution ESI Amount"
+  },
+  {
+   "fieldname": "employer_contribution_pf_amount",
+   "fieldtype": "Currency",
+   "label": "Employer Contribution PF Amount"
+  },
+  {
+   "fieldname": "employee_contribution_pf_amount",
+   "fieldtype": "Currency",
+   "label": "Employee Contribution PF Amount"
+  },
+  {
+   "fieldname": "pf_administrative_charges",
+   "fieldtype": "Currency",
+   "label": "PF Administrative Charges"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-27 12:52:54.847548",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Petty Labour Payment Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

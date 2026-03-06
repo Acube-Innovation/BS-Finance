@@ -1,0 +1,214 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PCC-{MM}-{YY}-{#######}",
+ "creation": "2026-02-26 17:34:12.214887",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "posting_date",
+  "cash_account",
+  "cashier",
+  "total_cash_counted",
+  "difference",
+  "column_break_pjkh",
+  "time",
+  "company",
+  "cashier_name",
+  "opening_balance",
+  "system_balance",
+  "section_break_wpbf",
+  "cash_denomination_detail",
+  "remarks_section",
+  "verified_by",
+  "name_of_verified_user",
+  "signature",
+  "column_break_uagy",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "cashier",
+   "fieldtype": "Link",
+   "label": "Cashier",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "cash_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cash Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "total_cash_counted",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Cash Counted"
+  },
+  {
+   "fieldname": "difference",
+   "fieldtype": "Currency",
+   "label": "Difference"
+  },
+  {
+   "fieldname": "column_break_pjkh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fetch_from": "cashier.employee_name",
+   "fieldname": "cashier_name",
+   "fieldtype": "Data",
+   "label": "Cashier Name"
+  },
+  {
+   "fieldname": "opening_balance",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Opening Balance"
+  },
+  {
+   "fieldname": "system_balance",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "System Balance"
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_wpbf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "cash_denomination_detail",
+   "fieldtype": "Table",
+   "label": "Cash Denomination Detail",
+   "options": "Cash Denomination Detail"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Physical Cash Closing",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Verified By",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "verified_by.employee_name",
+   "fieldname": "name_of_verified_user",
+   "fieldtype": "Data",
+   "label": "Name of Verified User"
+  },
+  {
+   "default": "Now",
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "label": "Posting Time"
+  },
+  {
+   "fieldname": "signature",
+   "fieldtype": "Signature",
+   "label": "Signature"
+  },
+  {
+   "fieldname": "column_break_uagy",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-27 15:53:41.050513",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Physical Cash Closing",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

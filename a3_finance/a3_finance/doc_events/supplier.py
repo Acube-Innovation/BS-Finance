@@ -12,3 +12,5 @@ def change_supplier_status():
     for supplier in supplier_list:
         if today >= getdate(supplier.custom_effective_from):
             frappe.db.set_value("Supplier",supplier.name,"disabled",0)
+
+

@@ -1,0 +1,37 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2026-02-26 18:00:58.434842",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": null,
+ "modified": "2026-02-26 18:00:58.434842",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Physical Cash Closing Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Physical Cash Closing",
+ "report_name": "Physical Cash Closing Report",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Sales Manager"
+  },
+  {
+   "role": "Accounts User"
+  }
+ ],
+ "timeout": 0
+}

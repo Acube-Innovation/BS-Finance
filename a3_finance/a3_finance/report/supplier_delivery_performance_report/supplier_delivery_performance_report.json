@@ -1,0 +1,61 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2026-03-03 09:35:33.764909",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": null,
+ "modified": "2026-03-03 09:35:33.764909",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Supplier Delivery Performance Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Purchase Order",
+ "report_name": "Supplier Delivery Performance Report",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Purchase User"
+  },
+  {
+   "role": "Purchase Manager"
+  },
+  {
+   "role": "Indentor HOD"
+  },
+  {
+   "role": "CMM"
+  },
+  {
+   "role": "Indenter"
+  },
+  {
+   "role": "Indentor"
+  },
+  {
+   "role": "Store User"
+  },
+  {
+   "role": "Store Manager"
+  },
+  {
+   "role": "Store HOD"
+  },
+  {
+   "role": "CMM USER"
+  },
+  {
+   "role": "SCM"
+  }
+ ],
+ "timeout": 0
+}

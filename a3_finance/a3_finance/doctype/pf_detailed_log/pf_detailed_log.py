@@ -6,7 +6,7 @@ from frappe.model.document import Document
 from frappe.utils.data import flt
 from a3_finance.utils.math_utils import round_half_up
 class PFDetailedLog(Document):
-    def validate(self):
+    def before_save(self):
         self.calculate_epf_wages()
 
     def calculate_epf_wages(self):

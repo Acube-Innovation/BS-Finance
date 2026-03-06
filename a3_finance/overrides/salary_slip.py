@@ -895,7 +895,7 @@ def update_tax_on_salary_slip(slip, method):
         (monthly_earning * months_left) + total_past_taxable + current_taxable  + ex_gratia - std_exemption + extra_taxable
     )
 
-    slip.custom_current_net_total_earnings = estimated_total_taxable_income + std_exemption
+    slip.custom_current_net_total_earnings = estimated_total_taxable_income + std_exemption 
     
     if estimated_total_taxable_income >= slab_doc.tax_relief_limit:
         net_taxable_income = estimated_total_taxable_income
