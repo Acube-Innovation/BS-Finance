@@ -38,9 +38,10 @@ def execute(filters=None):
             "employment_subtype": row["employment_subtype"]
         }
         for comp in totals:
-            if comp != "total":
+            if comp not in ("total_earnings", "total", "net_pay"):
                 filtered_row[comp] = row.get(comp)
         filtered_row["total"] = row.get("total")
+        filtered_row["net_pay"] = row.get("net_pay")
         filtered_data.append(filtered_row)
 
     return columns, filtered_data
@@ -77,7 +78,7 @@ def get_columns(totals):
         {"label": "Particulars", "fieldname": "employment_subtype", "fieldtype": "Data", "width": 160}
     ]
     for comp in totals:
-        if comp not in ("employment_subtype", "total"):
+        if comp not in ("employment_subtype", "total_earnings", "total", "net_pay"):
             columns.append({
                 "label": label_map.get(comp, comp.replace("_", " ").title()),
                 "fieldname": comp,
@@ -88,6 +89,9 @@ def get_columns(totals):
     columns.append({
         "label": "Total Deductions", "fieldname": "total", "fieldtype": "Currency", "width": 130
     })
+    columns.append({
+        "label": "Net Pay", "fieldname": "net_pay", "fieldtype": "Currency", "width": 130
+    })
     return columns
 
 
@@ -95,7 +99,6 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
     conditions = """
         s.docstatus IN (0,1)
         AND s.start_date >= %(start_date)s AND s.end_date <= %(end_date)s
-        AND sd.parentfield = 'deductions'
         AND e.custom_employment_sub_type IS NOT NULL
     """
 
@@ -109,7 +112,7 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
     for comp in ALL_DEDUCTION_COMPONENTS:
         field = comp.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("-", "").replace(".", "")
         component_sums.append(
-            f"SUM(CASE WHEN sd.salary_component = '{comp}' THEN sd.amount END) AS `{field}`"
+            f"SUM(CASE WHEN sd.parentfield = 'deductions' AND sd.salary_component = '{comp}' THEN sd.amount ELSE 0 END) AS `{field}`"
         )
 
     select_clause = ",\n            ".join(component_sums)
@@ -118,7 +121,12 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
         SELECT
             e.custom_employment_sub_type AS employment_subtype,
             {select_clause},
-            SUM(sd.amount) AS total
+            SUM(CASE WHEN sd.parentfield = 'earnings' THEN sd.amount ELSE 0 END) AS total_earnings,
+            SUM(CASE WHEN sd.parentfield = 'deductions' THEN sd.amount ELSE 0 END) AS total,
+            (
+                SUM(CASE WHEN sd.parentfield = 'earnings' THEN sd.amount ELSE 0 END)
+                - SUM(CASE WHEN sd.parentfield = 'deductions' THEN sd.amount ELSE 0 END)
+            ) AS net_pay
         FROM `tabSalary Slip` s
         JOIN `tabSalary Detail` sd ON sd.parent = s.name
         JOIN `tabEmployee` e ON s.employee = e.name
@@ -145,7 +153,8 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
                 grand_total[key] = sum((r.get(key) or 0) for r in results)
                 if grand_total[key] != 0:
                     used_components[key] = True
+        used_components["total"] = True
+        used_components["net_pay"] = True
         results.append(grand_total)
 
     return results, used_components
-

@@ -25,9 +25,7 @@ def get_columns():
         {"label": "EPS", "fieldname": "eps", "fieldtype": "Currency", "width": 100},
         {"label": "PF", "fieldname": "pf", "fieldtype": "Currency", "width": 100},
         {"label": "Voluntary PF", "fieldname": "voluntary_pf", "fieldtype": "Currency", "width": 120},
-        {"label": "PF", "fieldname": "pf_dup", "fieldtype": "Currency", "width": 100},
         {"label": "VPF+PF", "fieldname": "vpf_pf", "fieldtype": "Currency", "width": 120},
-        {"label": "EPS", "fieldname": "eps_dup", "fieldtype": "Currency", "width": 100},
         {"label": "ER", "fieldname": "er", "fieldtype": "Currency", "width": 100},
         {"label": "NCP", "fieldname": "ncp", "fieldtype": "Float", "width": 80},
     ]
@@ -101,14 +99,12 @@ def get_data(filters):
             "epf_wages": d.epf_wages,
             "eps_wages": d.eps_wages,
             "edli_wages": d.edli_wages,
-            "epf": d.pf,
+            "epf": flt(d.pf, 0),
             "eps": d.eps,
             "pf": d.pf,
             "voluntary_pf": d.voluntary_pf,
-            "pf_dup": d.pf,
             "vpf_pf": flt(d.pf) + flt(d.voluntary_pf),
-            "eps_dup": d.eps,
-            "er": d.er,
+            "er": flt(d.er, 0),
             "ncp": d.lop_days,
         })
 
