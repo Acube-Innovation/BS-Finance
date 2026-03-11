@@ -79,7 +79,28 @@ fixtures = [
     {
         "doctype": "Workspace",
         "filters": [["name", "in", ["PAYROLL ENTRIES"]]]
-    }
+    },
+    {
+        "doctype": "Workflow State",
+        "filters": [
+            ["name", "in", [
+                "Checked By",
+                "Prepared By",
+                "Verified By",
+                "Authorized By",
+            ]]
+        ]
+    },
+    {
+        "doctype": "Workflow",
+        "filters": [
+            ["name", "in", [
+                "Journal Entry",
+                "Purchase Invoice",
+                "Payment Entry",
+            ]]
+        ]
+    },
 ]
 
 doctype_js = {

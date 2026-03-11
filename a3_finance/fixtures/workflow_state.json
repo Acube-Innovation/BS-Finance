@@ -1,0 +1,38 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-03-05 15:46:22.498420",
+  "name": "Verified By",
+  "style": "",
+  "workflow_state_name": "Verified By"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-03-09 12:06:52.331278",
+  "name": "Authorized By",
+  "style": "",
+  "workflow_state_name": "Authorized By"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-03-05 15:46:07.922289",
+  "name": "Checked By",
+  "style": "",
+  "workflow_state_name": "Checked By"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-03-05 15:46:15.623311",
+  "name": "Prepared By",
+  "style": "",
+  "workflow_state_name": "Prepared By"
+ }
+]
