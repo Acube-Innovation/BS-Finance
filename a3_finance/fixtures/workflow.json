@@ -4,7 +4,7 @@
   "doctype": "Workflow",
   "document_type": "Payment Entry",
   "is_active": 1,
-  "modified": "2026-03-09 12:11:10.971315",
+  "modified": "2026-03-13 14:14:58.597134",
   "name": "Payment Entry",
   "override_status": 0,
   "send_email_alert": 0,
@@ -112,12 +112,12 @@
     "allow_self_approval": 1,
     "allowed": "Accounts User",
     "condition": null,
-    "next_state": "Prepared By",
+    "next_state": "Checked By",
     "parent": "Payment Entry",
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Checked By",
+    "state": "Prepared By",
     "workflow_builder_id": null
    },
    {
@@ -130,7 +130,7 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Prepared By",
+    "state": "Checked By",
     "workflow_builder_id": null
    },
    {
@@ -208,7 +208,7 @@
   "doctype": "Workflow",
   "document_type": "Purchase Invoice",
   "is_active": 1,
-  "modified": "2026-03-11 12:06:55.408955",
+  "modified": "2026-03-13 14:13:52.264684",
   "name": "Purchase Invoice",
   "override_status": 0,
   "send_email_alert": 0,
@@ -300,12 +300,12 @@
     "allow_self_approval": 1,
     "allowed": "Accounts User",
     "condition": null,
-    "next_state": "Prepared By",
+    "next_state": "Checked By",
     "parent": "Purchase Invoice",
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Checked By",
+    "state": "Prepared By",
     "workflow_builder_id": null
    },
    {
@@ -318,7 +318,7 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Prepared By",
+    "state": "Checked By",
     "workflow_builder_id": null
    },
    {
@@ -370,7 +370,7 @@
   "doctype": "Workflow",
   "document_type": "Journal Entry",
   "is_active": 1,
-  "modified": "2026-03-11 12:07:24.074595",
+  "modified": "2026-03-13 14:13:19.448985",
   "name": "Journal Entry",
   "override_status": 0,
   "send_email_alert": 0,
@@ -462,12 +462,12 @@
     "allow_self_approval": 1,
     "allowed": "Accounts User",
     "condition": null,
-    "next_state": "Prepared By",
+    "next_state": "Checked By",
     "parent": "Journal Entry",
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Checked By",
+    "state": "Prepared By",
     "workflow_builder_id": null
    },
    {
@@ -480,7 +480,7 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Prepared By",
+    "state": "Checked By",
     "workflow_builder_id": null
    },
    {
