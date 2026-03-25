@@ -30,7 +30,6 @@ def get_columns():
         {"label": "NCP", "fieldname": "ncp", "fieldtype": "Float", "width": 80},
     ]
 
-
 def get_data(filters):
     filters = filters or {}
     conditions = []
@@ -59,11 +58,6 @@ def get_data(filters):
             epf_ac,
             employee_name,
             uan_number,
-            base,
-            da,
-            service_weightage,
-            lop_refund,
-            lop_in_hours,
             epf_wages,
             eps_wages,
             edli_wages,
@@ -83,30 +77,75 @@ def get_data(filters):
     data = []
     sno = 1
 
+    # Totals dictionary
+    totals = {
+        "epf_wages": 0,
+        "eps_wages": 0,
+        "edli_wages": 0,
+        "epf": 0,
+        "eps": 0,
+        "pf": 0,
+        "voluntary_pf": 0,
+        "vpf_pf": 0,
+        "er": 0,
+        "ncp": 0
+    }
+
     for d in records:
-        total_earnings = (
-            flt(d.total_earnings)
-            
-        
-        )
+        epf = flt(d.pf, 0)
+        eps = flt(d.eps, 0)
+        voluntary_pf = flt(d.voluntary_pf, 0)
+        er = flt(d.er, 0)
 
         data.append({
             "sno": sno,
             "employee": d.employee,
             "employee_name": d.employee_name,
             "uan_number": d.uan_number,
-            "pf_ac": d.epf_ac,
-            "epf_wages": d.epf_wages,
-            "eps_wages": d.eps_wages,
-            "edli_wages": d.edli_wages,
-            "epf": flt(d.pf, 0),
-            "eps": d.eps,
-            "pf": d.pf,
-            "voluntary_pf": d.voluntary_pf,
-            "vpf_pf": flt(d.pf) + flt(d.voluntary_pf),
-            "er": flt(d.er, 0),
-            "ncp": d.lop_days,
+            "pf_ac": d.epf_ac or " ",
+            "epf_wages": flt(d.epf_wages),
+            "eps_wages": flt(d.eps_wages),
+            "edli_wages": flt(d.edli_wages),
+            "epf": epf,
+            "eps": eps,
+            "pf": epf,
+            "voluntary_pf": voluntary_pf,
+            "vpf_pf": epf + voluntary_pf,
+            "er": er,
+            "ncp": flt(d.lop_days),
         })
 
+        # Update totals
+        totals["epf_wages"] += flt(d.epf_wages)
+        totals["eps_wages"] += flt(d.eps_wages)
+        totals["edli_wages"] += flt(d.edli_wages)
+        totals["epf"] += epf
+        totals["eps"] += eps
+        totals["pf"] += epf
+        totals["voluntary_pf"] += voluntary_pf
+        totals["vpf_pf"] += epf + voluntary_pf
+        totals["er"] += er
+        totals["ncp"] += flt(d.lop_days)
+
         sno += 1
+
+    # Append total row (no S.No)
+    data.append({
+        "sno": None,
+        "employee": "TOTAL",
+        "employee_name": "",
+        "uan_number": " ",
+        "pf_ac": " ",
+        "epf_wages": totals["epf_wages"],
+        "eps_wages": totals["eps_wages"],
+        "edli_wages": totals["edli_wages"],
+        "epf": totals["epf"],
+        "eps": totals["eps"],
+        "pf": totals["pf"],
+        "voluntary_pf": totals["voluntary_pf"],
+        "vpf_pf": totals["vpf_pf"],
+        "er": totals["er"],
+        "ncp": totals["ncp"],
+    })
+
     return data
