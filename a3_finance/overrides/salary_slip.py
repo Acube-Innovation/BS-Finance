@@ -1009,7 +1009,31 @@ def update_tax_on_salary_slip(slip, method):
         monthly_tax = round_half_up(final_tax / (months_left + 1)) if final_tax > 0 else 0
         print(f"Final Tax: {final_tax}, Monthly Tax: {monthly_tax}")
 
-        slip.custom_income_tax = monthly_tax
+
+
+        # 🔍 Check if manual Income Tax is given via Additional Salary
+        income_tax_override = frappe.get_all(
+            "Additional Salary",
+            filters={
+                "employee": slip.employee,
+                "salary_component": "Income Tax",
+                "payroll_date": slip.end_date
+            },
+            fields=["amount"],
+            limit=1
+        )
+
+        if income_tax_override:
+            override_tax = flt(income_tax_override[0].amount)
+            print(f"Manual Income Tax Override Found: {override_tax}")
+            slip.custom_income_tax = override_tax
+        else:
+            monthly_tax = round_half_up(final_tax / (months_left + 1)) if final_tax > 0 else 0
+            print(f"Final Tax: {final_tax}, Monthly Tax: {monthly_tax}")
+            slip.custom_income_tax = monthly_tax
+
+
+        # slip.custom_income_tax = monthly_tax
         if monthly_tax !=0:
             slip.custom_std_deduction = marginal_threshold - relief_threshold
 
