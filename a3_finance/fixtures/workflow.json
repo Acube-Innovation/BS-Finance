@@ -4,7 +4,7 @@
   "doctype": "Workflow",
   "document_type": "Payment Entry",
   "is_active": 1,
-  "modified": "2026-03-13 14:14:58.597134",
+  "modified": "2026-04-07 12:40:14.381760",
   "name": "Payment Entry",
   "override_status": 0,
   "send_email_alert": 0,
@@ -197,6 +197,19 @@
     "send_email_to_creator": 0,
     "state": "Authorized By",
     "workflow_builder_id": null
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "Accounts Manager",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Payment Entry",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Checked By",
+    "workflow_builder_id": null
    }
   ],
   "workflow_data": null,
@@ -208,7 +221,7 @@
   "doctype": "Workflow",
   "document_type": "Purchase Invoice",
   "is_active": 1,
-  "modified": "2026-03-13 14:13:52.264684",
+  "modified": "2026-04-07 12:39:24.579226",
   "name": "Purchase Invoice",
   "override_status": 0,
   "send_email_alert": 0,
@@ -298,19 +311,6 @@
    {
     "action": "Approve",
     "allow_self_approval": 1,
-    "allowed": "Accounts User",
-    "condition": null,
-    "next_state": "Checked By",
-    "parent": "Purchase Invoice",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "send_email_to_creator": 0,
-    "state": "Prepared By",
-    "workflow_builder_id": null
-   },
-   {
-    "action": "Approve",
-    "allow_self_approval": 1,
     "allowed": "Accounts Manager",
     "condition": null,
     "next_state": "Verified By",
@@ -319,6 +319,19 @@
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
     "state": "Checked By",
+    "workflow_builder_id": null
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 1,
+    "allowed": "Accounts User",
+    "condition": null,
+    "next_state": "Checked By",
+    "parent": "Purchase Invoice",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Prepared By",
     "workflow_builder_id": null
    },
    {
@@ -359,6 +372,19 @@
     "send_email_to_creator": 0,
     "state": "Verified By",
     "workflow_builder_id": null
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "Accounts Manager",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Purchase Invoice",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Checked By",
+    "workflow_builder_id": null
    }
   ],
   "workflow_data": null,
@@ -370,7 +396,7 @@
   "doctype": "Workflow",
   "document_type": "Journal Entry",
   "is_active": 1,
-  "modified": "2026-03-13 14:13:19.448985",
+  "modified": "2026-04-07 12:40:48.431901",
   "name": "Journal Entry",
   "override_status": 0,
   "send_email_alert": 0,
@@ -520,6 +546,19 @@
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
     "state": "Verified By",
+    "workflow_builder_id": null
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "Accounts Manager",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Journal Entry",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Checked By",
     "workflow_builder_id": null
    }
   ],
