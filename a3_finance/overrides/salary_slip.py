@@ -748,7 +748,10 @@ def update_tax_on_salary_slip(slip, method):
 
     print("Fiscal months:", fiscal_months)
 
-    filters = {"employee": employee}
+    filters = {
+        "employee": employee,
+        "payroll_year": str(fy_start_year)   # IMPORTANT
+    }
 
     if fiscal_months:
         filters["payroll_month"] = ["in", fiscal_months]
