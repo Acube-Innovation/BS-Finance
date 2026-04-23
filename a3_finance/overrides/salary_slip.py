@@ -679,20 +679,45 @@ def update_tax_on_salary_slip(slip, method):
     vehicle_type = frappe.db.get_value("Employee", employee, "custom_vehicle_type")
     extra_taxable= flt(frappe.db.get_value("Employee", employee, "custom_additional_salary_for_tax") or 0)
     actual_exgratia_amount = flt(frappe.db.get_value("Employee", employee, "custom_actual_earnings") or 0)
+
+    start_date = getdate(slip.start_date)
+    month_number = start_date.month
+    year = start_date.year
+
+    # FY runs April → March
+    if month_number >= 4:
+        fy_start_year = year
+        fy_end_year = year + 1
+    else:
+        fy_start_year = year - 1
+        fy_end_year = year
+
+    # FY start and end dates
+    fy_start = date(fy_start_year, 4, 1)
+    fy_end = date(fy_end_year, 3, 31)   
+
     ex_gratia_frm_ss = None
-    if frappe.db.exists("Additional Salary",
-        {
-            "employee":slip.employee,
-            "salary_component":"Exgratia",
-            # "payroll_date": slip.end_date,
-        }):
-        ex_gratia_frm_ss = frappe.get_doc("Additional Salary",
-        {
-            "employee":slip.employee,
-            "salary_component":"Exgratia",
-            #"payroll_date": slip.end_date,
-        })
-    # print("exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",ex_gratia_frm_ss.amount)
+
+    exgratia_list = frappe.get_all(
+        "Additional Salary",
+        filters={
+            "employee": slip.employee,
+            "salary_component": "Exgratia",
+
+            # Only current Financial Year
+            "payroll_date": ["between", [fy_start, fy_end]]
+        },
+        fields=["name", "amount", "payroll_date"],
+        order_by="payroll_date desc",
+        limit=1
+    )
+
+    if exgratia_list:
+        ex_gratia_frm_ss = frappe.get_doc(
+            "Additional Salary",
+            exgratia_list[0].name
+        )
+    print("exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",ex_gratia_frm_ss)
 
     pms_name = frappe.get_value("Payroll Master Setting", {"payroll_month": month, "payroll_year": str(year)}, "name")
     if not pms_name:
@@ -740,28 +765,55 @@ def update_tax_on_salary_slip(slip, method):
 
     fy_start_year = year if month_number >= 4 else year - 1
 
-    # Fiscal months from April to previous month
-    if month_number >= 4:
-        fiscal_months = list(month_name)[4:month_number]
-    else:
-        fiscal_months = list(month_name)[4:13] + list(month_name)[1:month_number]
 
-    print("Fiscal months:", fiscal_months)
 
-    filters = {
-        "employee": employee,
-        "payroll_year": str(fy_start_year)   # IMPORTANT
-    }
+    # # Fiscal months from April to previous month
+    # if month_number >= 4:
+    #     fiscal_months = list(month_name)[4:month_number]
+    # else:
+    #     fiscal_months = list(month_name)[4:13] + list(month_name)[1:month_number]
 
-    if fiscal_months:
-        filters["payroll_month"] = ["in", fiscal_months]
+    # print("Fiscal months:", fiscal_months)
 
+    # filters = {
+    #     "employee": employee,
+    #     "payroll_year": str(fy_start_year)   # IMPORTANT
+    # }
+
+    # if fiscal_months:
+    #     filters["payroll_month"] = ["in", fiscal_months]
+
+    # past_details = frappe.get_list(
+    #     "Employee Payroll Details",
+    #     filters=filters,
+    #     fields=["gross_pay", "lop_hrs", "tax_paid"],
+    #     order_by="payroll_month desc"
+    # )
+    # Get past records ONLY within current Financial Year
     past_details = frappe.get_list(
         "Employee Payroll Details",
-        filters=filters,
-        fields=["gross_pay", "lop_hrs", "tax_paid"],
-        order_by="payroll_month desc"
+        filters={
+            "employee": employee,
+
+            # Inside Financial Year
+            "start_date": [">=", fy_start],
+
+            # Before current month
+            "end_date": ["<", slip.start_date]
+        },
+        fields=[
+            "gross_pay",
+            "lop_hrs",
+            "tax_paid",
+            "start_date",
+            "end_date"
+        ],
+        order_by="start_date desc"
     )
+
+    print("FY Start:", fy_start)
+    print("Slip Start:", slip.start_date)
+    print("Filtered Past Rows:", len(past_details))
 
 
     # fy_start_year = year if month_number >= 4 else year - 1
@@ -817,21 +869,7 @@ def update_tax_on_salary_slip(slip, method):
     ex = ex_gratia_frm_ss.amount if ex_gratia_frm_ss else 0
     current_taxable = current_gross - current_lop - ex - non_tax
     print(f"Current Taxable Income: {current_taxable}")
-    start_date = getdate(slip.start_date)
-    month_number = start_date.month
-    year = start_date.year
 
-    # FY runs April → March
-    if month_number >= 4:
-        fy_start_year = year
-        fy_end_year = year + 1
-    else:
-        fy_start_year = year - 1
-        fy_end_year = year
-
-    # FY start and end dates
-    fy_start = date(fy_start_year, 4, 1)
-    fy_end = date(fy_end_year, 3, 31)
    
 
     # Determine projection end date
