@@ -80,7 +80,18 @@ def get_data(filters):
 			marginal_relief = slip.custom_marginal_relief or 0
 			cess = slip.custom_cess or 0
 			final_income_tax = slip.custom_deputation_allowance or 0
-			tds = slip.custom_income_tax or 0
+			# tds = slip.custom_income_tax or 0
+			tds = frappe.db.sql(
+					"""
+					SELECT SUM(amount)
+					FROM `tabSalary Detail`
+					WHERE parent = %s
+						AND parentfield = 'deductions'
+						AND salary_component = 'Income Tax'
+					""",
+					slip.name
+				)[0][0] or 0
+
 			tax_deducted = (slip.custom_current_total_tax_paid or 0) + tds
 			balance_tax = final_income_tax - tax_deducted
 			final_taxable_income = gross_salary - standard_deduction

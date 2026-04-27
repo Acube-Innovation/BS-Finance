@@ -1,13 +1,12 @@
 frappe.query_reports["ECR Upload Statement"] = {
 
     onload: function (report) {
-
         // Add Print button
         report.page.add_inner_button("Print Report", function () {
             print_ecr_upload_statement(report);
         });
 
-        // Hide S.No column
+        // Hide S.No column in datatable
         setTimeout(() => {
             const wrapper = report.page.wrapper;
             wrapper.find(".dt-header .dt-cell--col-0").hide();
@@ -40,16 +39,14 @@ frappe.query_reports["ECR Upload Statement"] = {
             fieldtype: "Data",
             default: frappe.datetime.get_today().split("-")[0]
         },
-
         {
-        fieldname: "company",
-        label: "Company",
-        fieldtype: "Link",
-        options: "Company",
-        default: frappe.defaults.get_user_default("Company"),
-        reqd: 1
-    },
-
+            fieldname: "company",
+            label: "Company",
+            fieldtype: "Link",
+            options: "Company",
+            default: frappe.defaults.get_user_default("Company"),
+            reqd: 1
+        },
         {
             fieldname: "employee_pension_scheme",
             label: "Scheme",
@@ -68,23 +65,21 @@ frappe.query_reports["ECR Upload Statement"] = {
 
     // ---------------- PRINTABLE HTML ----------------
     printable_html: async function (report) {
-
         let filters = frappe.query_report.get_filter_values();
         let data = report.data || [];
         let columns = report.columns || [];
-let company_name = filters.company || "";
 
-if (filters.company) {
-    const res = await frappe.db.get_value("Company", filters.company, "company_name");
-    const company = res.message || res;
-    company_name = company.company_name || filters.company;
-}
+        let company_name = filters.company || "";
+        if (filters.company) {
+            const res = await frappe.db.get_value("Company", filters.company, "company_name");
+            const company = res.message || res;
+            company_name = company.company_name || filters.company;
+        }
 
         const month_names = [
             "January","February","March","April","May","June",
             "July","August","September","October","November","December"
         ];
-
         let month_name = month_names[parseInt(filters.payroll_month) - 1];
 
         let html = `
@@ -94,7 +89,8 @@ if (filters.company) {
     th, td { border: 1px solid #000; padding: 3px; }
     th { text-align: center; font-weight: bold; }
     td { text-align: left; }
-    td.num { text-align: right; }
+    td.num { text-align: right; }       /* Right-align amounts */
+    .total-row td { font-weight: bold; } /* Bold total row */
 }
 </style>
 
@@ -102,16 +98,14 @@ if (filters.company) {
 <div style="font-size:18px; font-weight:bold;">
     ${company_name}
 </div>
-
 <div style="font-size:13px;">CHACKAI, BEACH.P.O., AIRPORT ROAD, THIRUVANANTHAPURAM</div>
 <div style="font-size:16px; font-weight:bold; margin-top:4px;">
     ECR Upload Statement
 </div>
-
-    <div style="font-size:13px; margin-top:4px;">
-        Month: <b>${month_name}</b> &nbsp; | &nbsp;
-        Year: <b>${filters.payroll_year}</b>
-    </div>
+<div style="font-size:13px; margin-top:4px;">
+    Month: <b>${month_name}</b> &nbsp; | &nbsp;
+    Year: <b>${filters.payroll_year}</b>
+</div>
 </div>
 
 <table>
@@ -126,16 +120,29 @@ if (filters.company) {
         html += `</tr></thead><tbody>`;
 
         data.forEach(row => {
-
-            html += `<tr>`;
+            let is_total_row = row.employee === "TOTAL";
+            html += `<tr class="${is_total_row ? 'total-row' : ''}">`;
 
             columns.forEach(col => {
-                let value = row[col.fieldname] ?? "";
-                let cls = col.fieldtype === "Currency" ? "num" : "";
+                let value = row[col.fieldname];
 
-                html += `<td class="${cls}">
-                    ${frappe.format(value, col)}
-                </td>`;
+                // S.No blank
+                if (col.fieldname === "sno") {
+                    value = value || "";
+                }
+                // Text fields in total row
+                else if (["employee_name","uan_number","pf_ac"].includes(col.fieldname)) {
+                    value = value || " ";
+                }
+                // Numeric columns: integer only, right-align
+                else if (["epf_wages","eps_wages","edli_wages","epf","eps","pf","voluntary_pf","vpf_pf","er","ncp"].includes(col.fieldname)) {
+                    value = value ? parseInt(value) : 0;
+                }
+
+                // Add 'num' class for numeric columns
+                let cls = ["epf_wages","eps_wages","edli_wages","epf","eps","pf","voluntary_pf","vpf_pf","er","ncp"].includes(col.fieldname) ? "num" : "";
+
+                html += `<td class="${cls}">${value}</td>`;
             });
 
             html += `</tr>`;
@@ -144,8 +151,6 @@ if (filters.company) {
         html += `
     </tbody>
 </table>
-
-
 `;
 
         return html;
@@ -155,12 +160,8 @@ if (filters.company) {
 
 // ---------------- CUSTOM PRINT FUNCTION ----------------
 async function print_ecr_upload_statement(report) {
-
-    let html = await frappe.query_reports["ECR Upload Statement"]
-        .printable_html(report);
-
+    let html = await frappe.query_reports["ECR Upload Statement"].printable_html(report);
     let print_window = window.open("", "PRINT", "height=700,width=1000");
-
     print_window.document.write(html);
     print_window.document.close();
     print_window.focus();
