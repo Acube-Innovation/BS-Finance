@@ -1696,9 +1696,9 @@ def set_actual_amounts(doc, method):
             total += row.custom_actual_amount
 
         
-        elif row.abbr == "Overtime Wages":
-            row.custom_actual_amount = row.amount
-            total += row.custom_actual_amount
+        # elif row.abbr == "Overtime Wages":
+        #     row.custom_actual_amount = row.amount
+        #     total += row.custom_actual_amount
 
 
 
@@ -1809,7 +1809,7 @@ def set_actual_amounts(doc, method):
         AND ss.start_date >= %s
         AND ss.end_date <= %s
     """, (doc.employee, fy_start, fy_end))[0][0] or 0
-    
+
 def set_weekly_present_days_from_canteen(doc,method):
     self=doc
     """Set custom_weekly_present_days from Canteen Employee Attendace if a matching record exists"""
