@@ -1611,138 +1611,204 @@ def apprentice_working_days(doc, method):
 
 
 
-def get_financial_year_dates(posting_date):
-    posting_date = getdate(posting_date)
-
-    if posting_date.month >= 4:
-        start_date = date(posting_date.year, 4, 1)
-        end_date = date(posting_date.year + 1, 3, 31)
-    else:
-        start_date = date(posting_date.year - 1, 4, 1)
-        end_date = date(posting_date.year, 3, 31)
-
-    return start_date, end_date
-
-
 def set_actual_amounts(doc, method):
-    if getattr(doc, "_actual_amounts_done", False):
-        return
-
-    doc._actual_amounts_done = True
-    apply_actual_logic(doc)
-
-
-def apply_actual_logic(doc):
     total = 0
-    total_ytd = 0
-
-    fy_start, fy_end = get_financial_year_dates(doc.start_date)
-
-    ssa = frappe.db.sql("""
-        SELECT base
-        FROM `tabSalary Structure Assignment`
-        WHERE employee = %s
-          AND from_date <= %s
-          AND docstatus = 1
-        ORDER BY from_date DESC
-        LIMIT 1
-    """, (doc.employee, doc.start_date), as_dict=True)
+    total_ytd =0
+    # Fetch related values only once
+    ssa = frappe.db.sql(
+    """
+    SELECT base
+    FROM `tabSalary Structure Assignment`
+    WHERE employee = %s
+      AND from_date <= %s
+      AND docstatus = 1
+    ORDER BY from_date DESC
+    LIMIT 1
+    """,
+    (doc.employee, doc.start_date),
+    as_dict=True
+)
 
     base_salary = flt(ssa[0].base) if ssa else 0
+
 
     emp = frappe.db.get_value(
         "Employee",
         doc.employee,
-        ["custom_service_weightage_emp", "custom_vehicle_type"],
+        ["custom_service_weightage_emp","custom_vehicle_type"],  # adjust the field name
         as_dict=True
-    ) or {}
-
-    service_weightage = flt(emp.get("custom_service_weightage_emp"))
-    vehicle_type = emp.get("custom_vehicle_type")
+    )
 
     for row in doc.earnings:
-
-        if row.abbr in ["BP", "B"]:
-            row.custom_actual_amount = base_salary
+        if row.abbr in ["BP","B"]:
+            row.custom_actual_amount = base_salary if ssa else 0
+            global actual_base
+            actual_base = row.custom_actual_amount
+            total += row.custom_actual_amount
 
         elif row.abbr == "SW":
-            row.custom_actual_amount = service_weightage
+            row.custom_actual_amount = emp.custom_service_weightage_emp if emp else 0
+            total += row.custom_actual_amount
 
         elif row.abbr == "VDA":
-            row.custom_actual_amount = round_half_up(
-                (base_salary + service_weightage) * doc.custom_dearness_allowence_percentage
-            )
-
+            row.custom_actual_amount = round_half_up((base_salary+emp.custom_service_weightage_emp) * doc.custom_dearness_allowence_percentage )if emp else 0
+            total += row.custom_actual_amount
+            global actual_da
+            actual_da = row.custom_actual_amount
+        
         elif row.abbr == "HRA":
-            row.custom_actual_amount = round_half_up(
-                (base_salary + service_weightage) * doc.custom_hra
-            )
-
+            row.custom_actual_amount = round_half_up ((base_salary+emp.custom_service_weightage_emp) * doc.custom_hra )if emp else 0
+            total += row.custom_actual_amount
+        
         elif row.abbr == "Canteen Subsidy":
-            row.custom_actual_amount = flt(doc.custom_canteen_subsidy)
-
+            row.custom_actual_amount= doc.custom_canteen_subsidy
+            total += row.custom_actual_amount
+        
         elif row.abbr == "Medical Allowance":
-            if base_salary <= 29699:
-                row.custom_actual_amount = 1400
-            elif base_salary <= 34000:
-                row.custom_actual_amount = 1700
-            else:
-                row.custom_actual_amount = 2000
-
+            row.custom_actual_amount= (1400 if base_salary <= 29699 else 1700 if base_salary <= 34000 else 2000)
+            total += row.custom_actual_amount
+        
         elif row.abbr == "Conv. Allowance":
-            if vehicle_type == "4 Wheeler":
-                row.custom_actual_amount = 1400
-            elif vehicle_type == "2 Wheeler":
-                row.custom_actual_amount = 750
-            elif vehicle_type == "Others":
-                row.custom_actual_amount = 350
-            else:
-                row.custom_actual_amount = 0
+            row.custom_actual_amount= (1400 if emp.custom_vehicle_type == "4 Wheeler" else 750 if emp.custom_vehicle_type == "2 Wheeler" else 350 if emp.custom_vehicle_type == "Others" else 0)
+            total += row.custom_actual_amount
 
-        elif row.abbr in [
-            "Children Education Allowance",
-            "Washing Allowance",
-            "Book Allowance"
-        ]:
-            row.custom_actual_amount = flt(row.amount)
+        elif row.abbr == "Children Education Allowance":
+            # For other components, either copy row.amount or set to 0
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
 
-        else:
-            row.custom_actual_amount = flt(row.amount)
+        elif row.abbr == "Washing Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+        
+        elif row.abbr == "Book Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+        elif row.abbr == "Spectacle Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+        elif row.abbr == "SA":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
 
-        total += flt(row.custom_actual_amount)
+        elif row.abbr == "Stitching Allowance":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
 
-    doc.custom_gross_actual_amount = total
+        
+        elif row.abbr == "Overtime Wages":
+            row.custom_actual_amount = row.amount
+            total += row.custom_actual_amount
+
+
+
+    doc.custom_gross_actual_amount=total
 
     for row in doc.deductions:
-        total_ytd += flt(row.year_to_date)
+        # Add the YTD value (if None, treat as 0)
+        total_ytd += (row.year_to_date or 0)
 
+    # Assign to your custom field
     doc.custom_gross_deduction_year_to_date = total_ytd
 
-    ytd_data = frappe.db.sql("""
-        SELECT
-            SUM(ss.custom_weekly_payment_days),
-            SUM(ss.custom_conveyance_days),
-            SUM(ss.custom_lop_refund_days),
-            SUM(ss.custom_lop_refund_hrs),
-            SUM(ss.custom_lop_hrs),
-            SUM(ss.custom_uploaded_leave_without_pay),
-            SUM(ss.custom_ot_hrs)
-        FROM `tabSalary Slip` ss
+    # Get Financial Year based on salary slip date
+    start_date = getdate(doc.start_date)
+
+    month_number = start_date.month
+    year = start_date.year
+
+    # FY runs April → March
+    if month_number >= 4:
+        fy_start_year = year
+        fy_end_year = year + 1
+    else:
+        fy_start_year = year - 1
+        fy_end_year = year
+
+    fy_start = date(fy_start_year, 4, 1)
+    fy_end = date(fy_end_year, 3, 31)
+
+    print("FY Start:", fy_start)
+    print("FY End:", fy_end)
+
+    # YTD of Days Section (WITH FY FILTER)
+
+    payment_days = frappe.db.sql("""
+        SELECT SUM(ss.custom_weekly_payment_days)
+        FROM `tabSalary Slip` AS ss 
         WHERE ss.employee = %s
         AND ss.docstatus != 2
-        AND ss.start_date BETWEEN %s AND %s
-        AND ss.name != %s
-    """, (doc.employee, fy_start, fy_end, doc.name))
+        AND ss.start_date >= %s
+        AND ss.end_date <= %s
+    """, (doc.employee, fy_start, fy_end))
 
-    db_vals = ytd_data[0] if ytd_data and ytd_data[0] else [0] * 7
+    doc.custom_payment_days_ytd = (
+        payment_days[0][0] if payment_days and payment_days[0][0] else 0
+    )
 
-    doc.custom_payment_days_ytd = flt(db_vals[0]) + flt(doc.custom_weekly_payment_days)
-    doc.custom_conveyance_days_ytd = flt(db_vals[1]) + flt(doc.custom_conveyance_days)
-    doc.custom_lop_refund_days_ytd = flt(db_vals[2]) + flt(doc.custom_lop_refund_days)
-    doc.custom_lop_refund_hrs_ytd = flt(db_vals[3]) + flt(doc.custom_lop_refund_hrs)
-    doc.custom_lop_hrs_ytd = flt(db_vals[4]) + flt(doc.custom_lop_hrs)
-    doc.custom_lop_days_ytd = flt(db_vals[5]) + flt(doc.custom_uploaded_leave_without_pay)
-    doc.custom_ot_hrs_ytd = flt(db_vals[6]) + flt(doc.custom_ot_hrs)
+
+    doc.custom_conveyance_days_ytd = frappe.db.sql("""
+        SELECT SUM(ss.custom_conveyance_days)
+        FROM `tabSalary Slip` AS ss
+        WHERE ss.employee = %s
+        AND ss.docstatus != 2
+        AND ss.start_date >= %s
+        AND ss.end_date <= %s
+    """, (doc.employee, fy_start, fy_end))[0][0] or 0
+
+
+    custom_lop_refund_days_ytd = frappe.db.sql("""
+        SELECT SUM(ss.custom_lop_refund_days)
+        FROM `tabSalary Slip` AS ss
+        WHERE ss.employee = %s
+        AND ss.docstatus != 2
+        AND ss.start_date >= %s
+        AND ss.end_date <= %s
+    """, (doc.employee, fy_start, fy_end))
+
+    doc.custom_lop_refund_days_ytd = (
+        custom_lop_refund_days_ytd[0][0] or 0
+    )
+
+
+    doc.custom_lop_refund_hrs_ytd = frappe.db.sql("""
+        SELECT SUM(ss.custom_lop_refund_hrs)
+        FROM `tabSalary Slip` AS ss
+        WHERE ss.employee = %s
+        AND ss.docstatus != 2
+        AND ss.start_date >= %s
+        AND ss.end_date <= %s
+    """, (doc.employee, fy_start, fy_end))[0][0] or 0
+
+
+    doc.custom_lop_hrs_ytd = frappe.db.sql("""
+        SELECT SUM(ss.custom_lop_hrs)
+        FROM `tabSalary Slip` AS ss
+        WHERE ss.employee = %s
+        AND ss.docstatus != 2
+        AND ss.start_date >= %s
+        AND ss.end_date <= %s
+    """, (doc.employee, fy_start, fy_end))[0][0] or 0
+
+
+    doc.custom_lop_days_ytd = frappe.db.sql("""
+        SELECT SUM(ss.custom_uploaded_leave_without_pay)
+        FROM `tabSalary Slip` AS ss
+        WHERE ss.employee = %s
+        AND ss.docstatus != 2
+        AND ss.start_date >= %s
+        AND ss.end_date <= %s
+    """, (doc.employee, fy_start, fy_end))[0][0] or 0
+
+
+    doc.custom_ot_hrs_ytd = frappe.db.sql("""
+        SELECT SUM(ss.custom_ot_hrs)
+        FROM `tabSalary Slip` AS ss
+        WHERE ss.employee = %s
+        AND ss.docstatus != 2
+        AND ss.start_date >= %s
+        AND ss.end_date <= %s
+    """, (doc.employee, fy_start, fy_end))[0][0] or 0
     
 def set_weekly_present_days_from_canteen(doc,method):
     self=doc
