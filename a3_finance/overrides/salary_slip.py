@@ -1635,7 +1635,13 @@ def set_actual_amounts(doc, method):
     emp = frappe.db.get_value(
         "Employee",
         doc.employee,
-        ["custom_service_weightage_emp","custom_vehicle_type"],  # adjust the field name
+        [
+            "custom_service_weightage_emp",
+            "custom_vehicle_type",
+            "custom_no_of_children_eligible_for_cea",
+            "employment_type",
+            "custom_has_uniform"
+        ],
         as_dict=True
     )
 
@@ -1672,30 +1678,105 @@ def set_actual_amounts(doc, method):
             row.custom_actual_amount= (1400 if emp.custom_vehicle_type == "4 Wheeler" else 750 if emp.custom_vehicle_type == "2 Wheeler" else 350 if emp.custom_vehicle_type == "Others" else 0)
             total += row.custom_actual_amount
 
+        # elif row.abbr == "Children Education Allowance":
+        #     # For other components, either copy row.amount or set to 0
+        #     row.custom_actual_amount = row.amount
+        #     total += row.custom_actual_amount
+
         elif row.abbr == "Children Education Allowance":
-            # For other components, either copy row.amount or set to 0
-            row.custom_actual_amount = row.amount
+
+            no_of_children = cint(emp.custom_no_of_children_eligible_for_cea) if emp else 0
+
+            row.custom_actual_amount = (
+                800 if no_of_children > 1
+                else 400 if no_of_children > 0
+                else 0
+            )
+
             total += row.custom_actual_amount
+
+        # elif row.abbr == "Washing Allowance":
+        #     row.custom_actual_amount = row.amount
+        #     total += row.custom_actual_amount
 
         elif row.abbr == "Washing Allowance":
-            row.custom_actual_amount = row.amount
+
+            if (
+                emp
+                and emp.employment_type == "Workers"
+                and emp.custom_has_uniform == 1
+            ):
+                row.custom_actual_amount = doc.custom_washing_allowance
+            else:
+                row.custom_actual_amount = 0
+
             total += row.custom_actual_amount
         
+        # elif row.abbr == "Book Allowance":
+        #     row.custom_actual_amount = row.amount
+        #     total += row.custom_actual_amount
+
         elif row.abbr == "Book Allowance":
-            row.custom_actual_amount = row.amount
-            total += row.custom_actual_amount
-        elif row.abbr == "Spectacle Allowance":
-            row.custom_actual_amount = row.amount
-            total += row.custom_actual_amount
-        elif row.abbr == "SA":
-            row.custom_actual_amount = row.amount
+
+            if emp and emp.employment_type == "Officers":
+                row.custom_actual_amount = doc.custom_book_allowance
+            else:
+                row.custom_actual_amount = 0
+
             total += row.custom_actual_amount
 
-        elif row.abbr == "Stitching Allowance":
-            row.custom_actual_amount = row.amount
+        # elif row.abbr == "Spectacle Allowance":
+        #     row.custom_actual_amount = row.amount
+        #     total += row.custom_actual_amount
+
+        elif row.abbr == "Spectacle Allowance":
+
+            if (
+                emp
+                and emp.employment_type == "Workers"
+                and getdate(doc.start_date).day == 1
+            ):
+                row.custom_actual_amount = doc.custom_spectacle_allowance
+            else:
+                row.custom_actual_amount = 0
+
             total += row.custom_actual_amount
+
+        # elif row.abbr == "SA":
+        #     row.custom_actual_amount = row.amount
+        #     total += row.custom_actual_amount
+
+        elif row.abbr == "SA":
+
+            if (
+                emp
+                and emp.employment_type == "Workers"
+                and getdate(doc.start_date).day == 1
+            ):
+                row.custom_actual_amount = doc.custom_spectacle_allowance
+            else:
+                row.custom_actual_amount = 0
+
+            total += row.custom_actual_amount        
+
+        # elif row.abbr == "Stitching Allowance":
+        #     row.custom_actual_amount = row.amount
+        #     total += row.custom_actual_amount
 
         
+        elif row.abbr == "Stitching Allowance":
+
+            if (
+                emp
+                and emp.employment_type == "Workers"
+                and emp.custom_has_uniform == 1
+            ):
+                row.custom_actual_amount = doc.custom_stitching_allowance
+            else:
+                row.custom_actual_amount = 0
+
+            total += row.custom_actual_amount
+
         # elif row.abbr == "Overtime Wages":
         #     row.custom_actual_amount = row.amount
         #     total += row.custom_actual_amount
