@@ -9,7 +9,7 @@ from frappe.utils import getdate
 # Full list of Deduction components
 ALL_DEDUCTION_COMPONENTS = [
     "Subsistence PF", "ESI", "PF Deduction", "Other Recovery", "TL Deduction", "Employee PF",
-    "Professional Tax", "Society", "BENEVOLENT FUND", "Brahmos Recreation Club Contribution",
+    "Professional Tax", "Society", "Benevolent  Fund", "Loans Recovery", "Brahmos Recreation Club Contribution",
     "Voluntary PF", "LWP Deduction", "Labour Welfare Fund", "Income Tax",
     "Advance Recovery(TA)", "PLI Recovery", "Canteen Coupon Deduction", "LIC Recovery",
     "LOP (Days) Deduction", "Canteen Recovery","Housing Loan","Festival Advance Recovery","Other Recovery","LOP (in Hours) Deduction"
@@ -57,7 +57,8 @@ def get_columns(totals):
         "employee_pf": "Employee PF",
         "professional_tax": "Professional Tax",
         "society": "Society",
-        "benevolent_fund": "BENEVOLENT FUND",
+        "benevolent_fund": "Benevolent  Fund",
+        "loans_recovery": "Loans Recovery",
         "brahmos_recreation_club_con": "Brahmos Recreation Club Con",
         "voluntary_pf": "Voluntary PF",
         "lwp_deduction": "LWP Deduction",
