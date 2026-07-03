@@ -1173,7 +1173,7 @@ def create_benevolent_fund_log(doc, method):
     # Check if Benevolent Fund component is present and its amount is 0
     fund_amount = 0
     for row in doc.deductions:
-        if row.salary_component == "BENEVOLENT FUND":
+        if row.salary_component == "Benevolent  Fund":
             fund_amount = row.amount or 0
             break
 
