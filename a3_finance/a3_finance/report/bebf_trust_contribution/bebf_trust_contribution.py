@@ -56,7 +56,7 @@ def get_data(filters):
                 FROM `tabSalary Detail`
                 WHERE parent = %s
                   AND parentfield = 'deductions'
-                  AND salary_component = 'BENEVOLENT FUND'
+                  AND salary_component = 'Benevolent  Fund'
                 LIMIT 1
             """, slip[0].name)
             if benevolent:
