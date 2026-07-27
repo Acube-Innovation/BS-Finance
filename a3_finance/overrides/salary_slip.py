@@ -643,6 +643,31 @@ def set_basic_pay(doc, method):
 
 
 
+def worked_full_previous_fy(employee, fy_start):
+    """True when the employee has a salary slip for every month of the previous FY.
+
+    fy_start is the 1st of April of the current financial year, so the window checked
+    is 1-Apr of the year before it through 31-Mar of fy_start's year. Only submitted
+    slips count -- drafts and cancelled ones do not.
+    """
+    prev_fy_start = date(fy_start.year - 1, 4, 1)
+    prev_fy_end = date(fy_start.year, 3, 31)
+
+    months = frappe.db.sql(
+        """
+        SELECT COUNT(DISTINCT YEAR(start_date), MONTH(start_date))
+        FROM `tabSalary Slip`
+        WHERE employee = %s
+          AND docstatus = 1
+          AND start_date >= %s
+          AND end_date <= %s
+        """,
+        (employee, prev_fy_start, prev_fy_end),
+    )
+
+    return cint(months[0][0]) >= 12 if months else False
+
+
 @frappe.whitelist()
 def update_tax_on_salary_slip(slip, method):
     slip.calculate_net_pay()
@@ -909,6 +934,11 @@ def update_tax_on_salary_slip(slip, method):
         ex_gratia= ex_gratia_frm_ss.amount
     elif actual_exgratia_amount !=0 :
         ex_gratia = actual_exgratia_amount
+    elif not worked_full_previous_fy(employee, fy_start):
+        # Estimated ex-gratia is only projected for employees who completed the whole
+        # previous financial year. Mid-year joiners are not eligible, so nothing is
+        # added to their taxable income.
+        ex_gratia = 0
     elif slab_doc.custom_ex_gratia:
         ex_gratia = slab_doc.custom_ex_gratia
     else:
