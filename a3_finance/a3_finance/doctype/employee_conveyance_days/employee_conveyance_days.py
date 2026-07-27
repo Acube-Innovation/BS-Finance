@@ -9,6 +9,18 @@ from frappe.utils import getdate, get_first_day, get_last_day, add_months
 from hrms.payroll.doctype.salary_slip.salary_slip import SalarySlip
 from a3_finance.utils.math_utils import round_half_up
 
+DEFAULT_CONVEYANCE_RATE = 1400
+
+# "Type of Vehicles" in Payroll Master Setting is free text, so the labels drift
+# ("Other" vs "Others", stray case/spacing). Normalise both sides before matching.
+VEHICLE_TYPE_ALIASES = {"other": "others"}
+
+
+def normalize_vehicle_type(vehicle_type):
+    key = (vehicle_type or "").strip().casefold()
+    return VEHICLE_TYPE_ALIASES.get(key, key)
+
+
 class EmployeeConveyanceDays(Document):
     def validate(self):
         vehicle_type = frappe.db.get_value("Employee", self.employee, "custom_vehicle_type")
@@ -79,7 +91,7 @@ class EmployeeConveyanceDays(Document):
         if len(rows) == 1:
             days = rows[0].no_of_days
             vehicle_type = rows[0].vehicle_type
-            rate = conveyance_rates.get(vehicle_type, 1400)  # Default to 1400 if not found
+            rate = conveyance_rates.get(normalize_vehicle_type(vehicle_type), DEFAULT_CONVEYANCE_RATE)
             
             if days >= self.minimum_working_days:
                 rows[0].amount = rate
@@ -105,7 +117,7 @@ class EmployeeConveyanceDays(Document):
                 remaining_days = self.minimum_working_days
                 for row in self.conveyance_details:
                     vehicle_type = row.vehicle_type
-                    rate = conveyance_rates.get(vehicle_type, 1400)
+                    rate = conveyance_rates.get(normalize_vehicle_type(vehicle_type), DEFAULT_CONVEYANCE_RATE)
 
                     if remaining_days <= 0:
                         row.amount = 0
@@ -157,9 +169,9 @@ class EmployeeConveyanceDays(Document):
                     amount = getattr(row, 'amount_per_month', None) 
                     
                     if vehicle_type and amount is not None:
-                        conveyance_rates[vehicle_type] = amount
-            
-        
+                        conveyance_rates[normalize_vehicle_type(vehicle_type)] = amount
+
+
         return conveyance_rates
 
     @staticmethod

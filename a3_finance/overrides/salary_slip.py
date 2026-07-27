@@ -657,20 +657,7 @@ def update_tax_on_salary_slip(slip, method):
     month = start_date.strftime("%B")
     month_number = start_date.month
     year = start_date.year
-    base_salary = frappe.db.sql(
-        """
-        SELECT base
-        FROM `tabSalary Structure Assignment`
-        WHERE employee = %s
-        AND from_date <= %s
-        AND docstatus = 1
-        ORDER BY from_date DESC
-        LIMIT 1
-        """,
-        (slip.employee, slip.start_date),
-    )
-
-    base_salary = flt(base_salary[0][0]) if base_salary else 0
+    base_salary = flt(get_ssa_base_for_slip(slip))
 
     service_weightage = flt(frappe.db.get_value("Employee", employee, "custom_service_weightage_emp")) or 0
     employment_type = frappe.db.get_value("Employee", employee, "employment_type") or ""
@@ -1611,25 +1598,44 @@ def apprentice_working_days(doc, method):
 
 
 
+def get_ssa_base_for_slip(doc):
+    """Base pay from the Salary Structure Assignment applicable to this salary slip.
+
+    Prefer the SSA in force on the 1st of the payroll month. Employees who join
+    mid-month have no SSA on the 1st, so fall back to the one effective from their
+    joining date (doc.actual_start_date) -- the same date HRMS itself uses to price
+    the salary components.
+
+    Returns None when the employee has no submitted SSA at all.
+    """
+    for as_on in (doc.start_date, getattr(doc, "actual_start_date", None)):
+        if not as_on:
+            continue
+
+        base = frappe.db.get_value(
+            "Salary Structure Assignment",
+            filters={
+                "employee": doc.employee,
+                "from_date": ["<=", getdate(as_on)],
+                "docstatus": 1
+            },
+            fieldname="base",
+            order_by="from_date desc"
+        )
+
+        if base is not None:
+            return flt(base)
+
+    return None
+
+
 def set_actual_amounts(doc, method):
     total = 0
     total_ytd =0
     # Fetch related values only once
-    ssa = frappe.db.sql(
-    """
-    SELECT base
-    FROM `tabSalary Structure Assignment`
-    WHERE employee = %s
-      AND from_date <= %s
-      AND docstatus = 1
-    ORDER BY from_date DESC
-    LIMIT 1
-    """,
-    (doc.employee, doc.start_date),
-    as_dict=True
-)
+    ssa = get_ssa_base_for_slip(doc)
 
-    base_salary = flt(ssa[0].base) if ssa else 0
+    base_salary = flt(ssa) if ssa is not None else 0
 
 
     emp = frappe.db.get_value(
@@ -1647,7 +1653,7 @@ def set_actual_amounts(doc, method):
 
     for row in doc.earnings:
         if row.abbr in ["BP","B"]:
-            row.custom_actual_amount = base_salary if ssa else 0
+            row.custom_actual_amount = base_salary if ssa is not None else 0
             global actual_base
             actual_base = row.custom_actual_amount
             total += row.custom_actual_amount
@@ -2176,16 +2182,7 @@ def set_medical_allowance_from_slabs(doc,method):
         frappe.throw(f"No Medical Allowance data found in Payroll Master Setting for {payroll_month}-{payroll_year}.")
     
     # Get Base Pay from SSA (fallback to custom_base if needed)
-    ssa_base = frappe.db.get_value(
-        "Salary Structure Assignment",
-        filters={
-            "employee": doc.employee,
-            "from_date": ["<=", getdate(doc.start_date)],
-            "docstatus": 1
-        },
-        fieldname="base",
-        order_by="from_date desc"
-    )
+    ssa_base = get_ssa_base_for_slip(doc)
     base = flt(ssa_base) or flt(getattr(doc, "base", 0))
     # frappe.log("Basic Pay",base)
     # if not base:
