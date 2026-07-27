@@ -66,6 +66,18 @@ class EmployeeTimeLoss(Document):
                 ORDER BY from_date DESC LIMIT 1
             """, (self.employee_id, payroll_date), as_dict=True)
 
+            # 3️⃣ Still nothing: employees who join mid-month have no SSA effective on
+            # the 1st/2nd, so fall back to the one effective from their joining date
+            if not base_assignment or not base_assignment[0].get("base"):
+                doj = frappe.db.get_value("Employee", self.employee_id, "date_of_joining")
+
+                if doj:
+                    base_assignment = frappe.db.sql("""
+                        SELECT base FROM `tabSalary Structure Assignment`
+                        WHERE employee = %s AND from_date <= %s AND docstatus = 1
+                        ORDER BY from_date DESC LIMIT 1
+                    """, (self.employee_id, getdate(doj)), as_dict=True)
+
             if not base_assignment or not base_assignment[0].get("base"):
                 frappe.throw("No valid Salary Structure Assignment found.")
 

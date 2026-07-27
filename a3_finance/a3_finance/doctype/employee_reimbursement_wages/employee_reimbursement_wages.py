@@ -60,20 +60,28 @@ class EmployeeReimbursementWages(Document):
         return None
 
     def get_base_salary(self, effective_date):
-        # Try from Salary Structure Assignment
-        ssa = frappe.db.get_value(
-            "Salary Structure Assignment",
-            {
-                "employee": self.employee_id,
-                "from_date": ["<=", effective_date],
-                "docstatus": 1
-            },
-            "base",
-            order_by="from_date desc"
-        )
+        # Try from Salary Structure Assignment. Employees who join mid-month have no
+        # SSA effective on the reimbursement date, so fall back to the one effective
+        # from their joining date before giving up.
+        doj = frappe.db.get_value("Employee", self.employee_id, "date_of_joining")
 
-        if ssa is not None:
-            return float(ssa)
+        for as_on in (effective_date, doj):
+            if not as_on:
+                continue
+
+            ssa = frappe.db.get_value(
+                "Salary Structure Assignment",
+                {
+                    "employee": self.employee_id,
+                    "from_date": ["<=", getdate(as_on)],
+                    "docstatus": 1
+                },
+                "base",
+                order_by="from_date desc"
+            )
+
+            if ssa is not None:
+                return float(ssa)
 
         # Fallback to manually entered actual_basic_pay
         return float(self.actual_basic_pay or 0)

@@ -2209,6 +2209,10 @@ def set_medical_allowance_from_slabs(doc,method):
 
     if uploaded_lwp <= 10 and payroll_days == 30:
         allowance = matched_amount
+    elif payroll_days != 30 and (payroll_days - uploaded_lwp) >= 20:
+        # Short payroll month (mid-month joiner / relieved employee): still grant the
+        # full allowance as long as more than 20 days were actually payable.
+        allowance = matched_amount
     else:
         effective_days = 30 - ((30 - payroll_days) + uploaded_lwp)
         allowance = matched_amount * (effective_days / 30)
