@@ -6,14 +6,18 @@
 import frappe
 from frappe.utils import getdate
 
-# Full list of Deduction components
+# Deduction components in column order; any other deduction used in the period is appended after these
 ALL_DEDUCTION_COMPONENTS = [
-    "Subsistence PF", "ESI", "PF Deduction", "Other Recovery", "TL Deduction", "Employee PF",
+    "Subsistence PF", "ESI", "PF Deduction", "Other Recovery", "TL Deduction", "Employee PF", "PF on Arrears",
     "Professional Tax", "Society", "Benevolent  Fund", "Loans Recovery", "Brahmos Recreation Club Contribution",
     "Voluntary PF", "LWP Deduction", "Labour Welfare Fund", "Income Tax",
     "Advance Recovery(TA)", "PLI Recovery", "Canteen Coupon Deduction", "LIC Recovery",
-    "LOP (Days) Deduction", "Canteen Recovery","Housing Loan","Festival Advance Recovery","Other Recovery","LOP (in Hours) Deduction"
+    "LOP (Days) Deduction", "Canteen Recovery","Housing Loan","Festival Advance Recovery","LOP (in Hours) Deduction"
 ]
+
+
+def component_fieldname(comp):
+    return comp.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("-", "").replace(".", "")
 
 
 def execute(filters=None):
@@ -26,10 +30,10 @@ def execute(filters=None):
     emp_type_filter = filters.get("employment_type")
 
     # Get data
-    data, totals = get_data(start_date, end_date, subtype_filter, emp_type_filter)
+    data, totals, component_labels = get_data(start_date, end_date, subtype_filter, emp_type_filter)
 
     # Dynamically build columns based on used components
-    columns = get_columns(totals)
+    columns = get_columns(totals, component_labels)
 
     # Filter result data by used components only
     filtered_data = []
@@ -47,7 +51,7 @@ def execute(filters=None):
     return columns, filtered_data
 
 
-def get_columns(totals):
+def get_columns(totals, component_labels):
     label_map = {
         "subsistence_pf": "Subsistence PF",
         "esi": "ESI",
@@ -55,9 +59,10 @@ def get_columns(totals):
         "other_recovery": "Other Recovery",
         "tl_deduction": "TL Deduction",
         "employee_pf": "Employee PF",
+        "pf_on_arrears": "PF on Arrears",
         "professional_tax": "Professional Tax",
         "society": "Society",
-        "benevolent_fund": "Benevolent  Fund",
+        "benevolent__fund": "Benevolent Fund",
         "loans_recovery": "Loans Recovery",
         "brahmos_recreation_club_con": "Brahmos Recreation Club Con",
         "voluntary_pf": "Voluntary PF",
@@ -81,7 +86,7 @@ def get_columns(totals):
     for comp in totals:
         if comp not in ("employment_subtype", "total_earnings", "total", "net_pay"):
             columns.append({
-                "label": label_map.get(comp, comp.replace("_", " ").title()),
+                "label": label_map.get(comp) or component_labels.get(comp) or comp.replace("_", " ").title(),
                 "fieldname": comp,
                 "fieldtype": "Currency",
                 "width": 130
@@ -108,12 +113,30 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
     if emp_type_filter:
         conditions += " AND e.employment_type = %(employment_type)s"
 
+    params = {
+        "start_date": start_date,
+        "end_date": end_date,
+        "subtype_filter": subtype_filter,
+        "employment_type": emp_type_filter
+    }
+
+    # Also include deductions missing from the list, so the columns always add up to Total Deductions
+    used_deductions = frappe.db.sql(f"""
+        SELECT DISTINCT sd.salary_component
+        FROM `tabSalary Slip` s
+        JOIN `tabSalary Detail` sd ON sd.parent = s.name
+        JOIN `tabEmployee` e ON s.employee = e.name
+        WHERE {conditions} AND sd.parentfield = 'deductions' AND sd.amount != 0
+    """, params, pluck=True)
+    components = list(dict.fromkeys(ALL_DEDUCTION_COMPONENTS + sorted(used_deductions)))
+    component_labels = {component_fieldname(comp): comp for comp in components}
+
     # Build select clause dynamically
     component_sums = []
-    for comp in ALL_DEDUCTION_COMPONENTS:
-        field = comp.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("-", "").replace(".", "")
+    for comp in components:
+        field = component_fieldname(comp)
         component_sums.append(
-            f"SUM(CASE WHEN sd.parentfield = 'deductions' AND sd.salary_component = '{comp}' THEN sd.amount ELSE 0 END) AS `{field}`"
+            f"SUM(CASE WHEN sd.parentfield = 'deductions' AND sd.salary_component = {frappe.db.escape(comp)} THEN sd.amount ELSE 0 END) AS `{field}`"
         )
 
     select_clause = ",\n            ".join(component_sums)
@@ -136,13 +159,6 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
         ORDER BY e.custom_employment_sub_type
     """
 
-    params = {
-        "start_date": start_date,
-        "end_date": end_date,
-        "subtype_filter": subtype_filter,
-        "employment_type": emp_type_filter
-    }
-
     results = frappe.db.sql(query, params, as_dict=True)
 
     # Calculate grand totals and detect which components are actually used
@@ -158,4 +174,4 @@ def get_data(start_date, end_date, subtype_filter=None, emp_type_filter=None):
         used_components["net_pay"] = True
         results.append(grand_total)
 
-    return results, used_components
+    return results, used_components, component_labels

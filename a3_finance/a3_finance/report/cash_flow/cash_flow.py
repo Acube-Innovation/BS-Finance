@@ -223,6 +223,7 @@ def get_account_type_based_gl_data(company, filters=None):
 		select sum(credit) - sum(debit)
 		from `tabGL Entry`
 		where company=%(company)s and posting_date >= %(start_date)s and posting_date <= %(end_date)s
+			and is_cancelled = 0
 			and voucher_type != 'Period Closing Voucher'
 			and account in ( SELECT name FROM tabAccount WHERE account_type = %(account_type)s) {cond}
 	""",

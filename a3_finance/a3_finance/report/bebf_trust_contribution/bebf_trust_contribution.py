@@ -1,7 +1,7 @@
 # Copyright (c) 2025, Acube and contributors
 # For license information, please see license.txt
 import frappe
-from frappe.utils import get_first_day, get_last_day
+from frappe.utils import get_first_day, get_last_day, getdate
 
 def execute(filters=None):
     columns = get_columns()
@@ -30,7 +30,7 @@ def get_data(filters):
     employees = frappe.get_all(
         "Employee",
         filters={"custom_has_benevolent_fund_contribution": 1},
-        fields=["name", "employee_name", "custom_bebf_no", "employee_number"]
+        fields=["name", "employee_name", "custom_bebf_no", "employee_number", "date_of_retirement", "relieving_date"]
     )
 
     data = []
@@ -62,6 +62,11 @@ def get_data(filters):
             if benevolent:
                 amount = benevolent[0][0] or 0
                 ee_total += amount
+
+        # Leave out employees who retired or were relieved before this month (unless they still contributed)
+        exit_date = emp.relieving_date or emp.date_of_retirement
+        if not amount and exit_date and getdate(exit_date) < start_date:
+            continue
 
         data.append({
             "sl_no": sl_no,
