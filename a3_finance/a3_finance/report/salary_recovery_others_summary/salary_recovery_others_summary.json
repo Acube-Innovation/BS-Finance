@@ -1,0 +1,32 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2026-10-06 20:00:23.563677",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "BATL-Letter Head",
+ "letterhead": null,
+ "modified": "2026-10-06 20:00:23.563677",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Salary Recovery Others Summary",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Salary Slip",
+ "report_name": "Salary Recovery Others Summary",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "HR User"
+  },
+  {
+   "role": "HR Manager"
+  }
+ ],
+ "timeout": 0
+}

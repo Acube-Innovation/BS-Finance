@@ -50,6 +50,7 @@ def get_data(filters):
             "Salary Slip",
             filters={
                 "employee": emp.name,
+                "docstatus": ["!=", 2],
                 "start_date": [">=", filters["start_date"]],
                 "end_date": ["<=", filters["end_date"]],
             },

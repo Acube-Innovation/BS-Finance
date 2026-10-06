@@ -32,7 +32,11 @@ def get_columns():
 
 def get_data(filters):
     filters = filters or {}
-    conditions = []
+    # Skip logs left behind by salary slips that were cancelled and not re-submitted
+    conditions = [
+        "NOT EXISTS (SELECT 1 FROM `tabSalary Slip` ss"
+        " WHERE ss.name = `tabPF Detailed Log`.salary_slip AND ss.docstatus = 2)"
+    ]
     values = {}
 
     if filters.get("payroll_month"):

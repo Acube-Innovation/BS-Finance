@@ -736,8 +736,8 @@ def update_tax_on_salary_slip(slip, method):
         frappe.throw("Payroll Master Setting not found for the given month and year.")
     pms = frappe.get_doc("Payroll Master Setting", pms_name)
 
-    da_amt = round((base_salary + service_weightage) * flt(pms.get("dearness_allowance_", 0)))
-    hra_amt = round((base_salary + service_weightage) * flt(pms.get("hra_", 0)))
+    da_amt = round_half_up((base_salary + service_weightage) * flt(pms.get("dearness_allowance_", 0)))
+    hra_amt = round_half_up((base_salary + service_weightage) * flt(pms.get("hra_", 0)))
     canteen_subsidy = flt(pms.get("canteen_subsidy", 0))
 
     medical_allowance = 0
@@ -1087,6 +1087,14 @@ def update_tax_on_salary_slip(slip, method):
             slip.custom_income_tax = override_tax
         else:
             monthly_tax = round_half_up(final_tax / (months_left + 1)) if final_tax > 0 else 0
+            # Don't deduct more TDS than the month's pay can cover (e.g. full LOP).
+            # The shortfall is recovered in later months since tax_paid stays lower.
+            # Society is excluded: apply_society_deduction_cap trims it after tax.
+            other_deductions = sum(
+                flt(d.amount) for d in slip.deductions
+                if d.salary_component not in ("Income Tax", "Society")
+            )
+            monthly_tax = min(monthly_tax, max(flt(slip.gross_pay) - other_deductions, 0))
             print(f"Final Tax: {final_tax}, Monthly Tax: {monthly_tax}")
             slip.custom_income_tax = monthly_tax
 
@@ -1199,12 +1207,11 @@ def create_benevolent_fund_log(doc, method):
         payroll_month = start_date.strftime("%m")
         payroll_year = start_date.strftime("%Y")
 
-        # Avoid duplicate logs
+        # Avoid duplicate logs (e.g. when an amended slip is re-submitted)
         exists = frappe.db.exists("Benevolent Fund Log", {
-            "employee": doc.employee,
+            "employee_id": doc.employee,
             "payroll_month": payroll_month,
-            "payroll_year":payroll_year,
-            "amount": doc.custom_benevolent_fund
+            "payroll_year":payroll_year
         })
         if not exists:
             frappe.get_doc({
@@ -1242,7 +1249,7 @@ def set_pending_benevolent_fund(doc, method):
     unpaid_logs = frappe.get_all("Benevolent Fund Log",
         filters={"employee_id": doc.employee, "status": "Unpaid"},
         fields=["name", "amount"],
-        order_by="payroll_month asc"
+        order_by="payroll_year asc, payroll_month asc"
     )
 
     remaining_gross = gross
@@ -1261,24 +1268,35 @@ def set_pending_benevolent_fund(doc, method):
     doc.custom_benevolent_fund = to_deduct
 
 def mark_paid_benevolent_logs(doc, method):
-    if not doc.employee or not doc.custom_benevolent_fund:
+    if not doc.employee:
         return
 
     is_beneficiary = frappe.db.get_value("Employee", doc.employee, "custom_has_benevolent_fund_contribution")
     if not is_beneficiary:
         return
 
-    remaining_amount = doc.custom_benevolent_fund
+    # Use what was actually deducted, not custom_benevolent_fund: the structure skips the
+    # deduction when BP is 0 (full LOP), and a month that paid nothing must not clear logs.
+    remaining_amount = sum(
+        flt(row.amount) for row in doc.deductions if row.salary_component == "Benevolent  Fund"
+    )
+    if not remaining_amount:
+        return
+
+    start = getdate(doc.start_date)
+    setting = get_previous_payroll_master_settings(start.year, start.month)
+    monthly_amount = flt(setting.benevolent_fund) if setting else 0
 
     # Fetch unpaid logs in chronological order
     unpaid_logs = frappe.get_all("Benevolent Fund Log",
         filters={"employee_id": doc.employee, "status": "Unpaid"},
         fields=["name", "amount"],
-        order_by="payroll_month asc"
+        order_by="payroll_year asc, payroll_month asc"
     )
 
     for log in unpaid_logs:
-        amt = log.amount or 0
+        # Same per-month amount set_pending_benevolent_fund used to build the deduction
+        amt = flt(log.amount) or monthly_amount
         if remaining_amount >= amt:
             frappe.db.set_value("Benevolent Fund Log", log.name, {
                 "status": "Paid",

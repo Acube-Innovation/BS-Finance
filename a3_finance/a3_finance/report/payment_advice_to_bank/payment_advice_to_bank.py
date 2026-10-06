@@ -37,8 +37,9 @@ def execute(filters=None):
             ss.net_pay
         FROM `tabSalary Slip` ss
         JOIN `tabEmployee` e ON ss.employee = e.name
-        WHERE 
-            MONTH(ss.start_date) = %(payroll_month)s
+        WHERE
+            ss.docstatus != 2
+            AND MONTH(ss.start_date) = %(payroll_month)s
             AND YEAR(ss.start_date) = %(payroll_year)s
             {emp_type_filter}
     """.format(emp_type_filter=emp_type_filter), filters, as_dict=True)

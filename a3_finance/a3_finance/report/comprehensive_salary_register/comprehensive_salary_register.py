@@ -301,11 +301,12 @@ def get_salary_component_type(salary_component):
 
 
 def get_salary_slips(filters, company_currency):
-	doc_status = {"Draft": 0, "Submitted": 1, "Cancelled": 2}
+	doc_status = {"Draft": 0, "Submitted": 1}
 
-	query = frappe.qb.from_(salary_slip).select(salary_slip.star)
+	# Cancelled slips are never shown
+	query = frappe.qb.from_(salary_slip).select(salary_slip.star).where(salary_slip.docstatus != 2)
 
-	if filters.get("docstatus"):
+	if filters.get("docstatus") in doc_status:
 		query = query.where(salary_slip.docstatus == doc_status[filters.get("docstatus")])
 
 	if filters.get("from_date"):
