@@ -1,0 +1,109 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:scheme_name",
+ "creation": "2026-11-03 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "scheme_name",
+  "calculation",
+  "column_break_ctrl",
+  "disabled",
+  "section_break_note",
+  "notes"
+ ],
+ "fields": [
+  {
+   "description": "The name shown on the Employee, the PF Detailed Log and the ECR Upload Statement. To change it later, use Rename (title or ... menu): the employees and logs that use the scheme are updated.",
+   "fieldname": "scheme_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Scheme Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "How EPS and ER (employer share) are worked out. The Wage Ceiling is the Statutory Wage Ceiling of the Payroll Master Setting of the payroll month.",
+   "fieldname": "calculation",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Calculation",
+   "options": "\nEPS 9.49% / ER 2.51% of EPF Wages\nEPS 0 / ER 12% of EPF Wages\nEPS 8.33% / ER 3.67% on Wages up to the Wage Ceiling\nEPS 0 / ER 12% on Wages up to the Wage Ceiling\nEPS 8.33% on Wages up to the Wage Ceiling / ER 12% of EPF Wages less EPS\nEPS 8.33% (+1.16% above the Wage Ceiling) / ER 12% less EPS",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ctrl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "A disabled scheme cannot be selected on employees.",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "section_break_note",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-03 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "A3 Finance",
+ "name": "Employee Pension Scheme",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR User",
+   "share": 0,
+   "write": 0
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "calculation",
+ "sort_field": "scheme_name",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "scheme_name"
+}

@@ -281,6 +281,8 @@ doc_events = {
                         # "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
                         # "a3_finance.overrides.salary_slip.add_society_deduction",
                        "a3_finance.overrides.salary_slip.fetch_relation"],
+        # recurring Additional Salaries switched off while the slip was worked out are switched on again
+        "on_update": ["a3_finance.overrides.salary_slip.reenable_additional_salaries"],
         "on_submit":[
             "a3_finance.overrides.salary_slip.update_employee_payroll_details",
             "a3_finance.overrides.salary_slip.create_benevolent_fund_log",
@@ -314,7 +316,9 @@ doc_events = {
             "a3_finance.a3_finance.doc_events.employee.set_apprentice_doe",
             "a3_finance.a3_finance.doc_events.employee.update_total_service",
             "a3_finance.overrides.employee_updates.create_suspension",
-            "a3_finance.a3_finance.doc_events.employee.validate"]
+            "a3_finance.a3_finance.doc_events.employee.validate"],
+        # CEA changed from a month already paid: arrears through an Additional Salary
+        "on_update": "a3_finance.a3_finance.doc_events.cea_arrear.on_update"
     },
     "Salary Structure Assignment":{
         "on_submit":[

@@ -50,9 +50,7 @@ def pull_values_from_payroll_master(doc, method):
     doc.custom_arrear                                 = setting.arrear
     doc.custom_festival_advance                       = setting.festival_advance
     global deduction_cap
-    print("eeeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap)
-    deduction_cap                                     = 75
-    # print("eeeeeeeeeeeeeeeeeeeeeeeeeeee",deduction_cap,setting.deduction_cap)
+    deduction_cap                                     = get_deduction_cap(doc)
     # doc.custom_festival_advance_recovery              = setting.festival_advance_recovery
     doc.custom_labour_welfare_fund                    = setting.labour_welfare_fund
     doc.custom_brahmos_recreation_club_contribution   = setting.brahmos_recreation_club_contribution if setting.brahmos_recreation_club_contribution else 20
@@ -127,7 +125,7 @@ def get_previous_payroll_master_settings(year, month_number):
             "book_allowance", "stitching_allowance", "shoe_allowance", "spectacle_allowance",
             "ex_gratia", "arrear", "festival_advance", "festival_advance_recovery",
             "labour_welfare_fund", "brahmos_recreation_club_contribution", "benevolent_fund",
-            "canteen_recovery", "conveyance_allowances", "overtime_wages", "hra_"
+            "canteen_recovery", "conveyance_allowances", "overtime_wages", "hra_", "deduction_cap"
         ],
         order_by="payroll_year desc, payroll_month_number desc",
         limit=20
@@ -2006,10 +2004,21 @@ def add_society_deduction(doc, method):
     doc.calculate_net_pay()
  
 
+DEFAULT_DEDUCTION_CAP = 75
+
+
+def get_deduction_cap(doc):
+    """Deduction Cap (% of earnings) of the Payroll Master Setting of the slip's month (the latest one up to that
+    month); 75 when it is not set."""
+    start = getdate(doc.start_date)
+    setting = get_previous_payroll_master_settings(start.year, start.month)
+    return flt(setting.get("deduction_cap")) if setting and flt(setting.get("deduction_cap")) else DEFAULT_DEDUCTION_CAP
+
+
 def apply_society_deduction_cap(doc, method):
     """
-    Cap total deductions to 75% of earnings by adjusting Society deduction.
-    Society is no longer an additional salary, so simply overwrite amount.
+    Cap total deductions to the Deduction Cap (% of earnings, Payroll Master Setting) by adjusting Society
+    deduction. Society is no longer an additional salary, so simply overwrite amount.
     """
     # Find Society row
     society_row = next((row for row in doc.deductions if row.salary_component == "Society"), None)
@@ -2036,8 +2045,7 @@ def apply_society_deduction_cap(doc, method):
         return  # Nothing to adjust
     doc.calculate_net_pay()
     total_earnings = sum(e.amount for e in doc.earnings) - exgratia
-    print("dededededededdeedededededededededdeddedeed",deduction_cap,exgratia)
-    max_deductions = total_earnings * deduction_cap /100
+    max_deductions = total_earnings * get_deduction_cap(doc) / 100
     total_deductions = sum(d.amount for d in doc.deductions) - exgratia
 
     print(f"Societyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy deduction cap check: Max={max_deductions}, Current={total_deductions}")
@@ -2797,6 +2805,13 @@ import frappe
 from frappe.utils import flt
 
 def validate_additional_salaries(doc, method):
+    """Full LOP month (or recurring Additional Salaries not less than the pay): the recurring Additional Salaries are
+    not paid / recovered on this slip (their rows set to 0).
+
+    They are switched off only while this slip is worked out, so that its recalculations (calculate_net_pay) do not
+    bring them back, and switched on again when the slip is saved / submitted (reenable_additional_salaries): they
+    carry on in the following months (a Housing Loan is recovered again once there is pay).
+    """
     total_amount = 0
 
     # get recurring Additional Salaries for this employee
@@ -2812,29 +2827,34 @@ def validate_additional_salaries(doc, method):
 
     # lop_days = getattr(doc, "lop_days", 0)
 
-    if lop_days == 30:
-        # zero out those components in Salary Slip (instead of disabling)
+    if add_sals and (lop_days == 30 or total_amount >= (actual_base - lop_diff)):
+        by_component = {}
+        for d in add_sals:
+            by_component.setdefault(d.salary_component, []).append(d.name)
+        disabled = doc.flags.setdefault("a3_disabled_additional_salaries", [])
+        # zero out those components in Salary Slip; switch off their Additional Salaries for this slip only
         for row in doc.earnings + doc.deductions:
-            if any(d.salary_component == row.salary_component for d in add_sals):
-                frappe.db.set_value("Additional Salary",d.name,"disabled",1)
-                row.amount = 0
-
-    elif total_amount >= (actual_base - lop_diff):
-        for row in doc.earnings + doc.deductions:
-            if any(d.salary_component == row.salary_component for d in add_sals):
-                frappe.db.set_value("Additional Salary",d.name,"disabled",1)
+            for name in by_component.get(row.salary_component, []):
+                if name not in disabled:
+                    frappe.db.set_value("Additional Salary", name, "disabled", 1, update_modified=False)
+                    disabled.append(name)
                 row.amount = 0
 
     # refresh salary totals
     doc.set_totals()
 
 
+def reenable_additional_salaries(doc, method=None):
+    """Salary Slip (on update / on submit): switch on again the recurring Additional Salaries switched off while the
+    slip was worked out (validate_additional_salaries)."""
+    for name in doc.flags.get("a3_disabled_additional_salaries") or []:
+        frappe.db.set_value("Additional Salary", name, "disabled", 0, update_modified=False)
+    doc.flags.a3_disabled_additional_salaries = []
+
+
 def reactivate_add_sal(doc,method):
-    print("hhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkkkkkkkkkkkllllllllllllllllllllllllll")
-    global disabled_list
-    for dl in disabled_list:
-        print("lllllllllllllllllllllllllllllllllll",dl)
-        frappe.db.set_value("Additional Salary",dl,"disabled",0)
+    reenable_additional_salaries(doc)
+
 
 
 

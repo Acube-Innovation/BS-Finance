@@ -50,16 +50,8 @@ frappe.query_reports["ECR Upload Statement"] = {
         {
             fieldname: "employee_pension_scheme",
             label: "Scheme",
-            fieldtype: "Select",
-            options: [
-                "",
-                "EPS-9.49  ER-2.51",
-                "EPS-0  ER-12",
-                "EPS-1250  ER-550",
-                "EPS-0  ER-1800",
-                "EPS-1250  ER-12%-1250",
-                "EPS-8.33  ER-3.67"
-            ]
+            fieldtype: "Link",
+            options: "Employee Pension Scheme"
         }
     ],
 

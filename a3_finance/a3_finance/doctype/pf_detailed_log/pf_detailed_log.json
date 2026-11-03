@@ -147,13 +147,13 @@
    "fetch_from": "employee.custom_employee_pension_scheme",
    "fetch_if_empty": 1,
    "fieldname": "employee_pension_scheme",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "in_filter": 1,
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Employee Pension Scheme",
-   "options": "\nEPS-9.49  ER-2.51\nEPS-0  ER-12\nEPS-1250  ER-550\nEPS-0  ER-1800\nEPS-1250  ER-12%-1250\nEPS-8.33  ER-3.67"
+   "options": "Employee Pension Scheme"
   },
   {
    "fieldname": "da_percentage",
@@ -206,7 +206,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-06 15:24:18.566313",
+ "modified": "2026-11-03 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "A3 Finance",
  "name": "PF Detailed Log",
