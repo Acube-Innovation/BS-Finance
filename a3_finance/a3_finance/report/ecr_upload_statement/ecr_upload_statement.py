@@ -51,6 +51,10 @@ def get_data(filters):
         conditions.append("employee = %(employee)s")
         values["employee"] = filters["employee"]
 
+    if filters.get("employee_pension_scheme"):
+        conditions.append("employee_pension_scheme = %(employee_pension_scheme)s")
+        values["employee_pension_scheme"] = filters["employee_pension_scheme"]
+
     where_clause = " AND ".join(conditions)
     if where_clause:
         where_clause = "WHERE " + where_clause

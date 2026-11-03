@@ -5,6 +5,35 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils.data import flt
 from a3_finance.utils.math_utils import round_half_up
+from a3_finance.a3_finance.doctype.employee_pension_scheme.employee_pension_scheme import (
+    CEILING_EPS_ER,
+    CEILING_EPS_FULL_ER,
+    CEILING_ER_ONLY,
+    EPS_9_49,
+    EPS_HIGHER_WAGES,
+    ER_12,
+)
+
+# Statutory wage ceiling when the Payroll Master Setting has none
+DEFAULT_WAGE_CEILING = 15000
+
+
+def get_wage_ceiling(payroll_month, payroll_year):
+    """Statutory Wage Ceiling of the Payroll Master Setting of the payroll month (the latest one up to that
+    month, as the salary slip takes its settings); Rs. 15,000 when it is not set."""
+    try:
+        month, year = int(payroll_month), int(payroll_year)
+    except (TypeError, ValueError):
+        return DEFAULT_WAGE_CEILING
+    for setting in frappe.get_all(
+        "Payroll Master Setting",
+        filters={"payroll_year": ["in", [str(year), str(year - 1)]]},
+        fields=["payroll_year", "payroll_month_number", "edli_wages"],
+        order_by="payroll_year desc, payroll_month_number desc",
+    ):
+        if (int(setting.payroll_year), int(setting.payroll_month_number or 0)) <= (year, month):
+            return flt(setting.edli_wages) or DEFAULT_WAGE_CEILING
+    return DEFAULT_WAGE_CEILING
 
 
 class PFDetailedLog(Document):
@@ -101,7 +130,6 @@ class PFDetailedLog(Document):
             self.da = round_half_up((self.base + self.service_weightage) * (self.da_percentage or 0))
 
         self.da = flt(self.da)
-        self.edli_wages = 15000
 
         # Compute EPF wages
         self.epf_wages = round_half_up(
@@ -112,94 +140,74 @@ class PFDetailedLog(Document):
             + (self.lop_refund or 0)
             - (self.reimbursement_hra or 0)
         )
-        self.eps_wages = round_half_up(
-            self.base
-            + self.service_weightage
-            + self.da
-            - (self.lop_in_hours or 0)
-            + (self.lop_refund or 0)
-            - (self.reimbursement_hra or 0)
-        )
+        self.eps_wages = self.epf_wages
 
+        # Statutory wage ceiling of the month (Payroll Master Setting): EDLI wages are the EPF wages up to it,
+        # and the schemes on the ceiling contribute 8.33% (EPS) / 12% (PF) of it at most
+        # (Rs. 1,250 / Rs. 1,800 at Rs. 15,000)
+        ceiling = get_wage_ceiling(self.payroll_month, self.payroll_year)
+        eps_cap = round_half_up(ceiling * 8.33 / 100)
+        pf_cap = round_half_up(ceiling * 12 / 100)
+        er_cap = pf_cap - eps_cap
+        self.edli_wages = min(self.epf_wages, ceiling)
 
+        # The scheme works by its Calculation, so its name can be anything (Employee Pension Scheme)
         scheme = frappe.db.get_value("Employee", self.employee, "custom_employee_pension_scheme")
-        eps_addl = frappe.db.get_value("Employee", self.employee,"custom_eps_addl") or 0
-        if self.epf_wages >0:
-            if scheme == "EPS-9.49  ER-2.51":
-                
+        calculation = frappe.db.get_value("Employee Pension Scheme", scheme, "calculation") if scheme else None
+        eps_addl = frappe.db.get_value("Employee", self.employee, "custom_eps_addl") or 0
+        if self.epf_wages > 0:
+            if calculation == EPS_9_49:
                 self.eps = self.epf_wages * 9.49 / 100
                 self.er = round_half_up(self.epf_wages * 2.51 / 100)
 
-            elif scheme == "EPS-0  ER-12":
+            elif calculation == ER_12:
                 self.eps = 0
-                # self.epf_wages = 0
                 self.eps_wages = 0
-            #  12% of epf wages for ER
+                # 12% of epf wages for ER
                 self.er = round_half_up(self.epf_wages * 12 / 100)
 
-            elif scheme == "EPS-1250  ER-550":
-                if self.epf_wages <15000:
-                    self.eps = (1250/15000)*self.epf_wages
-                    self.er = round_half_up((550/15000)*self.epf_wages)
-
+            elif calculation == CEILING_EPS_ER:
+                if self.epf_wages < ceiling:
+                    self.eps = (eps_cap / ceiling) * self.epf_wages
+                    self.er = round_half_up((er_cap / ceiling) * self.epf_wages)
                 else:
-                    
-                    self.eps =1250
-                    self.er = 550
-                    self.epf_wages = 15000
-                    self.edli_wages = 15000
-                    self.eps_wages = 15000
-                
-                # self.epf_wages = self.edli_wages
-                # self.eps_wages = self.edli_wages
-                
+                    self.eps = eps_cap
+                    self.er = er_cap
+                    self.epf_wages = ceiling
+                    self.edli_wages = ceiling
+                    self.eps_wages = ceiling
 
-            elif scheme == "EPS-0  ER-1800":
-                # self.eps = 0
+            elif calculation == CEILING_ER_ONLY:
+                # PF on the wages up to the ceiling, all as ER
                 self.epf_wages = self.edli_wages
                 self.eps_wages = 0
-
-                if self.epf_wages <15000:
-                    self.eps = (0/15000)*self.epf_wages
-                    self.er = round_half_up((1800/15000)*self.epf_wages)
-
+                self.eps = 0
+                if self.epf_wages < ceiling:
+                    self.er = round_half_up((pf_cap / ceiling) * self.epf_wages)
                 else:
-                    
-                    self.eps = 0
-                    self.er = 1800
-                    self.epf_wages = 15000
-                    self.edli_wages = 15000
-                    
+                    self.er = pf_cap
+                    self.epf_wages = ceiling
+                    self.edli_wages = ceiling
 
-            elif scheme == "EPS-1250  ER-12%-1250":
-                epf_wages_12 = (self.epf_wages)*12/100
-
-                if self.epf_wages <15000:
-                    self.eps = (1250/15000)*self.epf_wages
-                    self.er = round_half_up(epf_wages_12 - (1250/15000)*self.epf_wages)
+            elif calculation == CEILING_EPS_FULL_ER:
+                epf_wages_12 = self.epf_wages * 12 / 100
+                if self.epf_wages < ceiling:
+                    self.eps = (eps_cap / ceiling) * self.epf_wages
+                    self.er = round_half_up(epf_wages_12 - (eps_cap / ceiling) * self.epf_wages)
                     self.eps_wages = self.epf_wages
                 else:
-                    self.eps = 1250
-                    self.er = round_half_up(epf_wages_12 - 1250)
-                    self.eps_wages = self.edli_wages
-                    
-                    # self.epf_wages = self.edli_wages
-            
-                    # self.er = (self.pf if self.pf else 0) - 1250
+                    self.eps = eps_cap
+                    self.er = round_half_up(epf_wages_12 - eps_cap)
+                    self.eps_wages = ceiling
 
-            # elif scheme == "EPS-8.33  ER-3.67" and eps_addl == 0:
-            #     self.eps = self.epf_wages * 8.33 / 100
-            #     self.er = self.epf_wages * 3.67 / 100
-            elif scheme == "EPS-8.33  ER-3.67" and eps_addl != 0:
-                
-                if self.epf_wages >15000:
-                    self.eps = round_half_up(self.epf_wages * 8.33 / 100) + round_half_up((self.epf_wages - 15000) * 1.16 / 100)
-                    self.er = round_half_up((self.epf_wages)*12/100 - self.eps)
+            elif calculation == EPS_HIGHER_WAGES and eps_addl != 0:
+                # EPS on the full wages: 8.33%, plus 1.16% on the wages above the ceiling
+                if self.epf_wages > ceiling:
+                    self.eps = round_half_up(self.epf_wages * 8.33 / 100) + round_half_up((self.epf_wages - ceiling) * 1.16 / 100)
+                    self.er = round_half_up((self.epf_wages) * 12 / 100 - self.eps)
                 else:
-                    self.eps = (self.epf_wages)*8.33/100
-                    self.er = round_half_up((self.epf_wages)*12/100 - self.eps)
-                # self.eps = round_half_up((self.epf_wages * 8.33 / 100) + (self.epf_wages - self.edli_wages)*eps_addl/100)
-                # self.er = round_half_up(self.pf - self.eps)
+                    self.eps = (self.epf_wages) * 8.33 / 100
+                    self.er = round_half_up((self.epf_wages) * 12 / 100 - self.eps)
         else:
             self.eps = 0
             self.er = 0
