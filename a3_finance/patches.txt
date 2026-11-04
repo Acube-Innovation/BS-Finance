@@ -7,3 +7,4 @@
 
 a3_finance.patches.v1_0.employee_number_mandatory_unique
 a3_finance.patches.v1_0.employee_pension_schemes
+a3_finance.patches.v1_0.delete_batl_assets
