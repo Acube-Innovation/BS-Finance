@@ -34,5 +34,14 @@
   "name": "Authorized By",
   "style": "",
   "workflow_state_name": "Authorized By"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-11-18 12:00:00.000000",
+  "name": "Returned for Correction",
+  "style": "Warning",
+  "workflow_state_name": "Returned for Correction"
  }
 ]
