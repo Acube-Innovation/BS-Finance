@@ -16,8 +16,8 @@ from a3_finance.a3_finance.doctype.employee_pension_scheme.employee_pension_sche
 
 # Statutory wage ceiling when the Payroll Master Setting has none
 DEFAULT_WAGE_CEILING = 15000
-# EPF wages of the schemes on the ceiling are capped at Rs. 15,000, and the additional 1.16% EPS on higher wages
-# is on the wages above Rs. 15,000: neither changes with the Statutory Wage Ceiling
+# The additional 1.16% EPS on higher wages is on the wages above Rs. 15,000; it does not change with the Statutory
+# Wage Ceiling. (The EPF wages of the schemes on the ceiling are capped at the ceiling itself.)
 PF_WAGE_LIMIT = 15000
 
 
@@ -147,7 +147,8 @@ class PFDetailedLog(Document):
 
         # Statutory wage ceiling of the month (Payroll Master Setting): EDLI wages are the EPF wages up to it,
         # and the schemes on the ceiling contribute 8.33% (EPS) / 12% (PF) of it at most
-        # (Rs. 1,250 / Rs. 1,800 at Rs. 15,000). EPF wages stay capped at PF_WAGE_LIMIT.
+        # (Rs. 1,250 / Rs. 1,800 at Rs. 15,000). Their EPF wages are capped at the ceiling too, so EPF wages
+        # agree with the PF worked out on them (Rs. 25,000 and Rs. 3,000 at a ceiling of Rs. 25,000).
         ceiling = get_wage_ceiling(self.payroll_month, self.payroll_year)
         eps_cap = round_half_up(ceiling * 8.33 / 100)
         pf_cap = round_half_up(ceiling * 12 / 100)
@@ -171,7 +172,7 @@ class PFDetailedLog(Document):
                 self.er = round_half_up(self.epf_wages * 12 / 100)
 
             elif calculation == CEILING_EPS_ER:
-                self.epf_wages = min(wages, PF_WAGE_LIMIT)
+                self.epf_wages = min(wages, ceiling)
                 self.eps_wages = self.edli_wages
                 if wages < ceiling:
                     self.eps = (eps_cap / ceiling) * wages
@@ -182,7 +183,7 @@ class PFDetailedLog(Document):
 
             elif calculation == CEILING_ER_ONLY:
                 # PF on the wages up to the ceiling, all as ER
-                self.epf_wages = min(wages, PF_WAGE_LIMIT)
+                self.epf_wages = min(wages, ceiling)
                 self.eps_wages = 0
                 self.eps = 0
                 if wages < ceiling:

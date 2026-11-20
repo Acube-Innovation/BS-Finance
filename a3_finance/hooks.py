@@ -27,6 +27,14 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/a3_finance/css/a3_finance.css"
 # app_include_js = "/assets/a3_finance/js/asset_category_tree.js"
+app_include_js = [
+	# "GRN Date" in Ageing Based On of Accounts Payable / Accounts Payable Summary (tracker point 3)
+	"/assets/a3_finance/js/accounts_payable_ageing.js",
+	# an amendment starts at the first workflow state (Purchase Invoice, Payment Entry, Journal Entry; point 11)
+	"/assets/a3_finance/js/workflow_amend.js",
+	# Trial Balance: group accounts in bold on screen and in print (point 27)
+	"/assets/a3_finance/js/trial_balance_bold_groups.js",
+]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/a3_finance/css/a3_finance.css"
@@ -77,6 +85,14 @@ fixtures = [
         "filters": [["name", "=", "Salary Structure Assignment-income_tax_slab-allow_on_submit"]]
     },
     {
+        # Stock Entry rates shown to 4 decimals, so quantity x rate = amount on screen (point 34)
+        "doctype": "Property Setter",
+        "filters": [["name", "in", [
+            "Stock Entry Detail-basic_rate-precision",
+            "Stock Entry Detail-valuation_rate-precision",
+        ]]]
+    },
+    {
         "doctype": "Workspace",
         "filters": [["name", "in", ["PAYROLL ENTRIES"]]]
     },
@@ -88,6 +104,7 @@ fixtures = [
                 "Prepared By",
                 "Verified By",
                 "Authorized By",
+                "Returned for Correction",
             ]]
         ]
     },
@@ -243,6 +260,10 @@ override_doctype_class = {
 # 	}
 # }
 doc_events = {
+    # an amendment starts at the first state of its workflow, not at the cancelled document's (Rejected ...)
+    "*": {
+        "before_validate": "a3_finance.overrides.workflow_amend.reset_amended_workflow_state",
+    },
     "Salary Slip": {
         "validate": [
             "a3_finance.overrides.salary_slip.pull_values_from_payroll_master",
@@ -335,6 +356,22 @@ doc_events = {
     "Asset Physical Verification": {
         "on_submit": "a3_finance.a3_finance.doctype.asset_physical_verification.asset_physical_verification.on_submit"
     },
+    # transfers: rounding differences to Stock Adjustment, not to a consumption ledger (points 33, 34);
+    # Material Issue / Receipt lines need a department Cost Center (point 26)
+    "Stock Entry": {
+        "validate": [
+            "a3_finance.overrides.stock_entry_transfer.set_transfer_difference_account",
+            "a3_finance.overrides.cost_center_mandatory.validate_cost_center",
+        ],
+    },
+    # income / expense lines need a Cost Center other than the company default "Main - BATL" (point 26)
+    "Purchase Invoice": {"validate": "a3_finance.overrides.cost_center_mandatory.validate_cost_center"},
+    "Sales Invoice": {"validate": "a3_finance.overrides.cost_center_mandatory.validate_cost_center"},
+    "Journal Entry": {"validate": "a3_finance.overrides.cost_center_mandatory.validate_cost_center"},
+    "Payment Entry": {"validate": "a3_finance.overrides.cost_center_mandatory.validate_cost_center"},
+    "Expense Claim": {"validate": "a3_finance.overrides.cost_center_mandatory.validate_cost_center"},
+    "Purchase Order": {"validate": "a3_finance.overrides.cost_center_mandatory.validate_cost_center"},
+    "Material Request": {"validate": "a3_finance.overrides.cost_center_mandatory.validate_cost_center"},
     "Supplier":{
         "before_insert":"a3_finance.a3_finance.doc_events.supplier.before_insert",
         "before_save":"a3_finance.overrides.supplier.update_search_key"
@@ -344,7 +381,9 @@ doc_events = {
 }
 
 override_whitelisted_methods = {
-    "frappe.desk.reportview.get": "a3_finance.overrides.supplier.get"
+    "frappe.desk.reportview.get": "a3_finance.overrides.supplier.get",
+    # report Export sent as a proper .xlsx / .csv download; ageing reports laid out for Excel (points 3, 4, 5)
+    "frappe.desk.query_report.export_query": "a3_finance.overrides.report_export.export_query",
 }
 
 
@@ -410,13 +449,20 @@ override_doctype_dashboards = {
 
 # Request Events
 # ----------------
+# links of a3_finance reports on ERPNext's workspaces (Cost Center Budget vs Actual on Accounting)
+after_migrate = ["a3_finance.workspace_links.add_links"]
+
 # before_request = ["a3_finance.utils.before_request"]
 # after_request = ["a3_finance.utils.after_request"]
+# "GRN Date" ageing of Accounts Payable / Accounts Payable Summary (wraps ERPNext's set_ageing once per process)
+before_request = ["a3_finance.overrides.accounts_payable_ageing.apply"]
 
 # Job Events
 # ----------
 # before_job = ["a3_finance.utils.before_job"]
 # after_job = ["a3_finance.utils.after_job"]
+# also for prepared reports and background exports
+before_job = ["a3_finance.overrides.accounts_payable_ageing.apply"]
 
 # User Data Protection
 # --------------------
