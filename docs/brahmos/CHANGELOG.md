@@ -171,3 +171,35 @@ roll back).
 - After deploying, re-save the November-2026 PF Detailed Logs (payroll_month "11", payroll_year "2026").
 - The Payroll Guide (3 / 11 November) still says EPF Wages stay at 15,000 at most for these schemes; to be
   corrected.
+
+## Payment Entry print formats – hard-coded text replaced by document data (25 November 2026)
+
+- Bank Receipt
+  - "Received with thanks from" is the party of the payment, with its address: the Customer Address on the
+    payment, else the party's primary address. It was fixed text for BrahMos Aerospace Pvt Ltd, Hyderabad.
+  - Remarks print the payment's Remarks field. They were a fixed sentence about BAPL, Hyderabad.
+- Cash Payment Voucher
+  - Account is the party (or, with no party, the account paid to). It was always "Labour Charges".
+  - "On Account of" prints the Remarks field. It was a fixed sentence about casual labourers.
+- Petty Cash Receipt Voucher
+  - The ledgers are taken from the Sales Invoice the receipt is allocated to: its income account, each tax with its
+    rate, and round off. Each is the receipt's share of the invoice. An advance or on-account amount is shown
+    against the party.
+  - Before, every receipt was split as total ÷ 1.19 into CGST 9%, SGST 9% and TCS 1%. That was wrong for
+    RT/2026-2027/11/002, whose invoice has CGST 6% and SGST 6% and no TCS.
+- Bank Payment Advice
+  - "Ref :" at the top is the Supplier Invoice No of the Purchase Invoice paid. When several invoices are paid,
+    their numbers are separated by commas. When none has a Supplier Invoice No, the payment number is shown, as
+    before. The invoice table ("Your Invoice", Date) is unchanged.
+  - The bank branch comes from the Bank Account's Branch Address. While that is empty, the old text is kept.
+  - The closing line is the company name.
+- Bank Receipt, Cash Payment Voucher and Petty Cash Receipt Voucher
+  - The company address at the top is the company's primary address.
+  - Before, the first address linked to the company was taken: "Jaya Springs-Billing", a supplier address
+    (Coimbatore) that is linked to the company by mistake.
+- NEFT (a3_procurement, `neft_print.py`): the date on the form is the day it is printed, not the posting date.
+- Files:
+  - `payment_entry_print.py` (Jinja methods `get_payment_party`, `get_receipt_breakup`)
+  - `hooks.py` (jinja)
+  - the four print formats, in both their module JSON and `fixtures/print_format.json`
+- To deploy: `bench --site <site> migrate`, then clear-cache and restart.
