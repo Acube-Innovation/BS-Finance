@@ -163,10 +163,13 @@ treeviews = ["Asset Category"]
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "a3_finance.utils.jinja_methods",
-# 	"filters": "a3_finance.utils.jinja_filters"
-# }
+jinja = {
+	"methods": [
+		# Payment Entry print formats
+		"a3_finance.payment_entry_print.get_payment_party",
+		"a3_finance.payment_entry_print.get_receipt_breakup",
+	],
+}
 
 # Installation
 # ------------
