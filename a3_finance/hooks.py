@@ -168,6 +168,7 @@ jinja = {
 		# Payment Entry print formats
 		"a3_finance.payment_entry_print.get_payment_party",
 		"a3_finance.payment_entry_print.get_receipt_breakup",
+		"a3_finance.payment_entry_print.get_payment_advice_lines",
 	],
 }
 

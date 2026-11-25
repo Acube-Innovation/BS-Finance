@@ -188,9 +188,16 @@ roll back).
   - Before, every receipt was split as total ÷ 1.19 into CGST 9%, SGST 9% and TCS 1%. That was wrong for
     RT/2026-2027/11/002, whose invoice has CGST 6% and SGST 6% and no TCS.
 - Bank Payment Advice
-  - "Ref :" at the top is the Supplier Invoice No of the Purchase Invoice paid. When several invoices are paid,
-    their numbers are separated by commas. When none has a Supplier Invoice No, the payment number is shown, as
-    before. The invoice table ("Your Invoice", Date) is unchanged.
+  - "Ref :" is the payment number, as before.
+  - The invoice table (a3_finance.payment_entry_print.get_payment_advice_lines):
+    - Your Invoice is the supplier's invoice number (Supplier Invoice No of the Purchase Invoice; the invoice
+      number when it has none), and Date the supplier's invoice date.
+    - Invoice/Bill Amount is the invoice's value before deductions; Deductions what was deducted on the invoice
+      (e.g. TDS) and Reasons its ledgers. Before, Deductions was always 0.00 and Reasons empty: the format read
+      fields the payment's invoice rows do not have.
+    - Deductions made in the payment itself (its Deductions table, e.g. LD) are listed as their own lines; the
+      Amount paid total is the amount of the cheque.
+    - Long tables: the column headings repeat on each page and a row is not split between pages.
   - The bank branch comes from the Bank Account's Branch Address. While that is empty, the old text is kept.
   - The closing line is the company name.
 - Bank Receipt, Cash Payment Voucher and Petty Cash Receipt Voucher
