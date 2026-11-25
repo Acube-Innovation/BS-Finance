@@ -1,10 +1,13 @@
-"""Data for the Payment Entry print formats of A3 Finance; both functions are Jinja methods (hooks.py).
+"""Data for the Payment Entry print formats of A3 Finance; the functions are Jinja methods (hooks.py).
 
-get_payment_party(doc)    "Received with thanks from": the party's name and address (Bank Receipt, Petty Cash Receipt)
-get_receipt_breakup(doc)  the ledgers of a receipt with their amounts (Petty Cash Receipt Voucher)
+get_payment_party(doc)          "Received with thanks from": the party's name and address (Bank Receipt, Petty
+                                Cash Receipt)
+get_receipt_breakup(doc)        the ledgers of a receipt with their amounts (Petty Cash Receipt Voucher)
+get_payment_advice_lines(doc)   the invoice table of the Bank Payment Advice
 """
 
 import frappe
+from frappe import _
 from frappe.contacts.doctype.address.address import get_default_address
 from frappe.utils import cstr, flt
 
@@ -101,3 +104,98 @@ def account_name(account):
 	if not account:
 		return ""
 	return cstr(frappe.get_cached_value("Account", account, "account_name") or account)
+
+
+def get_payment_advice_lines(doc):
+	"""The invoice table of the Bank Payment Advice: {lines, bill, deductions, paid}.
+
+	One line per document paid (a document allocated in several rows is one line, its amounts added up):
+	    invoice     for a Purchase Invoice, the supplier's invoice number (Supplier Invoice No), else the document
+	    date        the supplier's invoice date, else the document's date
+	    bill        the invoice's value before deductions: the amount due on it plus what was deducted on it
+	    deductions  what was deducted on the invoice (its Deduct tax rows, e.g. TDS); reasons: their ledgers
+	    paid        the amount allocated to it in this payment
+	then one line per deduction made in the payment itself (Deductions table, e.g. LD), and the amount paid on
+	account. Deductions on a payment (Pay) are entered as negative amounts and the cheque amount is allocated +
+	on account + deductions, so the Amount paid total is the amount of the cheque."""
+	lines, by_document = [], {}
+	for row in doc.get("references") or []:
+		key = (row.reference_doctype, row.reference_name)
+		if key in by_document:
+			by_document[key].paid += flt(row.allocated_amount)
+			continue
+		line = frappe._dict(
+			invoice=row.reference_name,
+			date=None,
+			bill=flt(row.total_amount),
+			deductions=0.0,
+			paid=flt(row.allocated_amount),
+			reasons="",
+			document=1,
+		)
+		if row.reference_doctype == "Purchase Invoice":
+			invoice = frappe.db.get_value(
+				"Purchase Invoice", row.reference_name, ["bill_no", "bill_date", "posting_date"], as_dict=True
+			)
+			if invoice:
+				line.invoice = row.get("bill_no") or invoice.bill_no or row.reference_name
+				line.date = invoice.bill_date or invoice.posting_date
+			deducted = frappe.get_all(
+				"Purchase Taxes and Charges",
+				filters={
+					"parenttype": "Purchase Invoice",
+					"parent": row.reference_name,
+					"add_deduct_tax": "Deduct",
+				},
+				fields=["account_head", "base_tax_amount_after_discount_amount as amount"],
+				order_by="idx",
+			)
+			line.deductions = sum(flt(d.amount) for d in deducted)
+			line.bill += line.deductions
+			line.reasons = ", ".join(
+				dict.fromkeys(account_name(d.account_head) for d in deducted if flt(d.amount))
+			)
+		else:
+			for field in ("posting_date", "transaction_date"):
+				if frappe.get_meta(row.reference_doctype).has_field(field):
+					line.date = frappe.db.get_value(row.reference_doctype, row.reference_name, field)
+					break
+		lines.append(line)
+		by_document[key] = line
+
+	pay = doc.get("payment_type") == "Pay"
+	for d in doc.get("deductions") or []:
+		amount = flt(d.amount)
+		if not amount:
+			continue
+		withheld = -amount if pay else amount
+		lines.append(
+			frappe._dict(
+				invoice=_("Deduction"),
+				date=None,
+				bill=0.0,
+				deductions=withheld,
+				paid=-withheld,
+				reasons=cstr(d.description).strip() or account_name(d.account),
+				document=0,
+			)
+		)
+
+	if flt(doc.get("unallocated_amount")) > 0:
+		lines.append(
+			frappe._dict(
+				invoice=_("On Account / Advance"),
+				date=None,
+				bill=0.0,
+				deductions=0.0,
+				paid=flt(doc.unallocated_amount),
+				reasons="",
+				document=0,
+			)
+		)
+	return frappe._dict(
+		lines=lines,
+		bill=sum(line.bill for line in lines),
+		deductions=sum(line.deductions for line in lines),
+		paid=sum(line.paid for line in lines),
+	)
