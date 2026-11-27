@@ -210,3 +210,18 @@ roll back).
   - `hooks.py` (jinja)
   - the four print formats, in both their module JSON and `fixtures/print_format.json`
 - To deploy: `bench --site <site> migrate`, then clear-cache and restart.
+
+## Salary Slip – one row per component (CEA arrear, 27 November 2026)
+
+- Raised on the November-2026 slip of 13397: Children Education Allowance showed twice, 800 (the month's, from the
+  salary structure) and 4,000 (the CEA arrear), each with its own YTD, and the pay slip's Amount column counted the
+  month's 800 twice.
+- Cause: the CEA arrear (`doc_events/cea_arrear.py`) is an Additional Salary that does not overwrite the structure
+  amount, and HRMS puts such an Additional Salary in a row of its own.
+- Fix: `overrides/salary_slip_rows.py` (`merge_same_component_rows`), the last Salary Slip validate and before_save
+  hook: the rows of a component are made one row (Amount, default / additional amounts and YTD added up) and the pay
+  slip's actual amounts set again. Gross and net pay do not change; the income tax is still worked out with the
+  arrear on its own (HRMS recalculates the rows before the merge).
+- Tested on a copy of 13397's November slip (rolled back): one row of 4,800, YTD 6,400; Amount-column total 73,490
+  instead of 74,290; gross 75,792 and net 68,447 unchanged; stable on save and submit.
+- Slips already made for the month: save the draft again (or cancel and amend a submitted one) to merge its rows.
