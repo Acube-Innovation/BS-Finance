@@ -297,6 +297,8 @@ doc_events = {
             "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
             "a3_finance.overrides.salary_slip.set_professional_tax",
             "a3_finance.overrides.salary_slip.warn_yearly_components",
+            # last: one row per component (an arrear Additional Salary is added to the month's row)
+            "a3_finance.overrides.salary_slip_rows.merge_same_component_rows",
         
             # "a3_finance.overrides.salary_slip.calculate_cea"
             
@@ -305,7 +307,9 @@ doc_events = {
         "before_save":["a3_finance.overrides.salary_slip.set_professional_tax",
                         # "a3_finance.overrides.salary_slip.apply_society_deduction_cap",
                         # "a3_finance.overrides.salary_slip.add_society_deduction",
-                       "a3_finance.overrides.salary_slip.fetch_relation"],
+                       "a3_finance.overrides.salary_slip.fetch_relation",
+                       # last (set_professional_tax above recalculates the slip): one row per component
+                       "a3_finance.overrides.salary_slip_rows.merge_same_component_rows"],
         # recurring Additional Salaries switched off while the slip was worked out are switched on again
         "on_update": ["a3_finance.overrides.salary_slip.reenable_additional_salaries"],
         "on_submit":[
